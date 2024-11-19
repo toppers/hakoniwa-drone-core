@@ -1,15 +1,17 @@
 import socket
 import sys
+import time
 from pymavlink import mavutil
 
 
 class MavlinkHandler:
-    def __init__(self, log_filename="mavlink-log.bin", udp_ip="0.0.0.0", udp_port=54001):
+    def __init__(self, log_filename="mavlink-log.bin", udp_ip="0.0.0.0", udp_port=54001, replay=False):
         self.log_filename = log_filename
         self.udp_ip = udp_ip
         self.udp_port = udp_port
         self.sock = None
         self.mavlink_connection = mavutil.mavlink.MAVLink(None)
+        self.replay = replay  # ログリプレイ時のタイムスタンプスリープ機能
 
     def vehicle_position_callback(self, msg_type, dict_data):
         if msg_type == "AHRS2":
@@ -30,9 +32,19 @@ class MavlinkHandler:
         print(f"Parsing log file: {self.log_filename}")
         try:
             with open(self.log_filename, "rb") as log_file:
+                prev_timestamp = None  # 前回のタイムスタンプを保存
                 while byte := log_file.read(1):  # 1バイトずつ読み取る
                     msg = self.mavlink_connection.parse_char(byte)
                     if msg:
+                        # タイムスタンプ処理
+                        if self.replay and hasattr(msg, 'time_usec'):
+                            current_timestamp = msg.time_usec / 1e6  # マイクロ秒から秒に変換
+                            if prev_timestamp is not None:
+                                sleep_time = current_timestamp - prev_timestamp
+                                if sleep_time > 0:
+                                    time.sleep(sleep_time)
+                            prev_timestamp = current_timestamp
+                        # メッセージ処理
                         self.vehicle_position_callback(msg.get_type(), msg.to_dict())
                         self.vehicle_servo_callback(msg.get_type(), msg.to_dict())
         except FileNotFoundError:
@@ -71,6 +83,8 @@ def print_usage():
 Usage:
     python script_name.py                Start in UDP logging mode and save data to mavlink-log.bin.
     python script_name.py <log_file>    Parse and display messages from an existing binary log file.
+    python script_name.py <log_file> --replay
+                                        Replay log file with timing based on message timestamps.
 Options:
     --help                              Display this help message.
 """
@@ -85,7 +99,8 @@ def main():
         else:
             # ログファイル解析モード
             log_filename = sys.argv[1]
-            handler = MavlinkHandler(log_filename=log_filename)
+            replay_mode = "--replay" in sys.argv
+            handler = MavlinkHandler(log_filename=log_filename, replay=replay_mode)
             handler.parse_log_file()
     else:
         # UDPロギングモード
