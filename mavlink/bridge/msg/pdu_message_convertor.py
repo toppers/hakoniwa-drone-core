@@ -1,5 +1,5 @@
 import json
-from msg.message import MavlinkMessage
+from mavlink.bridge.msg.mavlink_message import MavlinkMessage
 from msg.pdu_message import PduMessage
 
 class PduMessageConvertor:
