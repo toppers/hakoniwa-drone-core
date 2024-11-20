@@ -1,5 +1,5 @@
 import json
-from mavlink.bridge.msg.mavlink_message import MavlinkMessage
+from msg.mavlink_message import MavlinkMessage
 from msg.pdu_message import PduMessage
 
 class PduMessageConvertor:
@@ -39,7 +39,7 @@ class PduMessageConvertor:
         for robot in self.custom_config["robots"]:
             if robot["name"] == robot_name:
                 for reader in robot["shm_pdu_readers"]:
-                    if reader["type"] == msg_type:
+                    if reader["type"] == "hako_mavlink_msgs/Hako" + msg_type:
                         return reader["channel_id"]
         return None
 

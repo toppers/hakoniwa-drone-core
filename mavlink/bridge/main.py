@@ -4,6 +4,7 @@ import time
 from msg.message_queue import MessageQueue
 from log.log_replay import LogReplay
 from comm.udp_receiver import UdpReceiver
+from msg.pdu_message_convertor import PduMessageConvertor  # コンバート用クラス
 from pymavlink import mavutil
 
 def start_log_replay(log_filename, mavlink_connection, message_queue):
@@ -35,6 +36,12 @@ def parse_arguments():
     コマンドライン引数を解析
     """
     parser = argparse.ArgumentParser(description="Run MAVLink processing in either log replay or UDP reception mode.")
+
+    # 共通引数
+    parser.add_argument("--custom-config", required=True, help="Path to the custom.json configuration file.")
+    parser.add_argument("--comm-config", required=True, help="Path to the comm_config.json configuration file.")
+
+    # サブコマンド
     subparsers = parser.add_subparsers(dest="mode", required=True)
 
     # Log replay mode
@@ -51,9 +58,12 @@ def main():
     # 引数の解析
     args = parse_arguments()
 
+    # PduMessageConvertorの作成
+    convertor = PduMessageConvertor(args.custom_config, args.comm_config)
+
     # 共通設定
     message_queue = MessageQueue(max_size=100)
-    message_queue.set_listened_types(["GLOBAL_POSITION_INT", "AHRS2", "ATTITUDE"])  # リッスン対象を設定
+    message_queue.set_listened_types(["AHRS2", "SERVO_OUTPUT_RAW"])  # リッスン対象を設定
     mavlink_connection = mavutil.mavlink.MAVLink(None)
 
     # スレッドの管理
@@ -81,8 +91,13 @@ def main():
     try:
         while True:
             if not message_queue.is_empty():
-                message = message_queue.dequeue()
-                print(f"Processed message: {message}")
+                mavlink_message = message_queue.dequeue()
+                try:
+                    # メッセージをPduMessageに変換
+                    pdu_message = convertor.convert(mavlink_message)
+                    print(f"Converted message: {pdu_message}")
+                except ValueError as e:
+                    print(f"Conversion error: {e}")
             else:
                 time.sleep(1)
     except KeyboardInterrupt:

@@ -1,7 +1,7 @@
 import time
 from pymavlink import mavutil
 from msg.message_queue import MessageQueue  # 先ほど作成したMessageQueueをインポート
-from mavlink.bridge.msg.mavlink_message import MavlinkMessage  # MavlinkMessageをインポート
+from msg.mavlink_message import MavlinkMessage  # MavlinkMessageをインポート
 
 class LogReplay:
     def __init__(self, log_filename, mavlink_connection, message_queue, replay=True):

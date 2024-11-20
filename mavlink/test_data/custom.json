@@ -1,0 +1,30 @@
+{
+    "robots": [
+    {
+      "name": "Vehicle1",
+      "rpc_pdu_readers": [],
+      "rpc_pdu_writers": [],
+      "shm_pdu_readers": [
+        {
+        "type": "hako_mavlink_msgs/HakoSERVO_OUTPUT_RAW",
+        "org_name": "motor",
+        "name": "Vehicle1_motor",
+        "channel_id": 0,
+        "pdu_size": 48,
+        "write_cycle": 1,
+        "method_type": "SHM"
+        },
+        {
+        "type": "hako_mavlink_msgs/HakoAHRS2",
+        "org_name": "pos",
+        "name": "Vehicle1_pos",
+        "channel_id": 1,
+        "pdu_size": 48,
+        "write_cycle": 1,
+        "method_type": "SHM"
+        }
+       ],
+       "shm_pdu_writers": []
+      }
+    ]
+}

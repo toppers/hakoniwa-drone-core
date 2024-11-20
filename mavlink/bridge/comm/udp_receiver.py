@@ -1,6 +1,6 @@
 import socket
 from msg.message_queue import MessageQueue
-from mavlink.bridge.msg.mavlink_message import MavlinkMessage
+from msg.mavlink_message import MavlinkMessage
 from pymavlink import mavutil
 
 
