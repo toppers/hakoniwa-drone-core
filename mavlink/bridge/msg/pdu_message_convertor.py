@@ -29,7 +29,7 @@ class PduMessageConvertor:
                 return robot_name
         return None
 
-    def get_channel_id(self, robot_name, msg_type):
+    def get_pdu_info(self, robot_name, msg_type):
         """
         ロボット名とデータ型からチャネルIDを取得
         :param robot_name: ロボット名
@@ -40,7 +40,7 @@ class PduMessageConvertor:
             if robot["name"] == robot_name:
                 for reader in robot["shm_pdu_readers"]:
                     if reader["type"] == "hako_mavlink_msgs/Hako" + msg_type:
-                        return reader["channel_id"]
+                        return reader["channel_id"], reader["pdu_size"]
         return None
 
     def convert(self, mavlink_message):
@@ -54,13 +54,14 @@ class PduMessageConvertor:
         if robot_name is None:
             raise ValueError(f"Cannot identify robot for IP {mavlink_message.ip_addr} and port {mavlink_message.port}")
 
-        # チャネルIDを取得
-        channel_id = self.get_channel_id(robot_name, mavlink_message.msg_type)
+        # チャネルID と PDUサイズを取得
+        channel_id, pdu_size= self.get_pdu_info(robot_name, mavlink_message.msg_type)
         if channel_id is None:
             raise ValueError(f"Cannot find channel ID for robot {robot_name} and message type {mavlink_message.msg_type}")
 
         return PduMessage(
             robot_name=robot_name,
             channel_id=channel_id,
+            size=pdu_size,
             data=mavlink_message.msg_data
         )
