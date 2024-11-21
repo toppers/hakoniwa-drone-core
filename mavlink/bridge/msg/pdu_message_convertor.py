@@ -40,7 +40,7 @@ class PduMessageConvertor:
         :param msg_type: MAVLinkメッセージのデータ型
         :return: チャネルID
         """
-        print(f"robot_name: {robot_name}, msg_type: {msg_type}")
+        #print(f"robot_name: {robot_name}, msg_type: {msg_type}")
         for robot in self.pdu_config["robots"]:
             if robot["name"] == robot_name:
                 for reader in robot["shm_pdu_readers"]:

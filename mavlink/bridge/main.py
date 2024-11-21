@@ -6,12 +6,13 @@ from msg.message_queue import MessageQueue
 from log.log_replay import LogReplay
 from comm.udp_receiver import UdpReceiver
 from msg.pdu_message_convertor import PduMessageConvertor
-#from hako.pdu_writer import PduWriter
+from hako_bridge.pdu_writer import HakoBridgePduWriter
 from pymavlink import mavutil
 
 from registry.conv import setup_converters
 from registry.listen import setup_listen_msgs
 
+import hakopy
 
 def start_log_replay(log_filename, mavlink_connection, message_queue):
     """
@@ -61,9 +62,71 @@ def parse_arguments():
 
     return parser.parse_args()
 
+
+def my_on_initialize(context):
+    return 0
+
+def my_on_reset(context):
+    return 0
+
+global threads
+global pdu_config
+global message_queue
+global convertor
+global conv_registry
+global delta_time_usec
+def my_on_manual_timing_control(context):
+    #PduWriter
+    pdu_writer = HakoBridgePduWriter(pdu_config)
+    # メインスレッドでキューを処理
+    try:
+        result = True
+        while result == True:
+            if not message_queue.is_empty():
+                mavlink_message = message_queue.dequeue()
+                #print(f"Received message: {mavlink_message}")
+                try:
+                    # メッセージをPduMessageに変換
+                    pdu_message = convertor.create_pdu(mavlink_message)
+                    if conv_registry.get_converter(pdu_message.msg_type) is not None:
+                        pdu_message = conv_registry.get_converter(pdu_message.msg_type).convert(pdu_message)
+                    pdu_message = convertor.compile_pdu(pdu_message)
+                    if pdu_message.msg_type == "geometry_msgs/Twist":
+                        print(f"{pdu_message}")
+                    # PDUに書き込み
+                    pdu_writer.write_pdu_message(pdu_message)
+                except ValueError as e:
+                    print(f"Conversion error: {e}")
+
+            result = hakopy.usleep(delta_time_usec) 
+    except KeyboardInterrupt:
+        print("Terminating program...")
+        for thread in threads:
+            thread.join()
+    return 0
+
+
+my_callback = {
+    'on_initialize': my_on_initialize,
+    'on_simulation_step': None,
+    'on_manual_timing_control': my_on_manual_timing_control,
+    'on_reset': my_on_reset
+}
+
 def main():
+    global pdu_config
+    global message_queue
+    global convertor
+    global conv_registry
+    global delta_time_usec
+
+    delta_time_usec = 20 * 1000
+    asset_name = 'HakoBridge'
+
+
     # 引数の解析
     args = parse_arguments()
+    pdu_config = args.pdu_config
 
     conv_registry = setup_converters()
     list_registry = setup_listen_msgs()
@@ -97,29 +160,18 @@ def main():
     for thread in threads:
         thread.start()
 
-    # メインスレッドでキューを処理
-    try:
-        while True:
-            if not message_queue.is_empty():
-                mavlink_message = message_queue.dequeue()
-                #print(f"Received message: {mavlink_message}")
-                try:
-                    # メッセージをPduMessageに変換
-                    pdu_message = convertor.create_pdu(mavlink_message)
-                    if conv_registry.get_converter(pdu_message.msg_type) is not None:
-                        pdu_message = conv_registry.get_converter(pdu_message.msg_type).convert(pdu_message)
-                    pdu_message = convertor.compile_pdu(pdu_message)
-                    print(f"Converted message: {pdu_message}")
-                    # PDUに書き込み
-                    # pdu_writer.write_pdu_message(pdu_message)
-                except ValueError as e:
-                    print(f"Conversion error: {e}")
-            else:
-                time.sleep(0.01)
-    except KeyboardInterrupt:
-        print("Terminating program...")
-        for thread in threads:
-            thread.join()
+
+    #hakopy.conductor_start(delta_time_usec, delta_time_usec)
+
+    ret = hakopy.asset_register(asset_name, pdu_config, my_callback, delta_time_usec, hakopy.HAKO_ASSET_MODEL_CONTROLLER)
+    if ret == False:
+        print(f"ERROR: hako_asset_register() returns {ret}.")
+        return 1
+
+    ret = hakopy.start()
+    print(f"INFO: hako_asset_start() returns {ret}")
+
+    #hakopy.conductor_stop()
 
 if __name__ == "__main__":
     main()
