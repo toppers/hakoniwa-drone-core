@@ -8,6 +8,7 @@ from msg.pdu_message_convertor import PduMessageConvertor  # コンバート用�
 from pymavlink import mavutil
 
 from msg.conv.AHRS2_to_Twist import AHRS2ToTwistConvertor
+from msg.conv.SERVO_OUTPUT_RAW_to_HakoHilActuatorControls import SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor
 
 def start_log_replay(log_filename, mavlink_connection, message_queue):
     """
@@ -89,7 +90,9 @@ def main():
     for thread in threads:
         thread.start()
 
-    ahrs2conv=AHRS2ToTwistConvertor(ref_lat=-353632621, ref_lng=1491652374, ref_alt=584.0899658203125)
+    ahrs2conv = AHRS2ToTwistConvertor(ref_lat=-353632621, ref_lng=1491652374, ref_alt=584.0899658203125)
+    servo_conv = SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor()
+
     # メインスレッドでキューを処理
     try:
         while True:
@@ -100,6 +103,8 @@ def main():
                     pdu_message = convertor.convert(mavlink_message)
                     if mavlink_message.msg_type == "AHRS2":
                         print(f"Converted message: {ahrs2conv.convert(pdu_message)}")
+                    elif mavlink_message.msg_type == "SERVO_OUTPUT_RAW":
+                        print(f"Converted message: {servo_conv.convert(pdu_message)}")
                     #print(f"Converted message: {pdu_message}")
                 except ValueError as e:
                     print(f"Conversion error: {e}")

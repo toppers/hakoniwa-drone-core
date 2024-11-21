@@ -7,6 +7,12 @@ class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor:
         """
         pass  # 必要なら初期化処理を追加
 
+    def get_duty(self, pwm: float):
+        if pwm < 1000.0:
+            return 0
+        else:
+            return (pwm - 1000.0) / 1000.0
+
     def convert(self, pdu_message: PduMessage) -> PduMessage:
         """
         HakoSERVO_OUTPUT_RAWをHakoHilActuatorControlsに変換
@@ -27,7 +33,7 @@ class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor:
             raise ValueError("Missing required HakoSERVO_OUTPUT_RAW fields")
 
         # HakoHilActuatorControlsへの変換
-        controls = [value / 1000.0 if value is not None else 0.0 for value in servo_values]
+        controls = [ self.get_duty(value) if value is not None else 0.0 for value in servo_values]
         controls.extend([0.0] * (16 - len(controls)))  # 配列を16要素に拡張
 
         hako_hil_data = {
@@ -41,5 +47,6 @@ class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor:
         return PduMessage(
             robot_name=pdu_message.robot_name,
             channel_id=pdu_message.channel_id,
+            size = 112,
             data=hako_hil_data,
         )
