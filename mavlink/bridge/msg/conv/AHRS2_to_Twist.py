@@ -87,7 +87,6 @@ class AHRS2ToTwistConvertor:
         # 新しいPduMessageとしてTwistを返す
         return PduMessage(
             robot_name=pdu_message.robot_name,
-            channel_id=pdu_message.channel_id,  # チャネルIDは同じにする
-            size=72,
+            msg_type="geometry_msgs/Twist",
             data=twist_data,
         )

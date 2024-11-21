@@ -9,8 +9,17 @@ class MavlinkMessage:
         """
         self.ip_addr = ip_addr
         self.port = port
-        self.msg_type = msg_type
+        self.msg_type = MavlinkMessage.get_pdu_msg_type(msg_type)
         self.msg_data = msg_data
+
+    @staticmethod
+    def get_pdu_msg_type(msg_type):
+        """
+        メッセージからメッセージタイプを取得
+        :param msg_type: pymavlinkのメッセージオブジェクト
+        :return: メッセージタイプ
+        """
+        return "hako_mavlink_msgs/Hako" + msg_type
 
     def to_dict(self):
         """

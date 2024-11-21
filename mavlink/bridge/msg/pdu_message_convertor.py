@@ -40,14 +40,15 @@ class PduMessageConvertor:
         :param msg_type: MAVLinkメッセージのデータ型
         :return: チャネルID
         """
-        for robot in self.mavlink_config["robots"]:
+        print(f"robot_name: {robot_name}, msg_type: {msg_type}")
+        for robot in self.pdu_config["robots"]:
             if robot["name"] == robot_name:
                 for reader in robot["shm_pdu_readers"]:
-                    if reader["type"] == "hako_mavlink_msgs/Hako" + msg_type:
+                    if reader["type"] ==  msg_type:
                         return reader["channel_id"], reader["pdu_size"]
         return None
 
-    def mavlink_convert(self, mavlink_message):
+    def create_pdu(self, mavlink_message):
         """
         MavlinkMessageをPduMessageに変換
         :param mavlink_message: MavlinkMessageオブジェクト
@@ -59,13 +60,27 @@ class PduMessageConvertor:
             raise ValueError(f"Cannot identify robot for IP {mavlink_message.ip_addr} and port {mavlink_message.port}")
 
         # チャネルID と PDUサイズを取得
-        channel_id, pdu_size= self.get_pdu_info(robot_name, mavlink_message.msg_type)
-        if channel_id is None:
-            raise ValueError(f"Cannot find channel ID for robot {robot_name} and message type {mavlink_message.msg_type}")
+        #channel_id, pdu_size= self.get_pdu_info(robot_name, mavlink_message.msg_type)
+        #if channel_id is None:
+        #    raise ValueError(f"Cannot find channel ID for robot {robot_name} and message type {mavlink_message.msg_type}")
 
         return PduMessage(
             robot_name=robot_name,
-            channel_id=channel_id,
-            size=pdu_size,
+            msg_type = mavlink_message.msg_type,
             data=mavlink_message.msg_data
         )
+    def compile_pdu(self, pdu_message):
+        """
+        PduMessageをPDUに変換
+        :param pdu_message: PduMessageオブジェクト
+        :return: PDUデータ
+        """
+
+        # チャネルID と PDUサイズを取得
+        channel_id, pdu_size= self.get_pdu_info(pdu_message.robot_name, pdu_message.msg_type)
+        if channel_id is None:
+            raise ValueError(f"Cannot find channel ID for robot {pdu_message.robot_name} and message type {pdu_message.msg_type}")
+
+        pdu_message.channel_id = channel_id
+        pdu_message.pdu_size = pdu_size
+        return pdu_message

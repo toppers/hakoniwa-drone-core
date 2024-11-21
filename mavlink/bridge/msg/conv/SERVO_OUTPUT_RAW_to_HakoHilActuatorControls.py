@@ -46,7 +46,6 @@ class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor:
         # 新しいPduMessageとしてHakoHilActuatorControlsを返す
         return PduMessage(
             robot_name=pdu_message.robot_name,
-            channel_id=pdu_message.channel_id,
-            size = 112,
+            msg_type="hako_mavlink_msgs/HakoHilActuatorControls",
             data=hako_hil_data,
         )

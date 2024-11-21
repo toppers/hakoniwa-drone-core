@@ -1,6 +1,7 @@
 import argparse
 import threading
 import time
+from msg.mavlink_message import MavlinkMessage
 from msg.message_queue import MessageQueue
 from log.log_replay import LogReplay
 from comm.udp_receiver import UdpReceiver
@@ -68,7 +69,10 @@ def main():
 
     # 共通設定
     message_queue = MessageQueue(max_size=100)
-    message_queue.set_listened_types(["AHRS2", "SERVO_OUTPUT_RAW"])  # リッスン対象を設定
+    message_queue.set_listened_types([
+        MavlinkMessage.get_pdu_msg_type("AHRS2"), 
+        MavlinkMessage.get_pdu_msg_type("SERVO_OUTPUT_RAW")]
+        )  # リッスン対象を設定
     mavlink_connection = mavutil.mavlink.MAVLink(None)
 
     # スレッドの管理
@@ -100,22 +104,24 @@ def main():
         while True:
             if not message_queue.is_empty():
                 mavlink_message = message_queue.dequeue()
+                #print(f"Received message: {mavlink_message}")
                 try:
                     # メッセージをPduMessageに変換
-                    pdu_message = convertor.mavlink_convert(mavlink_message)
-                    if mavlink_message.msg_type == "AHRS2":
+                    pdu_message = convertor.create_pdu(mavlink_message)
+                    if pdu_message.msg_type == MavlinkMessage.get_pdu_msg_type("AHRS2"):
                         pdu_message = ahrs2conv.convert(pdu_message)
-                        print(f"Converted message: {pdu_message}")
-                    elif mavlink_message.msg_type == "SERVO_OUTPUT_RAW":
+                        #print(f"Converted message: {pdu_message}")
+                    elif pdu_message.msg_type == MavlinkMessage.get_pdu_msg_type("SERVO_OUTPUT_RAW"):
                         pdu_message = servo_conv.convert(pdu_message)
-                        print(f"Converted message: {pdu_message}")
-                    #print(f"Converted message: {pdu_message}")
+                        #print(f"Converted message: {pdu_message}")
+                    pdu_message = convertor.compile_pdu(pdu_message)
+                    print(f"Converted message: {pdu_message}")
                     # PDUに書き込み
                     # pdu_writer.write_pdu_message(pdu_message)
                 except ValueError as e:
                     print(f"Conversion error: {e}")
             else:
-                time.sleep(1)
+                time.sleep(0.01)
     except KeyboardInterrupt:
         print("Terminating program...")
         for thread in threads:

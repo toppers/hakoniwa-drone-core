@@ -1,5 +1,5 @@
 class PduMessage:
-    def __init__(self, robot_name, channel_id, size, data):
+    def __init__(self, robot_name, msg_type, data, channel_id = None, size = None):
         """
         PduMessageクラス
         :param robot_name: ロボット名
@@ -8,6 +8,7 @@ class PduMessage:
         :param data: メッセージデータ（辞書形式）
         """
         self.robot_name = robot_name
+        self.msg_type = msg_type
         self.channel_id = channel_id
         self.pdu_size = size
         self.data = data
