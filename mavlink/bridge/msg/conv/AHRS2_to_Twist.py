@@ -1,0 +1,81 @@
+import math
+from msg.pdu_message import PduMessage
+
+class AHRS2ToTwistConverter:
+    def __init__(self, ref_lat, ref_lng, ref_alt):
+        """
+        AHRS2からTwistへのコンバータ
+        :param ref_lat: 基準緯度 (度)
+        :param ref_lng: 基準経度 (度)
+        :param ref_alt: 基準高度 (メートル)
+        """
+        self.ref_lat = ref_lat
+        self.ref_lng = ref_lng
+        self.ref_alt = ref_alt
+
+    def _calculate_relative_position(self, lat, lng, altitude):
+        """
+        緯度経度高度を基準点からの相対位置に変換
+        :param lat: 緯度 (度 * 1E7)
+        :param lng: 経度 (度 * 1E7)
+        :param altitude: 高度 (メートル)
+        :return: x, y, z (メートル単位での相対位置)
+        """
+        # 緯度経度のスケール変換
+        lat = lat / 1e7
+        lng = lng / 1e7
+
+        # 地球の半径（平均半径）: メートル
+        earth_radius = 6378137.0
+
+        # 緯度と経度の距離変換 (メートル)
+        delta_lat = math.radians(lat - self.ref_lat)
+        delta_lng = math.radians(lng - self.ref_lng)
+        mean_lat = math.radians((lat + self.ref_lat) / 2.0)
+
+        # メートル単位での相対位置
+        x = earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
+        y = earth_radius * delta_lat                      # 緯度方向
+        z = altitude - self.ref_alt                       # 高度方向
+
+        return x, y, z
+
+    def convert(self, pdu_message: PduMessage) -> PduMessage:
+        """
+        AHRS2をTwistに変換
+        :param pdu_message: AHRS2データを含むPduMessage
+        :return: Twistデータを含むPduMessage
+        """
+        if pdu_message.data is None:
+            raise ValueError("PduMessage data is empty")
+
+        # AHRS2データの取得
+        roll = pdu_message.data.get("roll")
+        pitch = pdu_message.data.get("pitch")
+        yaw = pdu_message.data.get("yaw")
+        altitude = pdu_message.data.get("altitude")
+        lat = pdu_message.data.get("lat")
+        lng = pdu_message.data.get("lng")
+        if None in (roll, pitch, yaw, altitude, lat, lng):
+            raise ValueError("Missing required AHRS2 fields")
+
+        # 相対位置を計算
+        x, y, z = self._calculate_relative_position(lat, lng, altitude)
+
+        # MAVLink座標系からROS座標系への変換
+        ros_roll = roll
+        ros_pitch = -pitch  # ROSではピッチの符号が反転
+        ros_yaw = -yaw      # ROSではヨーの符号が反転
+
+        # 変換したTwistデータを構築
+        twist_data = {
+            "linear": {"x": x, "y": y, "z": z},  # 相対位置をlinearに設定
+            "angular": {"x": ros_roll, "y": ros_pitch, "z": ros_yaw},
+        }
+
+        # 新しいPduMessageとしてTwistを返す
+        return PduMessage(
+            robot_name=pdu_message.robot_name,
+            channel_id=pdu_message.channel_id,  # チャネルIDは同じにする
+            data=twist_data,
+        )
