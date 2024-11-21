@@ -4,7 +4,8 @@ import time
 from msg.message_queue import MessageQueue
 from log.log_replay import LogReplay
 from comm.udp_receiver import UdpReceiver
-from msg.pdu_message_convertor import PduMessageConvertor  # コンバート用クラス
+from msg.pdu_message_convertor import PduMessageConvertor
+#from hako.pdu_writer import PduWriter
 from pymavlink import mavutil
 
 from msg.conv.AHRS2_to_Twist import AHRS2ToTwistConvertor
@@ -41,7 +42,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Run MAVLink processing in either log replay or UDP reception mode.")
 
     # 共通引数
-    parser.add_argument("--custom-config", required=True, help="Path to the custom.json configuration file.")
+    parser.add_argument("--mavlink-config", required=True, help="Path to the mavlink-custom.json configuration file.")
+    parser.add_argument("--pdu-config", required=True, help="Path to the pdu-custom.json configuration file.")
     parser.add_argument("--comm-config", required=True, help="Path to the comm_config.json configuration file.")
 
     # サブコマンド
@@ -62,7 +64,7 @@ def main():
     args = parse_arguments()
 
     # PduMessageConvertorの作成
-    convertor = PduMessageConvertor(args.custom_config, args.comm_config)
+    convertor = PduMessageConvertor(args.mavlink_config, args.pdu_config, args.comm_config)
 
     # 共通設定
     message_queue = MessageQueue(max_size=100)
@@ -100,12 +102,16 @@ def main():
                 mavlink_message = message_queue.dequeue()
                 try:
                     # メッセージをPduMessageに変換
-                    pdu_message = convertor.convert(mavlink_message)
+                    pdu_message = convertor.mavlink_convert(mavlink_message)
                     if mavlink_message.msg_type == "AHRS2":
-                        print(f"Converted message: {ahrs2conv.convert(pdu_message)}")
+                        pdu_message = ahrs2conv.convert(pdu_message)
+                        print(f"Converted message: {pdu_message}")
                     elif mavlink_message.msg_type == "SERVO_OUTPUT_RAW":
-                        print(f"Converted message: {servo_conv.convert(pdu_message)}")
+                        pdu_message = servo_conv.convert(pdu_message)
+                        print(f"Converted message: {pdu_message}")
                     #print(f"Converted message: {pdu_message}")
+                    # PDUに書き込み
+                    # pdu_writer.write_pdu_message(pdu_message)
                 except ValueError as e:
                     print(f"Conversion error: {e}")
             else:

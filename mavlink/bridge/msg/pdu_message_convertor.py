@@ -3,15 +3,19 @@ from msg.mavlink_message import MavlinkMessage
 from msg.pdu_message import PduMessage
 
 class PduMessageConvertor:
-    def __init__(self, custom_config_path, comm_config_path):
+    def __init__(self, mavlink_config_path, pdu_config_path, comm_config_path):
         """
         PduMessageConvertorクラス
-        :param custom_config_path: custom.json ファイルのパス
+        :param mavlink_config_path: mavlink custom.json ファイルのパス
+        :param pdu_config_path: pdu custom.json ファイルのパス
         :param comm_config_path: comm_config.json ファイルのパス
         """
         # custom.json の読み込み
-        with open(custom_config_path, "r") as custom_file:
-            self.custom_config = json.load(custom_file)
+        with open(mavlink_config_path, "r") as custom_file:
+            self.mavlink_config = json.load(custom_file)
+
+        with open(pdu_config_path, "r") as custom_file:
+            self.pdu_config = json.load(custom_file)
 
         # comm_config.json の読み込み
         with open(comm_config_path, "r") as comm_file:
@@ -36,14 +40,14 @@ class PduMessageConvertor:
         :param msg_type: MAVLinkメッセージのデータ型
         :return: チャネルID
         """
-        for robot in self.custom_config["robots"]:
+        for robot in self.mavlink_config["robots"]:
             if robot["name"] == robot_name:
                 for reader in robot["shm_pdu_readers"]:
                     if reader["type"] == "hako_mavlink_msgs/Hako" + msg_type:
                         return reader["channel_id"], reader["pdu_size"]
         return None
 
-    def convert(self, mavlink_message):
+    def mavlink_convert(self, mavlink_message):
         """
         MavlinkMessageをPduMessageに変換
         :param mavlink_message: MavlinkMessageオブジェクト
