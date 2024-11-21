@@ -7,6 +7,8 @@ from comm.udp_receiver import UdpReceiver
 from msg.pdu_message_convertor import PduMessageConvertor  # コンバート用クラス
 from pymavlink import mavutil
 
+from msg.conv.AHRS2_to_Twist import AHRS2ToTwistConvertor
+
 def start_log_replay(log_filename, mavlink_connection, message_queue):
     """
     LogReplayのスレッドでの実行
@@ -87,6 +89,7 @@ def main():
     for thread in threads:
         thread.start()
 
+    ahrs2conv=AHRS2ToTwistConvertor(ref_lat=-353632621, ref_lng=1491652374, ref_alt=584.0899658203125)
     # メインスレッドでキューを処理
     try:
         while True:
@@ -95,7 +98,9 @@ def main():
                 try:
                     # メッセージをPduMessageに変換
                     pdu_message = convertor.convert(mavlink_message)
-                    print(f"Converted message: {pdu_message}")
+                    if mavlink_message.msg_type == "AHRS2":
+                        print(f"Converted message: {ahrs2conv.convert(pdu_message)}")
+                    #print(f"Converted message: {pdu_message}")
                 except ValueError as e:
                     print(f"Conversion error: {e}")
             else:

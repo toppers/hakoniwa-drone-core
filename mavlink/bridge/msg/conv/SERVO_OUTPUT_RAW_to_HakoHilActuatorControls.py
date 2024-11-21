@@ -1,6 +1,6 @@
 from msg.pdu_message import PduMessage
 
-class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConverter:
+class SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor:
     def __init__(self):
         """
         SERVO_OUTPUT_RAWからHakoHilActuatorControlsへのコンバータ

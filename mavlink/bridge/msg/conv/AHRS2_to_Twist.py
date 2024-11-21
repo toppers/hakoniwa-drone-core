@@ -1,8 +1,8 @@
 import math
 from msg.pdu_message import PduMessage
 
-class AHRS2ToTwistConverter:
-    def __init__(self, ref_lat, ref_lng, ref_alt):
+class AHRS2ToTwistConvertor:
+    def __init__(self, ref_lat: int, ref_lng: int, ref_alt: float):
         """
         AHRS2からTwistへのコンバータ
         :param ref_lat: 基準緯度 (度)
@@ -21,24 +21,35 @@ class AHRS2ToTwistConverter:
         :param altitude: 高度 (メートル)
         :return: x, y, z (メートル単位での相対位置)
         """
-        # 緯度経度のスケール変換
-        lat = lat / 1e7
-        lng = lng / 1e7
+        # 緯度経度のスケール変換 (基準値も同じスケールで扱う)
+        lat = lat / 1E7
+        lng = lng / 1E7
+        ref_lat = self.ref_lat / 1E7
+        ref_lng = self.ref_lng / 1E7
+
+        # デバッグ出力
+        #print(f"lat: {lat}, lng: {lng}, altitude: {altitude}")
+        #print(f"ref_lat: {ref_lat}, ref_lng: {ref_lng}")
+        #print(f"delta_lat: {lat - ref_lat}, delta_lng: {lng - ref_lng}")
 
         # 地球の半径（平均半径）: メートル
         earth_radius = 6378137.0
 
-        # 緯度と経度の距離変換 (メートル)
-        delta_lat = math.radians(lat - self.ref_lat)
-        delta_lng = math.radians(lng - self.ref_lng)
-        mean_lat = math.radians((lat + self.ref_lat) / 2.0)
+        # 緯度と経度の差分 (ラジアン)
+        delta_lat = math.radians(lat - ref_lat)
+        delta_lng = math.radians(lng - ref_lng)
+        mean_lat = math.radians((lat + ref_lat) / 2.0)
 
         # メートル単位での相対位置
         x = earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
         y = earth_radius * delta_lat                      # 緯度方向
         z = altitude - self.ref_alt                       # 高度方向
 
+        # デバッグ出力
+        #print(f"Relative Position: x={x}, y={y}, z={z}")
         return x, y, z
+
+
 
     def convert(self, pdu_message: PduMessage) -> PduMessage:
         """
@@ -77,5 +88,6 @@ class AHRS2ToTwistConverter:
         return PduMessage(
             robot_name=pdu_message.robot_name,
             channel_id=pdu_message.channel_id,  # チャネルIDは同じにする
+            size=72,
             data=twist_data,
         )
