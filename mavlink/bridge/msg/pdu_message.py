@@ -18,6 +18,6 @@ class PduMessage:
         メッセージの文字列表現を返す
         """
         return (
-            f"<PduMessage robot_name={self.robot_name}, "
+            f"<PduMessage robot_name={self.robot_name}, msg_type={self.msg_type}, "
             f"channel_id={self.channel_id}, pdu_size={self.pdu_size}, data={self.data}>"
         )

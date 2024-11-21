@@ -9,8 +9,9 @@ from msg.pdu_message_convertor import PduMessageConvertor
 #from hako.pdu_writer import PduWriter
 from pymavlink import mavutil
 
-from msg.conv.AHRS2_to_Twist import AHRS2ToTwistConvertor
-from msg.conv.SERVO_OUTPUT_RAW_to_HakoHilActuatorControls import SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor
+from registry.conv import setup_converters
+from registry.listen import setup_listen_msgs
+
 
 def start_log_replay(log_filename, mavlink_connection, message_queue):
     """
@@ -64,15 +65,15 @@ def main():
     # 引数の解析
     args = parse_arguments()
 
+    conv_registry = setup_converters()
+    list_registry = setup_listen_msgs()
+
     # PduMessageConvertorの作成
     convertor = PduMessageConvertor(args.mavlink_config, args.pdu_config, args.comm_config)
 
     # 共通設定
     message_queue = MessageQueue(max_size=100)
-    message_queue.set_listened_types([
-        MavlinkMessage.get_pdu_msg_type("AHRS2"), 
-        MavlinkMessage.get_pdu_msg_type("SERVO_OUTPUT_RAW")]
-        )  # リッスン対象を設定
+    message_queue.set_listened_types(list_registry.msgs)  # リッスン対象を設定
     mavlink_connection = mavutil.mavlink.MAVLink(None)
 
     # スレッドの管理
@@ -96,9 +97,6 @@ def main():
     for thread in threads:
         thread.start()
 
-    ahrs2conv = AHRS2ToTwistConvertor(ref_lat=-353632621, ref_lng=1491652374, ref_alt=584.0899658203125)
-    servo_conv = SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor()
-
     # メインスレッドでキューを処理
     try:
         while True:
@@ -108,12 +106,8 @@ def main():
                 try:
                     # メッセージをPduMessageに変換
                     pdu_message = convertor.create_pdu(mavlink_message)
-                    if pdu_message.msg_type == MavlinkMessage.get_pdu_msg_type("AHRS2"):
-                        pdu_message = ahrs2conv.convert(pdu_message)
-                        #print(f"Converted message: {pdu_message}")
-                    elif pdu_message.msg_type == MavlinkMessage.get_pdu_msg_type("SERVO_OUTPUT_RAW"):
-                        pdu_message = servo_conv.convert(pdu_message)
-                        #print(f"Converted message: {pdu_message}")
+                    if conv_registry.get_converter(pdu_message.msg_type) is not None:
+                        pdu_message = conv_registry.get_converter(pdu_message.msg_type).convert(pdu_message)
                     pdu_message = convertor.compile_pdu(pdu_message)
                     print(f"Converted message: {pdu_message}")
                     # PDUに書き込み
