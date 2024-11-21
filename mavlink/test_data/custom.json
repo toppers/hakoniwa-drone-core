@@ -1,7 +1,7 @@
 {
     "robots": [
     {
-      "name": "Vehicle1",
+      "name": "DroneTransporter",
       "rpc_pdu_readers": [],
       "rpc_pdu_writers": [],
       "shm_pdu_readers": [

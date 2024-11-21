@@ -1,12 +1,8 @@
 {
     "vehicles": {
-        "Vehicle1": {
+        "DroneTransporter": {
             "ip_address": "127.0.0.1",
             "port": 0
-        },
-        "Vehicle2": {
-            "ip_address": "127.0.0.1",
-            "port": 1
         }
     }
 }
