@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Python bytecode cache directories
+__pycache__/
+
+# Python dist directories
+.DS_store
