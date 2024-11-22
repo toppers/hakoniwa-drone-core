@@ -1,6 +1,7 @@
 from msg.mavlink_message import MavlinkMessage
 from msg.conv.AHRS2_to_Twist import AHRS2ToTwistConvertor
 from msg.conv.SERVO_OUTPUT_RAW_to_HakoHilActuatorControls import SERVO_OUTPUT_RAWToHakoHilActuatorControlsConvertor
+import json
 
 class ConverterRegistry:
     def __init__(self):
@@ -23,17 +24,27 @@ class ConverterRegistry:
         return self._converters.get(msg_type)
 
 
-def setup_converters():
+def setup_converters(comm_config_path: str) -> ConverterRegistry:
     """
     コンバータを初期化して登録
     :return: ConverterRegistry インスタンス
     """
+
+    initial_pos = None
+    with open(comm_config_path, 'r') as f:
+        comm_config = json.load(f)
+        initial_pos = comm_config["vehicles"]["DroneTransporter"]["initial_position"]
+
     registry = ConverterRegistry()
 
     # AHRS2 → Twist変換コンバータ
     registry.register(
         MavlinkMessage.get_pdu_msg_type("AHRS2"),
-        AHRS2ToTwistConvertor(ref_lat=-353632621, ref_lng=1491652374, ref_alt=584.0899658203125)
+        AHRS2ToTwistConvertor(
+            ref_lat=initial_pos["latitude"], 
+            ref_lng=initial_pos["longitude"], 
+            ref_alt=initial_pos["altitude"]
+            )
     )
 
     # SERVO_OUTPUT_RAW → HakoHilActuatorControls変換コンバータ

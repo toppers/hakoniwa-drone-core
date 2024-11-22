@@ -1,8 +1,13 @@
 {
     "vehicles": {
         "DroneTransporter": {
-            "ip_address": "127.0.0.1",
-            "port": 0
+            "ip_address": "192.168.2.105",
+            "port": 54001,
+            "initial_position": {
+                "latitude": -353632621,
+                "longitude": 1491652374,
+                "altitude": 584.0899658203125
+            }
         }
     }
 }

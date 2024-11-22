@@ -41,8 +41,8 @@ class AHRS2ToTwistConvertor:
         mean_lat = math.radians((lat + ref_lat) / 2.0)
 
         # メートル単位での相対位置
-        x = earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
-        y = earth_radius * delta_lat                      # 緯度方向
+        x = earth_radius * delta_lat                      # 緯度方向
+        y = -earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
         z = altitude - self.ref_alt                       # 高度方向
 
         # デバッグ出力
