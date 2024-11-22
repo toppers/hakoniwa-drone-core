@@ -60,6 +60,7 @@ def my_on_manual_timing_control(arg):
                     if my_context.conv_registry.get_converter(pdu_message.msg_type):
                         pdu_message = my_context.conv_registry.get_converter(pdu_message.msg_type).convert(pdu_message)
                     pdu_message = my_context.convertor.compile_pdu(pdu_message)
+                    #print(f"Sending PDU message: {pdu_message}")
                     pdu_writer.write_pdu_message(pdu_message)
                 except ValueError as e:
                     print(f"Conversion error: {e}")
