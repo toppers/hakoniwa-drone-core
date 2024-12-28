@@ -64,13 +64,18 @@
   * cmake
   * googletest
 
-# 事前準備
+# インストール方法
+
+## 箱庭コア機能をインストール
+
+[hakoniwa-core-cpp-client](https://github.com/toppers/hakoniwa-core-cpp-client) をインストールしてください。
+
+## 箱庭ドローンコア機能をインストール
 
 ```
 git clone --recursive https://github.com/toppers/hakoniwa-drone-core.git
 ```
 
-# ビルド方法
 
 ```
 cd hakoniwa-drone-core/src
@@ -166,3 +171,59 @@ Usage: takeoff <height> | land | move <x> <y> <z> | quit
 ```
 
 ## 箱庭ありで、ドローンシミュレーションを実行する
+
+本シミュレーションでは、Unityを利用しますので、事前に、[hakoniwa-unity-drone-model](https://github.com/toppers/hakoniwa-unity-drone-model) または v2.8.0以上で[リリース](https://github.com/toppers/hakoniwa-unity-drone-model/releases)されているUnityアプリケーション（Python API連携アプリ）をインストールしてください。
+
+### PX4と連携するサンプルアプリケーションを実行する
+
+
+1. QGroundControl(QGC) を起動。
+
+2. MAVLINK通信する物理モデルを起動する。
+
+```
+ ./main_for_sample/hakoniwa/hako_aircraft_service ../../config/drone/px4 ../../../hakoniwa-unity-drone-model/custom.json
+```
+
+(hakoniwa-unity-drone-modelが本リポジトリと同じ階層にある想定の実行コマンドです)
+
+3. PX4 SITLを起動する。
+
+```
+bash ../sim/simstart.bash
+```
+(PX4 SITLは、[hakoniwa-px4simのリポジトリ](https://github.com/toppers/hakoniwa-px4sim/tree/main/px4)を利用してください)
+
+4. Unityアプリケーションを起動し、STARTボタンを押下する。
+
+5. QGCから操作する。
+
+### 制御/物理モデルを実行するサンプルアプリケーションを実行する
+
+
+1. パラメータファイルを設定する。
+
+```
+export HAKO_CONTROLLER_PARAM_FILE=../../config/controller/param-api-mixer.txt
+```
+
+2. ドローンサービスを実行。
+
+
+Python API連携アプリを実行する場合：
+
+```
+ ./main_for_sample/hakoniwa/hako_drone_service ../../config/drone/api ../../../hakoniwa-unity-drone-model/custom.json
+```
+
+ラジコン操作する場合：
+
+```
+ ./main_for_sample/hakoniwa/hako_drone_service ../../config/drone/rc ../../../hakoniwa-unity-drone-model/custom.json
+```
+
+3. Unityアプリケーションを起動し、STARTボタンを押下する。
+
+4. Pythonアプリケーションを実行し、ドローンを操作する。
+
+
