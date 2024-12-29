@@ -19,7 +19,7 @@ public:
         for (size_t i = 0; i < configCount; ++i) {
             DroneConfig config;
             if (configManager.getConfig(i, config)) {
-                auto controller = create_aircraft_controller(i, config);
+                auto controller = create_aircraft_controller(i, config, false);
                 if (controller == nullptr) {
                     throw std::runtime_error("Failed to create controller");
                 }

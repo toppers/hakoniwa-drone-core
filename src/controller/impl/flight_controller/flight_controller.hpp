@@ -9,7 +9,7 @@ using namespace hako::controller;
 namespace hako::controller::impl {
 class FlightController : public IAircraftController {
 public:
-    FlightController();
+    FlightController(bool is_param_text_base, std::string& data);
     virtual ~FlightController() {}
     virtual bool is_radio_control() override {
         return false;

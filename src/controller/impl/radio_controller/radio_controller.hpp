@@ -7,7 +7,7 @@
 namespace hako::controller::impl {
 class RadioController : public IAircraftController {
 public:
-    RadioController();
+    RadioController(bool is_param_text_base, std::string& data);
     virtual ~RadioController() {}
     virtual bool is_radio_control() override {
         return true;

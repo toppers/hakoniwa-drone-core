@@ -429,6 +429,16 @@ public:
             return "";
         }
     }
+    std::string getControllerParamFilePath() const
+    {
+        if (configJson["controller"].contains("paramFilePath")) {
+            std::string paramFilePath = configJson["controller"]["paramFilePath"].get<std::string>();
+            return paramFilePath;
+        }
+        else {
+            return "";
+        }
+    }
     struct MixerInfo {
         bool enable;
         std::string vendor;

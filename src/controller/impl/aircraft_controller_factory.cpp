@@ -6,15 +6,31 @@
 using namespace hako::controller;
 using namespace hako::controller::impl;
 
-std::shared_ptr<IAircraftController> hako::controller::create_aircraft_controller(int index, const DroneConfig& drone_config)
+static std::string readFileToString(const std::string& filePath) {
+    std::ifstream fileStream(filePath);
+    if (!fileStream.is_open()) {
+        throw std::ios_base::failure("Failed to open the file: " + filePath);
+    }
+
+    std::ostringstream stringStream;
+    stringStream << fileStream.rdbuf();
+    return stringStream.str();
+}
+
+std::shared_ptr<IAircraftController> hako::controller::create_aircraft_controller(int index, const DroneConfig& drone_config, bool is_param_text_base)
 {
     std::string module_name = drone_config.getControllerModuleName();
     std::shared_ptr<IAircraftController> controller = nullptr;
+    std::string param_file_path = drone_config.getControllerParamFilePath();
+    if (param_file_path == "") {
+        throw std::runtime_error("Failed to load controller param_file_path : " + module_name);
+    }
+    std::string param_text = readFileToString(param_file_path);
     if (module_name == "RadioController") {
-        controller = std::make_shared<RadioController>();
+        controller = std::make_shared<RadioController>(is_param_text_base, is_param_text_base ? param_text : param_file_path);
     }
     else if (module_name == "FlightController") {
-        controller = std::make_shared<FlightController>();
+        controller = std::make_shared<FlightController>(is_param_text_base, is_param_text_base ? param_text : param_file_path);
     }
     else {
         throw std::runtime_error("Unknown controller module name: " + module_name);

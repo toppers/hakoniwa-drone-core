@@ -16,31 +16,40 @@ public:
     std::unique_ptr<DroneHeadingController> head;
     std::unique_ptr<DroneAngleController> angle;
     HakoControllerParamLoader loader;
+    bool is_param_text = false;
+    std::string data_;
     
-    DroneController() : 
+    DroneController(bool is_param_text_base, std::string& data) : 
         loader() 
     {
-        if (HakoControllerParamLoader::is_exist_envpath()) {
-            auto param_data = HakoControllerParamLoader::get_controller_param_filedata();
-            loader.reload(param_data);
-        } else {
-            throw std::runtime_error("Parameter file is not found on HAKO_CONTROLLER_PARAM_FILE");
-        }
+        is_param_text = is_param_text_base;
+        data_ = data;
+        reload();
         alt = std::make_unique<DroneAltController>(loader);
         pos = std::make_unique<DronePosController>(loader);
         head = std::make_unique<DroneHeadingController>(loader);
         angle = std::make_unique<DroneAngleController>(loader);
     }
     void reset() {
-        if (HakoControllerParamLoader::is_exist_envpath()) {
-            auto param_data = HakoControllerParamLoader::get_controller_param_filedata();
-            this->loader.reload(param_data);
-        }
+        reload();
         alt->reset();
         pos->reset();
         head->reset();
         angle->reset();
     }
+private:
+    void reload()
+    {
+        if (!is_param_text) {
+            auto param_data = loader.get_controller_param_filedata(data_);
+            loader.reload(param_data);
+        } 
+        else 
+        {
+            loader.reload(data_);
+        }
+    }
+
 };
 
 #endif /* _DRONE_CONTROLLER_HPP_ */

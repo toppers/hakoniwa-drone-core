@@ -4,7 +4,8 @@
 
 using namespace hako::controller::impl;
 
-RadioController::RadioController()
+RadioController::RadioController(bool is_param_text_base, std::string& data) :
+    ctrl_(is_param_text_base, data)
 {
     std::cout << "RadioController::RadioController()" << std::endl;
     ctrl_.reset();

@@ -4,6 +4,7 @@
 #include "controller/aircraft_controller_types.h"
 #include "controller/iaircraft_mixer.hpp"
 #include <memory>
+#include <string>
 
 namespace hako::controller {
 

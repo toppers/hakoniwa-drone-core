@@ -4,7 +4,8 @@
 
 using namespace hako::controller::impl;
 
-FlightController::FlightController()
+FlightController::FlightController(bool is_param_text_base, std::string& data) :
+    ctrl_(is_param_text_base, data)
 {
     std::cout << "FlightController::FlightController()" << std::endl;
     ctrl_.reset();

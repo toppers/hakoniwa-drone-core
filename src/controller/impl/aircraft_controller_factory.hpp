@@ -9,7 +9,7 @@ using namespace hako::config;
 
 namespace hako::controller {
 
-extern std::shared_ptr<IAircraftController> create_aircraft_controller(int index, const DroneConfig& drone_config);
+extern std::shared_ptr<IAircraftController> create_aircraft_controller(int index, const DroneConfig& drone_config, bool is_param_text_base);
 
 }
 
