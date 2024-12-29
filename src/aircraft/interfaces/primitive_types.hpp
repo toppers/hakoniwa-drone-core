@@ -192,9 +192,9 @@ typedef struct {
 
 /*
  * Unit: Newton-meter (Nm)
- * x: Roll Torque (φ direction): The force that rotates the drone around its lateral axis (side to side).
- * y: Pitch Torque (θ direction): The force that rotates the drone around its longitudinal axis (front to back).
- * z: Yaw Torque (ψ direction): The force that rotates the drone around its vertical axis (up and down).
+ * x: Roll Torque (phi direction): The force that rotates the drone around its lateral axis (side to side).
+ * y: Pitch Torque (theta direction): The force that rotates the drone around its longitudinal axis (front to back).
+ * z: Yaw Torque (psi direction): The force that rotates the drone around its vertical axis (up and down).
  * 
  * REF: https://github.com/toppers/hakoniwa-px4sim/tree/main/docs/phys_specs/data/physics#torque
  */
