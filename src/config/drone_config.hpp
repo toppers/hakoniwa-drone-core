@@ -228,9 +228,9 @@ public:
             out_of_bounds_reset.position = configJson["components"]["droneDynamics"]["out_of_bounds_reset"]["position"].get<std::vector<bool>>();
             out_of_bounds_reset.velocity = configJson["components"]["droneDynamics"]["out_of_bounds_reset"]["velocity"].get<std::vector<bool>>();
             out_of_bounds_reset.angular_velocity = configJson["components"]["droneDynamics"]["out_of_bounds_reset"]["angular_velocity"].get<std::vector<bool>>();
-            return std::make_optional(out_of_bounds_reset);  /* std::optional にラップして返す */
+            return std::make_optional(out_of_bounds_reset);
         }
-        return std::nullopt;  /* 未設定時 */
+        return std::nullopt;
     }
 
 
@@ -277,12 +277,10 @@ public:
     hako::config::RotorBatteryModelConstants getCompDroneDynamicsRotorDynamicsConstants() const {
         hako::config::RotorBatteryModelConstants constants = {};
         try {
-            /* 必要な全てのキーが存在するかを確認 */
             if (configJson.contains("components") &&
                 configJson["components"].contains("rotor") &&
                 configJson["components"]["rotor"].contains("dynamics_constants")) {
                 
-                /* 各定数を取得し、エラーハンドリングも考慮 */
                 constants.R  = configJson["components"]["rotor"]["dynamics_constants"]["R"].get<double>();
                 constants.Cq = configJson["components"]["rotor"]["dynamics_constants"]["Cq"].get<double>();
                 constants.K  = configJson["components"]["rotor"]["dynamics_constants"]["K"].get<double>();

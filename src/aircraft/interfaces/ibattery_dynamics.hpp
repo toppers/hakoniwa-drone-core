@@ -8,9 +8,8 @@
 
 namespace hako::aircraft {
 
-/* バッテリーの放電特性を決める要因データ */
 struct BatteryModelFactor {
-    double temperature; /* 温度 (℃) */
+    double temperature;
 };
 
 typedef struct {
