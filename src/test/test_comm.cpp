@@ -37,7 +37,7 @@ TEST(UdpCommTest, SendReceiveData) {
         server_io->close();
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // サーバーの準備待機
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     ICommIO* client_io = client.client_open(&client_src, &client_dst);
     ASSERT_NE(client_io, nullptr) << "Failed to open client";
 
