@@ -149,6 +149,7 @@
   },
   "controller": {
     "moduleDirectory": "../drone_control/cmake-build/workspace/FlightController",
+    "paramFilePath": "../../config/controller/param-api-mixer.txt",
     "moduleName": "FlightController",
       "direct_rotor_control": false,
       "mixer": {
