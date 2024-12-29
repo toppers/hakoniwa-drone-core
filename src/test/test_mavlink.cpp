@@ -71,7 +71,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // サーバーの準備待機
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     ICommIO* client_io = tcp_client.client_open(nullptr, &client_endpoint);
     ASSERT_NE(client_io, nullptr) << "Failed to open TCP client";
 
@@ -178,7 +178,7 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // サーバーの準備待機
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     ICommIO* client_io = udp_client.client_open(nullptr, &client_endpoint);
     ASSERT_NE(client_io, nullptr) << "Failed to open UDP client";
 

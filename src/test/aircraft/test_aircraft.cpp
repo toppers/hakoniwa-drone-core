@@ -26,7 +26,7 @@ TEST_F(UtilsTest, CreateAirCrafts1)
 {
     AirCraftContainer container;
     DroneConfigManager configManager;
-    //環境変数DRONE_CONFIG1_DIRから対象ディレクトリパスを取得
+
     const char* config1_dir = std::getenv("DRONE_CONFIG1_DIR");
     if (config1_dir == nullptr) {
         std::cerr << "Error: Environment variable DRONE_CONFIG1_DIR is not set." << std::endl;
@@ -50,7 +50,6 @@ TEST_F(UtilsTest, CreateAirCrafts2)
 {
     AirCraftContainer container;
     DroneConfigManager configManager;
-    //環境変数DRONE_CONFIG1_DIRから対象ディレクトリパスを取得
     const char* config2_dir = std::getenv("DRONE_CONFIG2_DIR");
     if (config2_dir == nullptr) {
         std::cerr << "Error: Environment variable DRONE_CONFIG2_DIR is not set." << std::endl;
