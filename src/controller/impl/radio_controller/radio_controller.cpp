@@ -19,8 +19,8 @@ mi_aircraft_control_out_t RadioController::run(mi_aircraft_control_in_t& in)
 {
     mi_aircraft_control_out_t out = {};
     /*
-     * 入力
-     * 補足：z軸は、わかりやすさを重視しして符号を反転する。
+     * Input values are set on NED coordinate system
+     * Z-axis is inverted for better understanding
      */
     FlightControllerInputEulerType euler = {in.euler_x, in.euler_y, in.euler_z};
     FlightControllerInputPositionType pos = {in.pos_x, in.pos_y, -in.pos_z};
@@ -28,19 +28,19 @@ mi_aircraft_control_out_t RadioController::run(mi_aircraft_control_in_t& in)
     FlightControllerInputAngularRateType angular_rate = {in.p, in.q, in.r};
 
     /*
-     * 目標値は、NED座標系で入る。
-     * Z軸だけ、わかりやすさのため符号を反転している
+     * target values are set on NED coordinate system
+     * Z-axis is inverted for better understanding
      */
     ctrl_.save_for_initial_position(pos.z);
     double target_yaw      =  ctrl_.update_target_yaw(in.target.direction_velocity.r);
     double target_pos_z    =  ctrl_.update_target_altitude(-in.target.throttle.power);
     /*
-     * 高度制御
+     * Altitude control
      */
     DroneAltInputType alt_in(pos, velocity, target_pos_z);
     DroneAltOutputType alt_out = ctrl_.alt->run(alt_in);
     /*
-     * 機首方向制御
+     * Heading control
      */
     DroneHeadingControlInputType head_in(euler, target_yaw);
     DroneHeadingControlOutputType head_out = ctrl_.head->run(head_in);
@@ -48,7 +48,7 @@ mi_aircraft_control_out_t RadioController::run(mi_aircraft_control_in_t& in)
     DroneAngleOutputType angle_out = {};
     if (ctrl_.is_angle_control_enable() == false) {
         /*
-        * 水平制御
+        * Horizontal position control
         */
         DronePosOutputType pos_out = {};
         double target_vx       =  -in.target.attitude.pitch * ctrl_.get_pos_max_spd();
@@ -56,14 +56,14 @@ mi_aircraft_control_out_t RadioController::run(mi_aircraft_control_in_t& in)
         DroneVelInputType spd_in(velocity, target_vx, target_vy);
         pos_out = ctrl_.pos->run_spd(spd_in);
         /*
-        * 姿勢角度制御
+        * Angular rate control
         */
         DroneAngleInputType angle_in(euler, angular_rate, pos_out.target_roll, pos_out.target_pitch, head_out.target_yaw_rate);
         angle_out = ctrl_.angle->run(angle_in);
     }
     else {
         /*
-         * 姿勢角速度制御
+         * Angular rate control
          */
         //std::cout << "roll: " << in.target.attitude.roll << " pitch: " << in.target.attitude.pitch << " yaw: " << head_out.target_yaw_rate << std::endl;
         DroneAngleInputType angle_in(euler, angular_rate, 
@@ -74,7 +74,7 @@ mi_aircraft_control_out_t RadioController::run(mi_aircraft_control_in_t& in)
     }
 
     /*
-     * 出力
+     * Output
      */
     out.mass = in.mass;
     out.thrust = alt_out.thrust;

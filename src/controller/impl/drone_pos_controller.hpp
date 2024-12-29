@@ -134,10 +134,9 @@ public:
         DronePosOutputType out = pos_prev_out;
         if (spd_simulation_time >= spd_control_cycle) {
             spd_simulation_time = 0;
-            //左右の場合は、ロール角を回転させる必要がある
             out.target_roll = speed_control_vy->calculate(in.target_vy, in.velocity.v);
             out.target_roll = flight_controller_get_limit_value(out.target_roll, 0, -max_roll_deg, max_roll_deg);
-            //前後の場合は、ピッチ角を回転させる必要がある。ただし、回転方向は逆にする必要がある
+
             out.target_pitch = -speed_control_vx->calculate(in.target_vx, in.velocity.u);
             out.target_pitch = flight_controller_get_limit_value(out.target_pitch, 0, -max_pitch_deg, max_pitch_deg);
             pos_prev_out = out;
