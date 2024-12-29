@@ -24,13 +24,13 @@ protected:
 
 TEST_F(UtilsTest, NoiseStatisticsTest_001) 
 {
-    SensorNoise noise(0.1); // 分散 0.1 のノイズ
+    SensorNoise noise(0.1);
     const int samples = 100;
     double sum = 0;
     double sum_squares = 0;
 
     for (int i = 0; i < samples; ++i) {
-        double noise_value = noise.add_random_noise(0); // テストデータとして 0 を使用
+        double noise_value = noise.add_random_noise(0);
         sum += noise_value;
         sum_squares += noise_value * noise_value;
     }
@@ -38,9 +38,8 @@ TEST_F(UtilsTest, NoiseStatisticsTest_001)
     double mean = sum / samples;
     double variance = sum_squares / samples - mean * mean;
 
-    // 平均と分散が期待値に近いかチェック
-    EXPECT_NEAR(0, mean, 0.05); // 平均が 0 に近いことを確認
-    EXPECT_NEAR(0.05, variance, 0.05); // 分散が 0.1 に近いことを確認
+    EXPECT_NEAR(0, mean, 0.05);
+    EXPECT_NEAR(0.05, variance, 0.05);
 }
 TEST_F(UtilsTest, SensorDataAssemblerTest_001)
 {

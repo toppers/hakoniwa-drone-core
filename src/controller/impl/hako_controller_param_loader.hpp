@@ -22,7 +22,7 @@ public:
         size_t len = 0;
         _dupenv_s(&env_p, &len, "HAKO_CONTROLLER_PARAM_FILE");
         bool exists = (env_p != nullptr && env_p[0] != '\0');
-        free(env_p); // メモリ解放
+        free(env_p);
         return exists;
 #else
         const char* env_p = std::getenv("HAKO_CONTROLLER_PARAM_FILE");
@@ -39,7 +39,7 @@ public:
             throw std::runtime_error("Environment variable HAKO_CONTROLLER_PARAM_FILE is not set or is empty");
         }
         std::string env_path(env_p);
-        free(env_p); // メモリ解放
+        free(env_p);
 #else
         const char* env_p = std::getenv("HAKO_CONTROLLER_PARAM_FILE");
         if (env_p == nullptr || env_p[0] == '\0') {
@@ -79,7 +79,7 @@ public:
         auto it = parameters.find(paramName);
         if (it != parameters.end()) {
             std::cout << paramName << ": " << it->second << std::endl;
-            return static_cast<int>(std::round(it->second)); // 四捨五入
+            return static_cast<int>(std::round(it->second));
         } else {
             throw std::runtime_error("Parameter not found: " + paramName);
         }

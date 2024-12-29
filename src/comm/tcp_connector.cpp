@@ -93,7 +93,7 @@ ICommIO* TcpClient::client_open(IcommEndpointType *, IcommEndpointType *dst) {
         }
 
         std::cout << "Connection attempt " << attempt << " failed, retrying..." << std::endl;
-        sleep(RETRY_INTERVAL); // リトライ間隔（秒単位）
+        sleep(RETRY_INTERVAL);
     }
     return new TcpCommIO(sockfd);
 }
@@ -160,7 +160,6 @@ ICommIO* TcpServer::server_open(IcommEndpointType *endpoint) {
         std::cout << "Failed to create socket: " << strerror(errno) << std::endl;
         return nullptr;
     }
-    // SO_REUSEADDR オプションを設定
     int optval = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
         std::cout << "Failed to set SO_REUSEADDR: " << strerror(errno) << std::endl;

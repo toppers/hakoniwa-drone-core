@@ -44,16 +44,13 @@ public:
             return;
         }
 
-        // データを取得
         const auto& game_in = game_pdu.pdu.game_ctrl;
 
-        // ボタン状態の変更をチェック
         if (is_button_state_change(game_in.button[GAME_CTRL_BUTTON_RADIO_CONTROL], GAME_CTRL_BUTTON_RADIO_CONTROL)) {
             radio_control_on_ = !radio_control_on_;
             std::cout << "radio_control: " << radio_control_on_ << std::endl;
         }
 
-        // ラジオコントロールが有効な場合、入力を更新
         in.radio_control = (radio_control_on_ == false) ? 0 : 1;
         if (radio_control_on_) {
             in.target.attitude.roll = game_in.axis[GAME_CTRL_AXIS_LEFT_RIGHT];

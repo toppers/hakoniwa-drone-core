@@ -75,13 +75,12 @@ bool UdpCommIO::close() {
     ::shutdown(sockfd, SHUT_RDWR);
 #endif
     if(sockfd >= 0) {
-        close_socket(sockfd); // プラットフォームごとに正しい関数を使用
+        close_socket(sockfd);
         sockfd = -1;
     }
     return true;
 }
 
-// ===== UdpClientクラス =====
 UdpClient::UdpClient() {
     #ifdef _WIN32
     WSADATA wsaData;
@@ -116,7 +115,6 @@ ICommIO* UdpClient::client_open(IcommEndpointType* src, IcommEndpointType* dst) 
     }
 #endif
 
-    // ローカルアドレスの設定
     struct sockaddr_in local_addr;
     memset(&local_addr, 0, sizeof(local_addr));
     local_addr.sin_family = AF_INET;
@@ -129,8 +127,8 @@ ICommIO* UdpClient::client_open(IcommEndpointType* src, IcommEndpointType* dst) 
             return nullptr;
         }
     } else {
-        local_addr.sin_port = 0; // 任意のポートを割り当てる
-        local_addr.sin_addr.s_addr = INADDR_ANY; // 任意のローカルアドレスを使用
+        local_addr.sin_port = 0;
+        local_addr.sin_addr.s_addr = INADDR_ANY;
     }
 
     if (bind(sockfd, (struct sockaddr*)&local_addr, sizeof(local_addr)) < 0) {
@@ -145,7 +143,6 @@ ICommIO* UdpClient::client_open(IcommEndpointType* src, IcommEndpointType* dst) 
         return nullptr;
     }
 
-    // リモートアドレスの設定
     struct sockaddr_in remote_addr;
     memset(&remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
@@ -160,7 +157,6 @@ ICommIO* UdpClient::client_open(IcommEndpointType* src, IcommEndpointType* dst) 
 }
 
 
-// ===== UdpServerクラス =====
 UdpServer::UdpServer() {
     #ifdef _WIN32
     WSADATA wsaData;

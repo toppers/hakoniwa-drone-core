@@ -26,18 +26,16 @@ int main(int argc, const char* argv[])
     }
     const char* drone_config_dir_path = argv[1];
     const char* custom_json_path = argv[2];
-    // Aircraft サービスの設定
+
     DroneConfigManager configManager;
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
     AirCraftContainer aircraft_container;
     aircraft_container.createAirCrafts(configManager);
     int aircraft_num = configManager.getConfigCount();
 
-    // MavlinkContainerの設定
     MavLinkServiceContainer mavlink_service_container;
     for (int i = 0; i < aircraft_num; i++) {
         std::cout << "INFO: aircraft_num=" << i << std::endl;
-        // MAVLINK サーバーの設定
         IcommEndpointType server_endpoint = {server_ip, server_port + i};
         auto mavlink_service = new MavLinkService(i, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
         mavlink_service_container.addService(*mavlink_service);

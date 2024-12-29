@@ -78,7 +78,6 @@ public:
                 write_count = 0;
             }
         } catch (const std::exception& e) {
-            // 例外をキャッチしてログを記録するか、リカバリ処理を行う
             throw std::runtime_error(std::string("Error during logging: ") + e.what());
         }
     }
@@ -105,7 +104,7 @@ public:
         for (auto& entry : entries) {
             if (entry.log_file) {
                 entry.log_file->flush();
-                entry.log_file.reset(); // スマートポインタで安全に削除
+                entry.log_file.reset();
             }
         }
         entries.clear();

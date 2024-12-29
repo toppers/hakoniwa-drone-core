@@ -17,10 +17,9 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     const char* server_ip = "127.0.0.1";
     const int server_port = 12347;
 
-    // サーバーの設定
     IcommEndpointType server_endpoint = {server_ip, server_port};
     auto service = MavLinkService(0, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
-    // サーバースレッド
+
     std::thread server_thread([&]() {
         auto ret = service.startService();
         ASSERT_TRUE(ret) << "Failed to start service";
@@ -67,11 +66,11 @@ TEST(MavLinkSendTcpTest, SendReceive) {
         //thread sleep
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     });
-    // クライアントの設定
+
     TcpClient tcp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
-    // クライアント処理
+
     std::this_thread::sleep_for(std::chrono::milliseconds(100)); // サーバーの準備待機
     ICommIO* client_io = tcp_client.client_open(nullptr, &client_endpoint);
     ASSERT_NE(client_io, nullptr) << "Failed to open TCP client";
@@ -79,7 +78,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     MavLinkCommTcp mavlink_comm_tcp;
     char buffer[1024] = {0};
     mavlink_message_t msg;
-    // クライアントからメッセージ送信
+
     //spec 
     // uint16_t mavlink_msg_hil_actuator_controls_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
     //                           uint64_t time_usec, const float *controls, uint8_t mode, uint64_t flags)
@@ -92,7 +91,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     ASSERT_TRUE(ret) << "Failed to send message";
     //std::cout << "tcp send done" << std::endl;
 
-    // クライアントで返信を受信
+
     MavlinkDecodedMessage message;
     ret = mavlink_comm_tcp.receiveMessage(client_io, buffer, sizeof(buffer), nullptr);
     ASSERT_TRUE(ret) << "Failed to receive message";
@@ -125,10 +124,9 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     const char* server_ip = "127.0.0.1";
     const int server_port = 12347;
 
-    // サーバーの設定
     IcommEndpointType server_endpoint = {server_ip, server_port};
     auto service = MavLinkService(0, MAVLINK_SERVICE_IO_TYPE_UDP, &server_endpoint, nullptr);
-    // サーバースレッド
+
     std::thread server_thread([&]() {
         auto ret = service.startService();
         ASSERT_TRUE(ret) << "Failed to start service";
@@ -175,11 +173,11 @@ TEST(MavLinkSendUdpTest, SendSensor) {
         //thread sleep
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     });
-    // クライアントの設定
+
     UdpClient udp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
-    // クライアント処理
+
     std::this_thread::sleep_for(std::chrono::milliseconds(100)); // サーバーの準備待機
     ICommIO* client_io = udp_client.client_open(nullptr, &client_endpoint);
     ASSERT_NE(client_io, nullptr) << "Failed to open UDP client";
@@ -187,7 +185,7 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     MavLinkCommUdp mavlink_comm_udp;
     char buffer[1024] = {0};
     mavlink_message_t msg;
-    // クライアントからメッセージ送信
+
     //spec 
     // uint16_t mavlink_msg_hil_actuator_controls_pack(uint8_t system_id, uint8_t component_id, mavlink_message_t* msg,
     //                           uint64_t time_usec, const float *controls, uint8_t mode, uint64_t flags)
@@ -200,7 +198,6 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     ASSERT_TRUE(ret) << "Failed to send message";
     //std::cout << "tcp send done" << std::endl;
 
-    // クライアントで返信を受信
     MavlinkDecodedMessage message;
     ret = mavlink_comm_udp.receiveMessage(client_io, buffer, sizeof(buffer), nullptr);
     ASSERT_TRUE(ret) << "Failed to receive message";

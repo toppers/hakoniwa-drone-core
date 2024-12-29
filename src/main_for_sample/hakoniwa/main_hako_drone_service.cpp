@@ -23,14 +23,13 @@ int main(int argc, const char* argv[])
     }
     const char* drone_config_dir_path = argv[1];
     const char* custom_json_path = argv[2];
-    // Aircraft サービスの設定
+
     DroneConfigManager configManager;
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
 
     AirCraftContainer aircraft_container;
     aircraft_container.createAirCrafts(configManager);
 
-    // AircrfaftControllerの設定
     AircraftControllerContainer controller_container;
     controller_container.createAircraftControllers(configManager);
 

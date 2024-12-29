@@ -54,13 +54,10 @@ private:
         double vn = v.data.x;
         double ve = v.data.y;
 
-        // 角度を-πからπで範囲で返す
         double angleRadians = atan2(ve, vn);
 
-        // ラジアンから度に変換
         double angleDegrees = angleRadians * (180.0 / M_PI);
 
-        // 角度を0〜360度の範囲に正規化
         if (angleDegrees < 0.0) {
             angleDegrees += 360.0;
         }

@@ -23,15 +23,15 @@ static int my_on_simulation_step(hako_asset_context_t*)
     simulator->advanceTimeStep();
     return 0;
 }
-static hako_asset_callbacks_t my_callback = {
-    .on_initialize = my_on_initialize,
-    .on_simulation_step = my_on_simulation_step,
-    .on_manual_timing_control = NULL,
-    .on_reset = my_on_reset
-};
+static hako_asset_callbacks_t my_callback = {};
 
 bool HakoniwaSimulator::registerService(std::string& asset_name, std::string& config_path, uint64_t delta_time_usec, std::shared_ptr<IServiceContainer> service_container)
 {
+    my_callback.on_initialize = my_on_initialize;
+    my_callback.on_simulation_step = my_on_simulation_step;
+    my_callback.on_manual_timing_control = NULL;
+    my_callback.on_reset = my_on_reset;
+
     delta_time_usec_ = delta_time_usec;
     HakoniwaSimulator::service_container_ = service_container;
     std::cout << "asset_name = " << asset_name << std::endl;

@@ -24,7 +24,7 @@ public:
 
 class UdpClient : public ICommClient {
 private:
-    struct sockaddr_in local_addr; // ローカルのアドレス情報
+    struct sockaddr_in local_addr;
 
 public:
     UdpClient();
@@ -35,7 +35,7 @@ public:
 
 class UdpServer : public ICommServer {
 private:
-    struct sockaddr_in local_addr; // ローカルのアドレス情報
+    struct sockaddr_in local_addr;
 
 public:
     UdpServer();

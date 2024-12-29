@@ -161,7 +161,6 @@ private:
     void load_all_data() {
         std::string line;
 
-        // ヘッダーを読み込む
         if (std::getline(csv_read_file, line)) {
             std::istringstream lineStream(line);
             std::string cell;
@@ -171,7 +170,6 @@ private:
             }
         }
 
-        // データを読み込む
         while (std::getline(csv_read_file, line)) {
             std::vector<std::string> row;
             std::istringstream lineStream(line);
