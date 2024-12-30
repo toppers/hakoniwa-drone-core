@@ -91,6 +91,12 @@
   * cmake
   * googletest
 
+* 必要なツール類
+  * pyenv
+    * python: version 3.12.0
+      * 3.13以降では動きません。
+      * MacOSの場合、homebrewでインストールしたものでは動きません。
+
 # インストール方法
 
 ## 箱庭コア機能をインストール

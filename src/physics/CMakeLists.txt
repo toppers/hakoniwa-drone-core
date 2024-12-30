@@ -51,3 +51,20 @@ add_test(NAME ctest COMMAND ./ctest)
 
 add_custom_target(vtest COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
+set(PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/drone_frames.hpp
+    ${PROJECT_SOURCE_DIR}/drone_physics.hpp
+    ${PROJECT_SOURCE_DIR}/rotor_physics.hpp
+    ${PROJECT_SOURCE_DIR}/body_physics.hpp
+    ${PROJECT_SOURCE_DIR}/drone_physics_c.h
+)
+
+
+add_custom_target(
+    physics_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_HEADER_DIR}/physics/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADERS} "${HAKONIWA_PUBLIC_HEADER_DIR}/physics/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:drone_physics> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:drone_physics_c> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)
