@@ -14,6 +14,7 @@ else()
     include(cmake-options/default-cmake-options.cmake)
 endif()
 
+set(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/..")
 set(HAKO_SOURCE_DIR "${PROJECT_SOURCE_DIR}")
 set(MAVLINK_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../thirdparty/mavlink_c_library_v2")
 set(ROS2PDU_SOURCE_DIR "${PROJECT_SOURCE_DIR}/../thirdparty/hakoniwa-ros2pdu")

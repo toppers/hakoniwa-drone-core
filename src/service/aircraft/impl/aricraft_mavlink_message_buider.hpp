@@ -1,7 +1,7 @@
 #ifndef _AIRCRAFT_MAVLINK_MESSAGE_BUILDER_HPP_
 #define _AIRCRAFT_MAVLINK_MESSAGE_BUILDER_HPP_
 
-#include "mavlink/mavlink_service.hpp"
+#include "imavlink_service.hpp"
 #include "aircraft/impl/aircraft_container.hpp"
 
 using namespace hako::aircraft;

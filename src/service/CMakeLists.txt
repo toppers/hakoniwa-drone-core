@@ -37,8 +37,9 @@ else()
 endif()
 
 
-
+MESSAGE(STATUS "PROJECT_ROOT_DIR : ${PROJECT_ROOT_DIR}")
 target_include_directories(hako_service 
+    PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${GLM_SOURCE_DIR}
     #PRIVATE ${NOLMAN_JSON_SOURCE_DIR}
