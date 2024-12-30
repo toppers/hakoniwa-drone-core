@@ -222,7 +222,7 @@ void hako::service::impl::AircraftServiceContainer::write_back_pdu(uint32_t inde
     ServicePduDataType actuator_pdu_data = {};
     actuator_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS;
     for (int i = 0; i < ROTOR_NUM; i++) {
-        actuator_pdu_data.pdu.actuator_controls.controls[i] = aircraft_inputs_[index].controls[i];
+        actuator_pdu_data.pdu.actuator_controls.controls[i] = static_cast<float>(aircraft_inputs_[index].controls[i]);
     }
     pdu_synchers_[index]->flush(index, actuator_pdu_data);
 
