@@ -30,11 +30,11 @@ private:
     double target_pos_z = 0;
     double target_yaw_deg = 0;
 
-    ServicePduDataType drone_pos = { SERVICE_PDU_DATA_ID_TYPE_POSITION };
-    ServicePduDataType cmd_takeoff = { SERVICE_PDU_DATA_ID_TYPE_TAKEOFF };
-    ServicePduDataType cmd_land = { SERVICE_PDU_DATA_ID_TYPE_LAND };
-    ServicePduDataType cmd_move = { SERVICE_PDU_DATA_ID_TYPE_MOVE };
-    ServicePduDataType cmd_magnet = { SERVICE_PDU_DATA_ID_TYPE_MAGNET };
+    ServicePduDataType drone_pos = {};
+    ServicePduDataType cmd_takeoff = {};
+    ServicePduDataType cmd_land = {};
+    ServicePduDataType cmd_move = {};
+    ServicePduDataType cmd_magnet = {};
     std::shared_ptr<IServicePduSyncher> pdu_syncher_;
 
 public:

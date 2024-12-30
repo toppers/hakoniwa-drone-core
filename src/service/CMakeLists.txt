@@ -18,31 +18,29 @@ set(SOURCE_FILES
 add_library(hako_service ${SOURCE_FILES})
 
 
-if(OS_TYPE STREQUAL "posix")
-    target_compile_options(hako_service PRIVATE
-        -Wno-pedantic
-        -Wno-address-of-packed-member
-        -Wno-unused-function
-        -Wno-missing-field-initializers
-    )
-else()
-    target_compile_options(hako_service PRIVATE
-        /wd4200  # Zero-sized array
-        /wd4706  # Assignment within conditional expression
-        /wd4996  # Deprecated API
-        /wd4244  # 'double'から'float'への変換の警告を抑制
-        /wd4309  # 定数値の切り捨ての警告を抑制
-        /wd4267  # Suppress warning C4267: size_t to int conversion
-    )
-endif()
+#if(OS_TYPE STREQUAL "posix")
+#    target_compile_options(hako_service PRIVATE
+#        -Wno-pedantic
+#        -Wno-address-of-packed-member
+#        -Wno-unused-function
+#        -Wno-missing-field-initializers
+#    )
+#else()
+#    target_compile_options(hako_service PRIVATE
+#        /wd4200  # Zero-sized array
+#        /wd4706  # Assignment within conditional expression
+#        /wd4996  # Deprecated API
+#        /wd4244  # 'double'から'float'への変換の警告を抑制
+#        /wd4309  # 定数値の切り捨ての警告を抑制
+#        /wd4267  # Suppress warning C4267: size_t to int conversion
+#    )
+#endif()
 
 
-MESSAGE(STATUS "PROJECT_ROOT_DIR : ${PROJECT_ROOT_DIR}")
 target_include_directories(hako_service 
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${GLM_SOURCE_DIR}
-    #PRIVATE ${NOLMAN_JSON_SOURCE_DIR}
     PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include
     PRIVATE ${MAVLINK_SOURCE_DIR}/all
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types

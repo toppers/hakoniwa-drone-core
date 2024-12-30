@@ -39,7 +39,8 @@ public:
     bool can_advanceTimeStep_for_controller() override { return radio_control_on_; }
     void setup_controller_inputs(mi_aircraft_control_in_t& in) override
     {
-        ServicePduDataType game_pdu = { SERVICE_PDU_DATA_ID_TYPE_GAME_CTRL };
+        ServicePduDataType game_pdu = {};
+        game_pdu.id = SERVICE_PDU_DATA_ID_TYPE_GAME_CTRL;
         if (!pdu_syncher_->load(aircraft_->get_index(), game_pdu)) {
             return;
         }
