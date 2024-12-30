@@ -1,0 +1,20 @@
+#ifndef _IMAVLINK_COMM_HPP_
+#define _IMAVLINK_COMM_HPP_
+
+#include "comm/icomm_connector.hpp"
+
+using namespace hako::comm;
+namespace hako::mavlink {
+
+class IMavLinkComm {
+public:
+    virtual ~IMavLinkComm() = default;
+
+    virtual bool receiveMessage(ICommIO* io, char* data, int datalen, int* recv_datalen) = 0;
+
+    virtual bool sendMessage(ICommIO* io, const char* data, int datalen) = 0;
+};
+
+} // namespace hako::comm
+
+#endif /* _IMAVLINK_COMM_HPP_ */

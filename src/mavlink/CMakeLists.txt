@@ -49,6 +49,7 @@ target_link_libraries(hako_mavlink PRIVATE hako_comm)
 
 set(PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/mavlink_service_container.hpp
+    ${PROJECT_SOURCE_DIR}/imavlink_comm.hpp
     ${PROJECT_SOURCE_DIR}/imavlink_service.hpp
     ${PROJECT_SOURCE_DIR}/mavlink_msg_types.hpp
     ${PROJECT_SOURCE_DIR}/mavlink_config.hpp
