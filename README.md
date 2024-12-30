@@ -172,16 +172,11 @@ bash ../sim/simstart.bash
 
 ### 制御/物理モデルを実行するサンプルアプリケーションを実行する
 
-1. パラメータファイルを設定する。
+
+1. ドローンサービスを実行。
 
 ```
-export HAKO_CONTROLLER_PARAM_FILE=../../config/controller/param-api-mixer.txt
-```
-
-2. ドローンサービスを実行。
-
-```
- ./main_for_sample/service/drone_service 1 ../../config/drone/ap
+ ./main_for_sample/service/drone_service 1 ../../config/drone/api
 ```
 
 成功するとこうなります。
@@ -191,7 +186,7 @@ export HAKO_CONTROLLER_PARAM_FILE=../../config/controller/param-api-mixer.txt
 ```
 
 
-3. 操作コマンドで、ドローンを操作できます。
+2. 操作コマンドで、ドローンを操作できます。
 
 ```
 Usage: takeoff <height> | land | move <x> <y> <z> | quit
@@ -228,13 +223,8 @@ bash ../sim/simstart.bash
 ### 制御/物理モデルを実行するサンプルアプリケーションを実行する
 
 
-1. パラメータファイルを設定する。
 
-```
-export HAKO_CONTROLLER_PARAM_FILE=../../config/controller/param-api-mixer.txt
-```
-
-2. ドローンサービスを実行。
+1. ドローンサービスを実行。
 
 
 Python API連携アプリを実行する場合：
@@ -249,8 +239,8 @@ Python API連携アプリを実行する場合：
  ./main_for_sample/hakoniwa/hako_drone_service ../../config/drone/rc ../../../hakoniwa-unity-drone-model/custom.json
 ```
 
-3. Unityアプリケーションを起動し、STARTボタンを押下する。
+2. Unityアプリケーションを起動し、STARTボタンを押下する。
 
-4. Pythonアプリケーションを実行し、ドローンを操作する。
+3. Pythonアプリケーションを実行し、ドローンを操作する。
 
 
