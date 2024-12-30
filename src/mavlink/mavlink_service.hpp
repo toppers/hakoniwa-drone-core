@@ -2,7 +2,8 @@
 #define _MAVLINK_SERVICE_HPP_
 
 #include "imavlink_comm.hpp"
-#include "mavlink_msg_types.hpp"
+#include "mavlink_types.hpp"
+#include "imavlink_service.hpp"
 #include <iostream>
 #include <memory>
 #include <atomic>
@@ -10,24 +11,18 @@
 
 namespace hako::mavlink {
 
-typedef enum {
-    MAVLINK_SERVICE_IO_TYPE_TCP,
-    MAVLINK_SERVICE_IO_TYPE_UDP,
-    MAVLINK_SERVICE_IO_TYPE_NUM,
-} MavlinkServiceIoType;
-
-class MavLinkService {
+class MavLinkService : public IMavLinkService {
 public:
     explicit MavLinkService(int index, MavlinkServiceIoType io_type, const IcommEndpointType *server_endpoint, const IcommEndpointType *client_endpoint);
-    ~MavLinkService();
+    virtual ~MavLinkService();
 
     static void init();
     static void finalize();
 
-    bool sendMessage(MavlinkHakoMessage& message);
-    bool readMessage(MavlinkHakoMessage& message, bool &is_dirty);
-    bool startService();
-    void stopService();
+    virtual bool sendMessage(MavlinkHakoMessage& message) override;
+    virtual bool readMessage(MavlinkHakoMessage& message, bool &is_dirty) override;
+    virtual bool startService() override;
+    virtual void stopService() override;
 
 private:
     bool sendMessage(MavlinkDecodedMessage &message);

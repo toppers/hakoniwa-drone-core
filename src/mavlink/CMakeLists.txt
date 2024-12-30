@@ -46,3 +46,17 @@ target_include_directories(hako_mavlink
 target_compile_features(hako_mavlink PRIVATE cxx_std_17)
 
 target_link_libraries(hako_mavlink PRIVATE hako_comm)
+
+set(PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/mavlink_service_container.hpp
+    ${PROJECT_SOURCE_DIR}/imavlink_service.hpp
+)
+
+
+add_custom_target(
+    publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_HEADER_DIR}/mavlink/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADERS} "${HAKONIWA_PUBLIC_HEADER_DIR}/mavlink/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_mavlink> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)

@@ -17,6 +17,11 @@ using namespace hako::mavlink;
 
 bool MavLinkService::is_initialized_ = false;
 
+IMavLinkService* IMavLinkService::create(int index, MavlinkServiceIoType io_type, const IcommEndpointType *server_endpoint, const IcommEndpointType *client_endpoint)
+{
+    return new MavLinkService(index, io_type, server_endpoint, client_endpoint);
+}
+
 void MavLinkService::init() {
     if (is_initialized_) {
         return;

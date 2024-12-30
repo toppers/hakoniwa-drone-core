@@ -37,7 +37,7 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < aircraft_num; i++) {
         std::cout << "INFO: aircraft_num=" << i << std::endl;
         IcommEndpointType server_endpoint = {server_ip, server_port + i};
-        auto mavlink_service = new MavLinkService(i, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
+        auto mavlink_service = IMavLinkService::create(i, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
         mavlink_service_container.addService(*mavlink_service);
     }
 

@@ -14,7 +14,7 @@ bool hako::service::impl::AircraftServiceContainer::startService(bool lockStep, 
     std::cout << "INFO: deltaTimeUsec=" << deltaTimeUsec << std::endl;
     aircraft_inputs_.resize(aircraft_container_.getAllAirCrafts().size());
     int index = 0;
-    for (std::reference_wrapper<MavLinkService> mavlink_service: mavlink_service_container_.getServices()) {
+    for (std::reference_wrapper<IMavLinkService> mavlink_service: mavlink_service_container_.getServices()) {
         std::cout << "INFO: AircraftService startService wait for connection : " << index << std::endl;
         if (!mavlink_service.get().startService()) {
             throw std::runtime_error("Failed to start mavlink service");

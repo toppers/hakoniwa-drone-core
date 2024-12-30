@@ -2,8 +2,7 @@
 #define _MAVLINK_DUMP_HPP_
 
 #include "mavlink.h"
-#include "mavlink_msg_types.hpp"
-
+#include "mavlink_types.hpp"
 
 namespace hako::mavlink {
 class MavlinkDump {
