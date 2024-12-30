@@ -22,7 +22,7 @@ public:
         for (size_t i = 0; i < configCount; ++i) {
             DroneConfig config;
             if (configManager.getConfig(i, config)) {
-                std::unique_ptr<IAirCraft> airCraft(hako::aircraft::create_aircraft(i, config));
+                std::unique_ptr<IAirCraft> airCraft(hako::aircraft::create_aircraft(static_cast<int>(i), config));
                 if (airCraft) {
                     airCrafts.push_back(std::move(airCraft));
                 }

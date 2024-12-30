@@ -159,7 +159,8 @@ void hako::service::impl::AircraftServiceContainer::setup_aircraft_inputs(uint32
 {
     aircraft_inputs_[index].manual.control = false;
     if (aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().has_collision_detection()) {
-        ServicePduDataType pdu_data = { SERVICE_PDU_DATA_ID_TYPE_COLLISION };
+        ServicePduDataType pdu_data = {};
+        pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_COLLISION;
         pdu_synchers_[index]->load(index, pdu_data);
         aircraft_inputs_[index].collision.collision = pdu_data.pdu.collision.collision;
         if (aircraft_inputs_[index].collision.collision) {
@@ -176,7 +177,8 @@ void hako::service::impl::AircraftServiceContainer::setup_aircraft_inputs(uint32
         }
     }
     if (aircraft_container_.getAllAirCrafts()[index]->is_enabled_disturbance()) {
-        ServicePduDataType pdu_data = { SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE };
+        ServicePduDataType pdu_data = {};
+        pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
         pdu_synchers_[index]->load(index, pdu_data);
         //temperature
         aircraft_inputs_[index].disturbance.values.d_temp.value = pdu_data.pdu.disturbance.d_temp.value;
@@ -190,12 +192,14 @@ void hako::service::impl::AircraftServiceContainer::setup_aircraft_inputs(uint32
 void hako::service::impl::AircraftServiceContainer::write_back_pdu(uint32_t index)
 {
     // collision write back
-    ServicePduDataType col_pdu_data = { SERVICE_PDU_DATA_ID_TYPE_COLLISION };
+    ServicePduDataType col_pdu_data = {};
+    col_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_COLLISION;
     col_pdu_data.pdu.collision.collision = false;
     pdu_synchers_[index]->flush(index, col_pdu_data);
 
     // battery write back
-    ServicePduDataType bat_pdu_data = { SERVICE_PDU_DATA_ID_TYPE_BATTERY_STATUS };
+    ServicePduDataType bat_pdu_data = {};
+    bat_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_BATTERY_STATUS;
     auto battery = aircraft_container_.getAllAirCrafts()[index]->get_battery_dynamics();
     if (battery != nullptr) {
         auto status = battery->get_status();
@@ -215,14 +219,16 @@ void hako::service::impl::AircraftServiceContainer::write_back_pdu(uint32_t inde
     pdu_synchers_[index]->flush(index, bat_pdu_data);
 
     // control write back
-    ServicePduDataType actuator_pdu_data = { SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS };
+    ServicePduDataType actuator_pdu_data = {};
+    actuator_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS;
     for (int i = 0; i < ROTOR_NUM; i++) {
         actuator_pdu_data.pdu.actuator_controls.controls[i] = aircraft_inputs_[index].controls[i];
     }
     pdu_synchers_[index]->flush(index, actuator_pdu_data);
 
     // position write back
-    ServicePduDataType pos_pdu_data = { SERVICE_PDU_DATA_ID_TYPE_POSITION };
+    ServicePduDataType pos_pdu_data = {};
+    pos_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_POSITION;
     DronePositionType dpos = aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().get_pos();
     DroneEulerType dangle = aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().get_angle();
     pos_pdu_data.pdu.position.linear.x = dpos.data.x;

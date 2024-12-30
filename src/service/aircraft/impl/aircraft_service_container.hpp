@@ -77,7 +77,7 @@ public:
 
     uint32_t getNumServices() override
     {
-        return aircraft_container_.getAllAirCrafts().size();
+        return static_cast<uint32_t>(aircraft_container_.getAllAirCrafts().size());
     }
     std::string getRobotName(uint32_t index) override
     {
