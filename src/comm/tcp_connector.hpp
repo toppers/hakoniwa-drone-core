@@ -2,6 +2,7 @@
 #define _TCPCONNECTOR_HPP_
 
 #include "icomm_connector.hpp"
+#include "icomm_osdep.hpp"
 
 namespace hako::comm {
 

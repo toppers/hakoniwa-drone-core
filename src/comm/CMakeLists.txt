@@ -27,3 +27,15 @@ endif()
 
 target_include_directories(hako_comm PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(hako_comm PRIVATE cxx_std_17)
+
+set(PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/icomm_connector.hpp
+)
+
+add_custom_target(
+    comm_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_HEADER_DIR}/comm/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADERS} "${HAKONIWA_PUBLIC_HEADER_DIR}/comm/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_comm> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)

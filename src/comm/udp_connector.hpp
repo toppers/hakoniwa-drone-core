@@ -2,6 +2,7 @@
 #define _UDPCONNECTOR_HPP_
 
 #include "icomm_connector.hpp"
+#include "icomm_osdep.hpp"
 #include <mutex>
 namespace hako::comm {
 
