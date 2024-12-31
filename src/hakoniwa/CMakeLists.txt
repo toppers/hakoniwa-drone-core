@@ -19,6 +19,14 @@ set(SOURCE_FILES
 )
 add_library(hako_drone_core ${SOURCE_FILES})
 
+
+if(OS_TYPE STREQUAL "posix")
+else()
+    target_compile_options(hako_drone_core PRIVATE
+        /wd4267  # Suppress warning C4267: size_t to int conversion
+    )
+endif()
+
 target_include_directories(hako_drone_core 
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_CORE_SOURCE_DIR}
