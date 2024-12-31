@@ -96,7 +96,7 @@ public:
     }
 
     uint32_t getNumServices() override {
-        return drone_services_.size();
+        return static_cast<uint32_t>(drone_services_.size());
     }
     std::string getRobotName(uint32_t index) override {
         if (index >= drone_services_.size()) {
