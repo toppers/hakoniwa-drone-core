@@ -1,5 +1,7 @@
 #include "impl/tcp_connector.hpp"
 #include "impl/udp_connector.hpp"
+#include <stdexcept>
+#include <string>
 
 using namespace hako::comm;
 
