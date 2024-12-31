@@ -5,8 +5,8 @@
 #include "mavlink/mavlink_service.hpp"
 #include "mavlink/mavlink_decoder.hpp"
 #include "mavlink/mavlink_encoder.hpp"
-#include "comm/udp_connector.hpp"
-#include "comm/tcp_connector.hpp"
+#include "comm/impl/udp_connector.hpp"
+#include "comm/impl/tcp_connector.hpp"
 
 using namespace hako::mavlink;
 using namespace hako::comm;
@@ -67,7 +67,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     });
 
-    TcpClient tcp_client;
+    impl::TcpClient tcp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
 
@@ -174,7 +174,7 @@ TEST(MavLinkSendUdpTest, SendSensor) {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     });
 
-    UdpClient udp_client;
+    impl::UdpClient udp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
 
 

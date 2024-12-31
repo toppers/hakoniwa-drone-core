@@ -1,6 +1,5 @@
 #include "mavlink_service.hpp"
-#include "comm/tcp_connector.hpp"
-#include "comm/udp_connector.hpp"
+#include "icomm_connector.hpp"
 #include "mavlink_comm_tcp.hpp"
 #include "mavlink_comm_udp.hpp"
 #include "mavlink_encoder.hpp"
@@ -59,11 +58,11 @@ MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const Ic
     switch (io_type)
     {
     case MAVLINK_SERVICE_IO_TYPE_TCP:
-        comm_server_ = std::make_unique<TcpServer>();
+        comm_server_ = hako::comm::ICommServer::create(COMM_IO_TYPE_TCP);
         mavlink_comm_ = std::make_unique<MavLinkCommTcp>();
         break;
     case MAVLINK_SERVICE_IO_TYPE_UDP:
-        comm_server_ = std::make_unique<UdpServer>();
+        comm_server_ = hako::comm::ICommServer::create(COMM_IO_TYPE_UDP);
         mavlink_comm_ = std::make_unique<MavLinkCommUdp>();
         break;
     default:

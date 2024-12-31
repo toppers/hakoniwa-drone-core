@@ -4,7 +4,7 @@
 #include "icomm_connector.hpp"
 #include "icomm_osdep.hpp"
 #include <mutex>
-namespace hako::comm {
+namespace hako::comm::impl {
 
 class UdpCommIO : public ICommIO {
 private:

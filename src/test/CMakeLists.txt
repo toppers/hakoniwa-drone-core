@@ -63,7 +63,9 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE hako_aircraft
 )
 target_include_directories(${PROJECT_NAME}
+    PRIVATE ${PROJECT_ROOT_DIR}/include/comm
     PRIVATE ${HAKO_SOURCE_DIR}
+    PRIVATE ${HAKO_SOURCE_DIR}/comm
     PRIVATE ${MAVLINK_SOURCE_DIR}/all
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
     PRIVATE ${GLM_SOURCE_DIR}

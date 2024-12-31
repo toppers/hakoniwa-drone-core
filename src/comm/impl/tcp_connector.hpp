@@ -2,9 +2,9 @@
 #define _TCPCONNECTOR_HPP_
 
 #include "icomm_connector.hpp"
-#include "icomm_osdep.hpp"
+#include "impl/icomm_osdep.hpp"
 
-namespace hako::comm {
+namespace hako::comm::impl {
 
 class TcpCommIO : public ICommIO {
 private:
@@ -38,7 +38,6 @@ public:
     ICommIO* server_open(IcommEndpointType *endpoint) override;
 };
 
-extern int comm_init();
 
 }
 

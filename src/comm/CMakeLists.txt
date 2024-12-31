@@ -12,8 +12,9 @@ endif()
 
 # ソースファイルの定義
 set(SOURCE_FILES
-    tcp_connector.cpp
-    udp_connector.cpp
+    impl/tcp_connector.cpp
+    impl/udp_connector.cpp
+    impl/comm_connector.cpp
 )
 
 # ライブラリの作成
@@ -25,7 +26,10 @@ else()
     target_include_directories(hako_comm PRIVATE /usr/local/include)
 endif()
 
-target_include_directories(hako_comm PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(hako_comm 
+    PRIVATE ${PROJECT_ROOT_DIR}/include/comm
+    PRIVATE ${PROJECT_SOURCE_DIR}
+)
 target_compile_features(hako_comm PRIVATE cxx_std_17)
 
 set(PUBLIC_HEADERS

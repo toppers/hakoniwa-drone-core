@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <thread>
-#include "comm/udp_connector.hpp"
-#include "comm/tcp_connector.hpp"
+#include "comm/impl/udp_connector.hpp"
+#include "comm/impl/tcp_connector.hpp"
 
 namespace hako::comm {
 
@@ -13,12 +13,12 @@ TEST(UdpCommTest, SendReceiveData) {
     char buffer[1024] = {0};
 
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    UdpServer server;
+    impl::UdpServer server;
     ICommIO* server_io = nullptr;
 
     IcommEndpointType client_src = {server_ip, client_port};
     IcommEndpointType client_dst = {server_ip, server_port};
-    UdpClient client;
+    impl::UdpClient client;
 
     std::thread server_thread([&]() {
         server_io = server.server_open(&server_endpoint);
@@ -62,12 +62,12 @@ TEST(TcpCommTest, SendReceiveData) {
     hako::comm::comm_init();
     
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    TcpServer server;
+    impl::TcpServer server;
     ICommIO* server_io = nullptr;
 
     IcommEndpointType client_src = {nullptr, 0}; 
     IcommEndpointType client_dst = {server_ip, server_port};
-    TcpClient client;
+    impl::TcpClient client;
 
     std::thread server_thread([&]() {
         server_io = server.server_open(&server_endpoint);

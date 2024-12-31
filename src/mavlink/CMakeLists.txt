@@ -40,6 +40,7 @@ endif()
 
 
 target_include_directories(hako_mavlink 
+    PRIVATE ${PROJECT_ROOT_DIR}/include/comm
     PRIVATE ${MAVLINK_SOURCE_DIR}/all
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
     PRIVATE ${HAKO_SOURCE_DIR})

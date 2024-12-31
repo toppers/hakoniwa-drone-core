@@ -2,8 +2,8 @@
 #include <thread>
 #include "mavlink/mavlink_comm_tcp.hpp"
 #include "mavlink/mavlink_comm_udp.hpp"
-#include "comm/udp_connector.hpp"
-#include "comm/tcp_connector.hpp"
+#include "comm/impl/udp_connector.hpp"
+#include "comm/impl/tcp_connector.hpp"
 
 using namespace hako::mavlink;
 using namespace hako::comm;
@@ -38,10 +38,10 @@ TEST(MavLinkCommUdpTest, SendReceiveDataWithMavlinkHeader) {
     const int payload_len = static_cast<int>(strlen(payload));
 
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    UdpServer udp_server;
+    impl::UdpServer udp_server;
     ICommIO* server_io = nullptr;
 
-    UdpClient udp_client;
+    impl::UdpClient udp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
     MavLinkCommUdp mavlink_comm_udp;
 
@@ -85,10 +85,10 @@ TEST(MavLinkCommTcpTest, SendReceiveDataWithMavlinkHeader) {
     const int payload_len = static_cast<int>(strlen(payload));
 
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    TcpServer tcp_server;
+    impl::TcpServer tcp_server;
     ICommIO* server_io = nullptr;
 
-    TcpClient tcp_client;
+    impl::TcpClient tcp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
     MavLinkCommTcp mavlink_comm_tcp;
 

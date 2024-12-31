@@ -13,7 +13,7 @@
 #endif
 #include <iostream>
 
-namespace hako::comm {
+namespace hako::comm::impl {
 
 UdpCommIO::UdpCommIO(ICOMM_SOCKET sockfd, const sockaddr_in& remote_addr) : sockfd(sockfd), remote_addr_(remote_addr) 
 {

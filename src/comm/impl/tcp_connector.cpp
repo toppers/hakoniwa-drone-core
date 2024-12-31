@@ -7,26 +7,8 @@
 #define MAX_ATTEMPTS 600
 #define RETRY_INTERVAL 3
 
-namespace hako::comm {
+namespace hako::comm::impl {
 
-
-#ifdef WIN32
-int comm_init()
-{
-    WSADATA wsaData;
-    int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (result != 0) {
-        std::cerr << "WSAStartup failed: " << result << std::endl;
-        return -1;
-    }
-    return 0;
-}
-#else
-int comm_init()
-{
-    return 0;
-}
-#endif
 
 TcpCommIO::TcpCommIO(ICOMM_SOCKET sockfd) : sockfd(sockfd) {}
 
