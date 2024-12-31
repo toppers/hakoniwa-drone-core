@@ -2,6 +2,7 @@
 #include <iostream>
 
 using namespace hako::mavlink;
+using namespace hako::mavlink::impl;
 
 static void dump_heartbeat(const MavlinkDecodedMessage& message) {
     std::cout << "  Type: HEARTBEAT" << std::endl;
@@ -110,7 +111,7 @@ static void dump_hil_actuator_controls(const MavlinkDecodedMessage& message) {
     }
     std::cout << std::endl;
 }
-void MavlinkDump::mavlink_header_dump(mavlink_message_t &msg)
+void hako::mavlink::impl::MavlinkDump::mavlink_header_dump(mavlink_message_t &msg)
 {
     std::cout << "Decoded MAVLink message:" << std::endl;
     std::cout << "  Message ID: " << msg.msgid << std::endl;
@@ -119,7 +120,7 @@ void MavlinkDump::mavlink_header_dump(mavlink_message_t &msg)
     std::cout << "  Sequence: " << static_cast<int>(msg.seq) << std::endl;
 }
 
-void MavlinkDump::mavlink_message_dump(MavlinkDecodedMessage &message)
+void hako::mavlink::impl::MavlinkDump::mavlink_message_dump(MavlinkDecodedMessage &message)
 {
     std::cout << "  Message.type: " << message.type << std::endl;
     switch (message.type) {

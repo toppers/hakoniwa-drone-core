@@ -9,7 +9,7 @@
 #include <atomic>
 #include <thread>
 
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 
 class MavLinkService : public IMavLinkService {
 public:
@@ -30,7 +30,7 @@ private:
     void receiver();
     std::unique_ptr<hako::comm::ICommClient> comm_client_;
     std::unique_ptr<hako::comm::ICommServer> comm_server_;
-    std::unique_ptr<hako::mavlink::IMavLinkComm> mavlink_comm_;
+    std::unique_ptr<hako::mavlink::impl::IMavLinkComm> mavlink_comm_;
     std::unique_ptr<IcommEndpointType> client_endpoint_;
     std::unique_ptr<ICommIO> comm_io_;
     IcommEndpointType server_endpoint_;

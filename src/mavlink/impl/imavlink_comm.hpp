@@ -5,7 +5,7 @@
 
 using namespace hako::comm;
 
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 
 class IMavLinkComm {
 public:

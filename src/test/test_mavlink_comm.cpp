@@ -38,12 +38,12 @@ TEST(MavLinkCommUdpTest, SendReceiveDataWithMavlinkHeader) {
     const int payload_len = static_cast<int>(strlen(payload));
 
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    impl::UdpServer udp_server;
+    hako::comm::impl::UdpServer udp_server;
     ICommIO* server_io = nullptr;
 
-    impl::UdpClient udp_client;
+    hako::comm::impl::UdpClient udp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
-    MavLinkCommUdp mavlink_comm_udp;
+    hako::mavlink::impl::MavLinkCommUdp mavlink_comm_udp;
 
     std::thread server_thread([&]() {
         server_io = udp_server.server_open(&server_endpoint);
@@ -85,12 +85,12 @@ TEST(MavLinkCommTcpTest, SendReceiveDataWithMavlinkHeader) {
     const int payload_len = static_cast<int>(strlen(payload));
 
     IcommEndpointType server_endpoint = {server_ip, server_port};
-    impl::TcpServer tcp_server;
+    hako::comm::impl::TcpServer tcp_server;
     ICommIO* server_io = nullptr;
 
-    impl::TcpClient tcp_client;
+    hako::comm::impl::TcpClient tcp_client;
     IcommEndpointType client_endpoint = {server_ip, server_port};
-    MavLinkCommTcp mavlink_comm_tcp;
+    hako::mavlink::impl::MavLinkCommTcp mavlink_comm_tcp;
 
     std::thread server_thread([&]() {
         server_io = tcp_server.server_open(&server_endpoint);

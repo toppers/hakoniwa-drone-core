@@ -12,9 +12,9 @@
 #include "hako_mavlink_msgs/pdu_ctype_conv_mavlink_HakoHilActuatorControls.hpp"
 
 using namespace hako::comm;
-using namespace hako::mavlink;
+using namespace hako::mavlink::impl;
 
-bool MavLinkService::is_initialized_ = false;
+bool hako::mavlink::impl::MavLinkService::is_initialized_ = false;
 
 IMavLinkService* IMavLinkService::create(int index, MavlinkServiceIoType io_type, const IcommEndpointType *server_endpoint, const IcommEndpointType *client_endpoint)
 {
@@ -30,12 +30,12 @@ void MavLinkService::init() {
     is_initialized_ = true;
     std::cout << "MavLinkService initialized" << std::endl;
 }
-void MavLinkService::finalize() {
+void hako::mavlink::impl::MavLinkService::finalize() {
     is_initialized_ = false;
     std::cout << "MavLinkService finalized" << std::endl;
 }
 
-MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const IcommEndpointType* server_endpoint, const IcommEndpointType* client_endpoint)
+hako::mavlink::impl::MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const IcommEndpointType* server_endpoint, const IcommEndpointType* client_endpoint)
     : comm_io_(nullptr), is_service_started_(false), index_(index), receiver_thread_(nullptr)
 {
     MavLinkService::init();
@@ -70,13 +70,13 @@ MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const Ic
         break;
     }
 }
-MavLinkService::~MavLinkService() {
+hako::mavlink::impl::MavLinkService::~MavLinkService() {
     stopService();
     if (receiver_thread_ && receiver_thread_->joinable()) {
         receiver_thread_->join();
     }
 }
-bool MavLinkService::sendMessage(MavlinkHakoMessage& message)
+bool hako::mavlink::impl::MavLinkService::sendMessage(MavlinkHakoMessage& message)
 {
     if (!is_service_started_)
     {
@@ -117,7 +117,7 @@ bool MavLinkService::sendMessage(MavlinkHakoMessage& message)
     }
     return sendMessage(decoded_message);
 }
-bool MavLinkService::sendMessage(MavlinkDecodedMessage& message)
+bool hako::mavlink::impl::MavLinkService::sendMessage(MavlinkDecodedMessage& message)
 {
     if (comm_io_ == nullptr)
     {
@@ -152,7 +152,7 @@ bool MavLinkService::sendMessage(MavlinkDecodedMessage& message)
         return false;
     }
 }
-bool MavLinkService::sendCommandLongAck()
+bool hako::mavlink::impl::MavLinkService::sendCommandLongAck()
 {
     MavlinkDecodedMessage message;
     message.type = MAVLINK_MSG_TYPE_LONG;
@@ -175,12 +175,12 @@ bool MavLinkService::sendCommandLongAck()
     return ret;
 }
 
-bool MavLinkService::readMessage(MavlinkHakoMessage& message, bool& is_dirty)
+bool hako::mavlink::impl::MavLinkService::readMessage(MavlinkHakoMessage& message, bool& is_dirty)
 {
     return MavlinkCommBuffer::read(index_, message, is_dirty);
 }
 
-void MavLinkService::receiver() {
+void hako::mavlink::impl::MavLinkService::receiver() {
     try {
         if (!comm_io_) {
             throw std::runtime_error("Invalid comm io");
@@ -218,7 +218,7 @@ void MavLinkService::receiver() {
     }
 }
 
-bool MavLinkService::startService() {
+bool hako::mavlink::impl::MavLinkService::startService() {
     if (is_service_started_) {
         std::cerr << "Service is already started" << std::endl;
         return false;
@@ -247,7 +247,7 @@ bool MavLinkService::startService() {
     }
     return true;
 }
-void MavLinkService::stopService() {
+void hako::mavlink::impl::MavLinkService::stopService() {
     if (!is_service_started_) {
         //std::cerr << "Service is not started" << std::endl;
         return;

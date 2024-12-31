@@ -5,7 +5,7 @@
 #include "mavlink_comm_message_parser.hpp"
 
 using namespace hako::comm;
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 
 class MavLinkCommUdp : public IMavLinkComm {
 public:

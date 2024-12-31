@@ -4,6 +4,10 @@
 #include "mavlink.h"
 #include "mavlink_msg_types.hpp"
 
+using namespace hako::mavlink;
+
+namespace hako::mavlink::impl
+{
 typedef struct {
     MavlinkMsgType type;
     union {
@@ -18,5 +22,5 @@ typedef struct {
     } data;
 } MavlinkDecodedMessage;
 
-
+}
 #endif /* _MAVLINK_TYPES_HPP_ */

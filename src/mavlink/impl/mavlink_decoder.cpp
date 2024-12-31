@@ -1,7 +1,9 @@
 #include "mavlink_decoder.hpp"
 #include <iostream>
 
-bool mavlink_decode(uint8_t chan, const char* packet, int packet_len, mavlink_message_t *msg)
+using namespace hako::mavlink::impl;
+
+bool hako::mavlink::impl::mavlink_decode(uint8_t chan, const char* packet, int packet_len, mavlink_message_t *msg)
 {
     mavlink_status_t status;
     bool messageReceived = false;
@@ -16,7 +18,7 @@ bool mavlink_decode(uint8_t chan, const char* packet, int packet_len, mavlink_me
     return messageReceived;
 }
 
-bool mavlink_get_message(mavlink_message_t *msg, MavlinkDecodedMessage *message)
+bool hako::mavlink::impl::mavlink_get_message(mavlink_message_t *msg, MavlinkDecodedMessage *message)
 {
     switch (msg->msgid) {
         case MAVLINK_MSG_ID_HEARTBEAT: 

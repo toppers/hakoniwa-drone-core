@@ -4,7 +4,7 @@
 #include "mavlink.h"
 #include "mavlink_types.hpp"
 
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 class MavlinkDump {
 public:
     static void mavlink_header_dump(mavlink_message_t &msg);

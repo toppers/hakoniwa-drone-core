@@ -1,7 +1,9 @@
 #include "mavlink_encoder.hpp"
 #include <iostream>
 
-int mavlink_get_packet(char* packet, int packet_len, const mavlink_message_t *msg) 
+using namespace hako::mavlink::impl;
+
+int hako::mavlink::impl::mavlink_get_packet(char* packet, int packet_len, const mavlink_message_t *msg) 
 {
     if (!packet || !msg) {
         return -1;
@@ -16,7 +18,7 @@ int mavlink_get_packet(char* packet, int packet_len, const mavlink_message_t *ms
     }
 }
 
-bool mavlink_encode_message(int index, mavlink_message_t *msg, const MavlinkDecodedMessage *message) 
+bool hako::mavlink::impl::mavlink_encode_message(int index, mavlink_message_t *msg, const MavlinkDecodedMessage *message) 
 {
     if (!msg || !message) {
         return false;

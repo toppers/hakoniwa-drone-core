@@ -5,28 +5,29 @@
 #include <iostream>
 
 using namespace hako::mavlink;
+using namespace hako::mavlink::impl;
 
 std::unordered_map<std::pair<int, MavlinkMsgType>, std::unique_ptr<MavlinkHakoMessage>, MavlinkCommBuffer::PairHash> MavlinkCommBuffer::cache_;
 std::atomic<bool> MavlinkCommBuffer::is_busy_{false};
 std::atomic<bool> MavlinkCommBuffer::is_dirty_[MAVLINK_INSTNACE_MAX_NUM][MAVLINK_MSG_TYPE_NUM]{{false}};
 
-void MavlinkCommBuffer::init() {
+void hako::mavlink::impl::MavlinkCommBuffer::init() {
     set_busy();
     cache_.clear();
     unset_busy();
 }
 
-void MavlinkCommBuffer::set_busy() {
+void hako::mavlink::impl::MavlinkCommBuffer::set_busy() {
     while (is_busy_.exchange(true)) {
         std::this_thread::yield();
     }
 }
 
-void MavlinkCommBuffer::unset_busy() {
+void hako::mavlink::impl::MavlinkCommBuffer::unset_busy() {
     is_busy_.store(false);
 }
 
-bool MavlinkCommBuffer::write(int index, MavlinkDecodedMessage &message) {
+bool hako::mavlink::impl::MavlinkCommBuffer::write(int index, MavlinkDecodedMessage &message) {
     MavlinkHakoMessage out;
     out.type = message.type;
 
@@ -57,7 +58,7 @@ bool MavlinkCommBuffer::write(int index, MavlinkDecodedMessage &message) {
     return true;
 }
 
-bool MavlinkCommBuffer::read(int index, MavlinkHakoMessage &message, bool &is_dirty) {
+bool hako::mavlink::impl::MavlinkCommBuffer::read(int index, MavlinkHakoMessage &message, bool &is_dirty) {
     auto key = std::make_pair(index, message.type);
     is_dirty = false;
     set_busy();

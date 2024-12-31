@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 #define MAVLINK_HEADER_LEN  9
 #define MAVLINK_CRC_LEN  2
 #define MAVLINK_SIGNATURE_LEN  1

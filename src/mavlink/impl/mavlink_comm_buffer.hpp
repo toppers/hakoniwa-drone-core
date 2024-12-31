@@ -9,7 +9,7 @@
 #include <atomic>
 #include "mavlink_types.hpp"
 
-namespace hako::mavlink {
+namespace hako::mavlink::impl {
 
 class MavlinkCommBuffer {
 public:

@@ -7,6 +7,8 @@
 #include "hako_mavlink_msgs/pdu_ctype_HakoHilStateQuaternion.h"
 #include "hako_mavlink_msgs/pdu_ctype_HakoHilGps.h"
 
+namespace hako::mavlink {
+
 typedef enum {
     MAVLINK_MSG_TYPE_UNKNOWN,
     MAVLINK_MSG_TYPE_HEARTBEAT,
@@ -30,5 +32,6 @@ typedef struct {
     } data;
 } MavlinkHakoMessage;
 
+}
 
 #endif /* _MAVLIN_MSG_TYPES_HPP_ */
