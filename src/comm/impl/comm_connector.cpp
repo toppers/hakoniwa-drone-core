@@ -2,6 +2,7 @@
 #include "impl/udp_connector.hpp"
 #include <stdexcept>
 #include <string>
+#include <iostream> 
 
 using namespace hako::comm;
 
