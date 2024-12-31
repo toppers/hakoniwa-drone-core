@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <thread>
-#include "mavlink/mavlink_comm_tcp.hpp"
-#include "mavlink/mavlink_comm_udp.hpp"
+#include "mavlink/impl/mavlink_comm_tcp.hpp"
+#include "mavlink/impl/mavlink_comm_udp.hpp"
 #include "comm/impl/udp_connector.hpp"
 #include "comm/impl/tcp_connector.hpp"
 

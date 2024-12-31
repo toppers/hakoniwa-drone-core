@@ -40,6 +40,7 @@ foreach(TARGET ${TARGETS})
 
 
     target_include_directories(${TARGET} 
+        PRIVATE ${PROJECT_ROOT_DIR}/include/comm
         PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
         PRIVATE ${HAKO_SOURCE_DIR}
         PRIVATE ${GLM_SOURCE_DIR}

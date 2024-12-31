@@ -12,11 +12,11 @@ endif()
 
 # ソースファイルの定義
 set(SOURCE_FILES
-    mavlink_dump.cpp
-    mavlink_encoder.cpp
-    mavlink_decoder.cpp
-    mavlink_comm_buffer.cpp
-    mavlink_service.cpp
+    impl/mavlink_dump.cpp
+    impl/mavlink_encoder.cpp
+    impl/mavlink_decoder.cpp
+    impl/mavlink_comm_buffer.cpp
+    impl/mavlink_service.cpp
 )
 add_library(hako_mavlink ${SOURCE_FILES})
 
@@ -41,16 +41,17 @@ endif()
 
 target_include_directories(hako_mavlink 
     PRIVATE ${PROJECT_ROOT_DIR}/include/comm
+    PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${MAVLINK_SOURCE_DIR}/all
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
-    PRIVATE ${HAKO_SOURCE_DIR})
+    PRIVATE ${HAKO_SOURCE_DIR}/mavlink
+    )
 target_compile_features(hako_mavlink PRIVATE cxx_std_17)
 
 target_link_libraries(hako_mavlink PRIVATE hako_comm)
 
 set(PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/mavlink_service_container.hpp
-    ${PROJECT_SOURCE_DIR}/imavlink_comm.hpp
     ${PROJECT_SOURCE_DIR}/imavlink_service.hpp
     ${PROJECT_SOURCE_DIR}/mavlink_msg_types.hpp
     ${PROJECT_SOURCE_DIR}/mavlink_config.hpp

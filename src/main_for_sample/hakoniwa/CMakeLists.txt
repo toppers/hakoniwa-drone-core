@@ -22,6 +22,7 @@ foreach(TARGET ${TARGETS})
     MESSAGE(STATUS "HAKO_SOURCE_DIR: ${HAKO_SOURCE_DIR}")
     MESSAGE(STATUS "nlohmann_json_SOURCE_DIR: ${nlohmann_json_SOURCE_DIR}")
     target_include_directories(${TARGET} 
+        PRIVATE ${PROJECT_ROOT_DIR}/include/comm
         PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
         PRIVATE ${HAKO_SOURCE_DIR}
         PRIVATE ${GLM_SOURCE_DIR}

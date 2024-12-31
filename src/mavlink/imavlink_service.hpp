@@ -1,12 +1,14 @@
 #ifndef _IMAVLINK_SERVICE_HPP_
 #define _IMAVLINK_SERVICE_HPP_
 
-#include "imavlink_comm.hpp"
+#include "icomm_connector.hpp"
 #include "mavlink_msg_types.hpp"
 #include <iostream>
 #include <memory>
 #include <atomic>
 #include <thread>
+
+using namespace hako::comm;
 
 namespace hako::mavlink {
 

@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <thread>
-#include "mavlink/mavlink_comm_tcp.hpp"
-#include "mavlink/mavlink_comm_udp.hpp"
-#include "mavlink/mavlink_service.hpp"
-#include "mavlink/mavlink_decoder.hpp"
-#include "mavlink/mavlink_encoder.hpp"
+#include "mavlink/impl/mavlink_comm_tcp.hpp"
+#include "mavlink/impl/mavlink_comm_udp.hpp"
+#include "mavlink/impl/mavlink_service.hpp"
+#include "mavlink/impl/mavlink_decoder.hpp"
+#include "mavlink/impl/mavlink_encoder.hpp"
 #include "comm/impl/udp_connector.hpp"
 #include "comm/impl/tcp_connector.hpp"
 

@@ -2,7 +2,7 @@
 #define _MAVLINK_TYPES_HPP_
 
 #include "mavlink.h"
-#include "mavlink/mavlink_msg_types.hpp"
+#include "mavlink_msg_types.hpp"
 
 typedef struct {
     MavlinkMsgType type;
