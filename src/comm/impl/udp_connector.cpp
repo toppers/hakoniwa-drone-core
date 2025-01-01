@@ -95,7 +95,7 @@ UdpClient::~UdpClient() {
     #endif
 }
 
-ICommIO* UdpClient::client_open(IcommEndpointType* src, IcommEndpointType* dst) {
+ICommIO* UdpClient::client_open(ICommEndpointType* src, ICommEndpointType* dst) {
     if (dst == nullptr) {
         std::cerr << "Invalid destination endpoint" << std::endl;
         return nullptr;
@@ -171,7 +171,7 @@ UdpServer::~UdpServer() {
     #endif
 }
 
-ICommIO* UdpServer::server_open(IcommEndpointType *endpoint) {
+ICommIO* UdpServer::server_open(ICommEndpointType *endpoint) {
 #ifdef _WIN32
     ICOMM_SOCKET sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if(sockfd == INVALID_SOCKET) {

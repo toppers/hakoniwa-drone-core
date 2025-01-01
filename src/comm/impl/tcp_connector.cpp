@@ -21,7 +21,7 @@ TcpClient::TcpClient() {}
 TcpClient::~TcpClient() {}
 
 #ifdef WIN32
-ICommIO* TcpClient::client_open(IcommEndpointType*, IcommEndpointType* dst) {
+ICommIO* TcpClient::client_open(ICommEndpointType*, ICommEndpointType* dst) {
     ICOMM_SOCKET sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == INVALID_SOCKET) {
         std::cerr << "Failed to create socket: " << WSAGetLastError() << std::endl;
@@ -50,7 +50,7 @@ ICommIO* TcpClient::client_open(IcommEndpointType*, IcommEndpointType* dst) {
     return new TcpCommIO(sockfd);
 }
 #else
-ICommIO* TcpClient::client_open(IcommEndpointType *, IcommEndpointType *dst) {
+ICommIO* TcpClient::client_open(ICommEndpointType *, ICommEndpointType *dst) {
     if (dst == nullptr) {
         std::cerr << "Invalid destination endpoint" << std::endl;
         return nullptr;
@@ -87,7 +87,7 @@ TcpServer::TcpServer() {}
 TcpServer::~TcpServer() {}
 
 #ifdef WIN32
-ICommIO* TcpServer::server_open(IcommEndpointType* endpoint) {
+ICommIO* TcpServer::server_open(ICommEndpointType* endpoint) {
 
     ICOMM_SOCKET sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == INVALID_SOCKET) {
@@ -136,7 +136,7 @@ ICommIO* TcpServer::server_open(IcommEndpointType* endpoint) {
     return new TcpCommIO(client_sockfd);
 }
 #else
-ICommIO* TcpServer::server_open(IcommEndpointType *endpoint) {
+ICommIO* TcpServer::server_open(ICommEndpointType *endpoint) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         std::cout << "Failed to create socket: " << strerror(errno) << std::endl;

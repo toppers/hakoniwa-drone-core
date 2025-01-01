@@ -25,7 +25,7 @@ typedef struct {
 } MavlinkDecodedMessage;
 class MavLinkService : public IMavLinkService {
 public:
-    explicit MavLinkService(int index, MavlinkServiceIoType io_type, const ::hako::comm::IcommEndpointType *server_endpoint, const ::hako::comm::IcommEndpointType *client_endpoint);
+    explicit MavLinkService(int index, MavlinkServiceIoType io_type, const ::hako::comm::ICommEndpointType *server_endpoint, const ::hako::comm::ICommEndpointType *client_endpoint);
     virtual ~MavLinkService();
 
     static void init();
@@ -43,9 +43,9 @@ private:
     std::unique_ptr<::hako::comm::ICommClient> comm_client_;
     std::unique_ptr<::hako::comm::ICommServer> comm_server_;
     std::unique_ptr<IMavLinkComm> mavlink_comm_;
-    std::unique_ptr<::hako::comm::IcommEndpointType> client_endpoint_;
+    std::unique_ptr<::hako::comm::ICommEndpointType> client_endpoint_;
     std::unique_ptr<::hako::comm::ICommIO> comm_io_;
-    ::hako::comm::IcommEndpointType server_endpoint_;
+    ::hako::comm::ICommEndpointType server_endpoint_;
     MavlinkServiceIoType io_type_;
     std::atomic<bool> is_service_started_;
     int index_;

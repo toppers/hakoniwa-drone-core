@@ -17,9 +17,22 @@ using namespace hako::mavlink::impl;
 
 bool hako::mavlink::impl::MavLinkService::is_initialized_ = false;
 
-IMavLinkService* IMavLinkService::create(int index, MavlinkServiceIoType io_type, const IcommEndpointType *server_endpoint, const IcommEndpointType *client_endpoint)
+IMavLinkService* IMavLinkService::create(int index, MavlinkServiceIoType io_type, const IMavlinkCommEndpointType *server_endpoint, const IMavlinkCommEndpointType *client_endpoint)
 {
-    return new MavLinkService(index, io_type, server_endpoint, client_endpoint);
+    ICommEndpointType comm_server_endpoint;
+    comm_server_endpoint.ipaddr = server_endpoint->ipaddr;
+    comm_server_endpoint.portno = server_endpoint->portno;
+
+    ICommEndpointType comm_client_endpoint;
+    if (client_endpoint == nullptr)
+    {
+        return new MavLinkService(index, io_type, &comm_server_endpoint, nullptr);
+    }
+    else {
+        comm_client_endpoint.ipaddr = client_endpoint->ipaddr;
+        comm_client_endpoint.portno = client_endpoint->portno;
+        return new MavLinkService(index, io_type, &comm_server_endpoint, &comm_client_endpoint);
+    }
 }
 
 void MavLinkService::init() {
@@ -36,7 +49,7 @@ void hako::mavlink::impl::MavLinkService::finalize() {
     std::cout << "MavLinkService finalized" << std::endl;
 }
 
-hako::mavlink::impl::MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const IcommEndpointType* server_endpoint, const IcommEndpointType* client_endpoint)
+hako::mavlink::impl::MavLinkService::MavLinkService(int index, MavlinkServiceIoType io_type, const ICommEndpointType* server_endpoint, const ICommEndpointType* client_endpoint)
     : comm_io_(nullptr), is_service_started_(false), index_(index), receiver_thread_(nullptr)
 {
     MavLinkService::init();
@@ -49,7 +62,7 @@ hako::mavlink::impl::MavLinkService::MavLinkService(int index, MavlinkServiceIoT
     }
     if (client_endpoint != nullptr)
     {
-        client_endpoint_ = std::make_unique<IcommEndpointType>();
+        client_endpoint_ = std::make_unique<ICommEndpointType>();
     }
     else {
         client_endpoint_ = nullptr;

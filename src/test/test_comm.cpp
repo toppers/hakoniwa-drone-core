@@ -12,12 +12,12 @@ TEST(UdpCommTest, SendReceiveData) {
     const char* test_message = "Hello, UDP!";
     char buffer[1024] = {0};
 
-    IcommEndpointType server_endpoint = {server_ip, server_port};
+    ICommEndpointType server_endpoint = {server_ip, server_port};
     impl::UdpServer server;
     ICommIO* server_io = nullptr;
 
-    IcommEndpointType client_src = {server_ip, client_port};
-    IcommEndpointType client_dst = {server_ip, server_port};
+    ICommEndpointType client_src = {server_ip, client_port};
+    ICommEndpointType client_dst = {server_ip, server_port};
     impl::UdpClient client;
 
     std::thread server_thread([&]() {
@@ -61,12 +61,12 @@ TEST(TcpCommTest, SendReceiveData) {
     const char* test_message = "Hello, TCP!";
     hako::comm::comm_init();
     
-    IcommEndpointType server_endpoint = {server_ip, server_port};
+    ICommEndpointType server_endpoint = {server_ip, server_port};
     impl::TcpServer server;
     ICommIO* server_io = nullptr;
 
-    IcommEndpointType client_src = {nullptr, 0}; 
-    IcommEndpointType client_dst = {server_ip, server_port};
+    ICommEndpointType client_src = {nullptr, 0}; 
+    ICommEndpointType client_dst = {server_ip, server_port};
     impl::TcpClient client;
 
     std::thread server_thread([&]() {

@@ -25,7 +25,7 @@ public:
     TcpClient();
     ~TcpClient() override;
 
-    ICommIO* client_open(IcommEndpointType *src, IcommEndpointType *dst) override;
+    ICommIO* client_open(ICommEndpointType *src, ICommEndpointType *dst) override;
 };
 
 class TcpServer : public ICommServer {
@@ -35,7 +35,7 @@ public:
     TcpServer();
     ~TcpServer() override;
 
-    ICommIO* server_open(IcommEndpointType *endpoint) override;
+    ICommIO* server_open(ICommEndpointType *endpoint) override;
 };
 
 

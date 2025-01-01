@@ -18,7 +18,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     const char* server_ip = "127.0.0.1";
     const int server_port = 12347;
 
-    IcommEndpointType server_endpoint = {server_ip, server_port};
+    ICommEndpointType server_endpoint = {server_ip, server_port};
     auto service = MavLinkService(0, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
 
     std::thread server_thread([&]() {
@@ -69,7 +69,7 @@ TEST(MavLinkSendTcpTest, SendReceive) {
     });
 
     hako::comm::impl::TcpClient tcp_client;
-    IcommEndpointType client_endpoint = {server_ip, server_port};
+    ICommEndpointType client_endpoint = {server_ip, server_port};
 
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -125,7 +125,7 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     const char* server_ip = "127.0.0.1";
     const int server_port = 12347;
 
-    IcommEndpointType server_endpoint = {server_ip, server_port};
+    ICommEndpointType server_endpoint = {server_ip, server_port};
     auto service = MavLinkService(0, MAVLINK_SERVICE_IO_TYPE_UDP, &server_endpoint, nullptr);
 
     std::thread server_thread([&]() {
@@ -176,7 +176,7 @@ TEST(MavLinkSendUdpTest, SendSensor) {
     });
 
     hako::comm::impl::UdpClient udp_client;
-    IcommEndpointType client_endpoint = {server_ip, server_port};
+    ICommEndpointType client_endpoint = {server_ip, server_port};
 
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

@@ -13,7 +13,7 @@ namespace hako::comm {
     typedef struct {
         const char *ipaddr;
         int portno;
-    } IcommEndpointType;
+    } ICommEndpointType;
 
     class ICommIO {
     public:
@@ -27,13 +27,13 @@ namespace hako::comm {
     public:
         static std::unique_ptr<ICommServer> create(CommIoType type);
         virtual ~ICommServer() = default;
-        virtual ICommIO* server_open(IcommEndpointType *endpoint) = 0;
+        virtual ICommIO* server_open(ICommEndpointType *endpoint) = 0;
     };
 
     class ICommClient {
     public:
         virtual ~ICommClient() = default;
-        virtual ICommIO* client_open(IcommEndpointType *src, IcommEndpointType *dst) = 0;
+        virtual ICommIO* client_open(ICommEndpointType *src, ICommEndpointType *dst) = 0;
     };
     extern int comm_init();
 

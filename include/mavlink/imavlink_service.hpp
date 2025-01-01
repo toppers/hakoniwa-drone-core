@@ -5,7 +5,6 @@
 #include <atomic>
 #include <thread>
 #include <functional>
-#include "icomm_connector.hpp"
 #include "hako_mavlink_msgs/pdu_ctype_HakoHilSensor.h"
 #include "hako_mavlink_msgs/pdu_ctype_HakoHilActuatorControls.h"
 #include "hako_mavlink_msgs/pdu_ctype_HakoHilStateQuaternion.h"
@@ -42,9 +41,15 @@ typedef struct {
     } data;
 } MavlinkHakoMessage;
 
+typedef struct {
+    const char *ipaddr;
+    int portno;
+} IMavlinkCommEndpointType;
+
+
 class IMavLinkService {
 public:
-    static IMavLinkService* create(int index, MavlinkServiceIoType io_type, const hako::comm::IcommEndpointType *server_endpoint, const hako::comm::IcommEndpointType *client_endpoint);
+    static IMavLinkService* create(int index, MavlinkServiceIoType io_type, const IMavlinkCommEndpointType *server_endpoint, const IMavlinkCommEndpointType *client_endpoint);
     virtual ~IMavLinkService() = default;
 
     virtual bool sendMessage(MavlinkHakoMessage& message) = 0;
