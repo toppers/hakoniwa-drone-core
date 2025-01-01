@@ -1,5 +1,4 @@
-#ifndef _UDPCONNECTOR_HPP_
-#define _UDPCONNECTOR_HPP_
+#pragma once
 
 #include "icomm_connector.hpp"
 #include "icomm_osdep.hpp"
@@ -46,5 +45,3 @@ public:
 };
 
 }
-
-#endif /* _UDPCONNECTOR_HPP_ */

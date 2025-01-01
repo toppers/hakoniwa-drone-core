@@ -1,5 +1,4 @@
-#ifndef _ICOMM_OSDEP_HPP_
-#define _ICOMM_OSDEP_HPP_
+#pragma once
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -19,5 +18,3 @@ typedef SOCKET ICOMM_SOCKET;
 typedef int ICOMM_SOCKET;
 #endif
 
-
-#endif /* _ICOMM_OSDEP_HPP_ */

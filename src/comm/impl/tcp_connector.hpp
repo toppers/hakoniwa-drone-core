@@ -1,5 +1,4 @@
-#ifndef _TCPCONNECTOR_HPP_
-#define _TCPCONNECTOR_HPP_
+#pragma once
 
 #include "icomm_connector.hpp"
 #include "impl/icomm_osdep.hpp"
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif /* _TCPCONNECTOR_HPP_ */
