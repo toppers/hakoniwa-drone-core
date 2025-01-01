@@ -2,8 +2,8 @@
 #define _MAVLINK_ENCODER_HPP_
 
 #include <mavlink.h>
-#include "mavlink_types.hpp"
-#include "mavlink_config.hpp"
+#include "impl/mavlink_service.hpp"
+#include "impl/mavlink_config.hpp"
 
 namespace hako::mavlink::impl
 {

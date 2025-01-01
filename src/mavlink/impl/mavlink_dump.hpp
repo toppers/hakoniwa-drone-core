@@ -1,8 +1,7 @@
-#ifndef _MAVLINK_DUMP_HPP_
-#define _MAVLINK_DUMP_HPP_
+#pragma once
 
 #include "mavlink.h"
-#include "mavlink_types.hpp"
+#include "impl/mavlink_service.hpp"
 
 namespace hako::mavlink::impl {
 class MavlinkDump {
@@ -12,4 +11,3 @@ public:
 };
 } // namespace hako::mavlink
 
-#endif /* _MAVLINK_DUMP_HPP_ */

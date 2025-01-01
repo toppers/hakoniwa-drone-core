@@ -12,6 +12,7 @@
 #include "hako_mavlink_msgs/pdu_ctype_conv_mavlink_HakoHilActuatorControls.hpp"
 
 using namespace hako::comm;
+using namespace hako::mavlink;
 using namespace hako::mavlink::impl;
 
 bool hako::mavlink::impl::MavLinkService::is_initialized_ = false;

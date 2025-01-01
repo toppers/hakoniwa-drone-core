@@ -1,8 +1,8 @@
-#ifndef _MAVLINK_SERVICE_HPP_
-#define _MAVLINK_SERVICE_HPP_
+#pragma once
 
-#include "mavlink_types.hpp"
+#include "mavlink.h"
 #include "imavlink_service.hpp"
+#include "icomm_connector.hpp"
 #include "impl/imavlink_comm.hpp"
 #include <iostream>
 #include <memory>
@@ -10,10 +10,22 @@
 #include <thread>
 
 namespace hako::mavlink::impl {
-
+typedef struct {
+    MavlinkMsgType type;
+    union {
+        mavlink_heartbeat_t heartbeat;
+        mavlink_command_long_t command_long;
+        mavlink_command_ack_t command_ack;
+        mavlink_hil_sensor_t hil_sensor;
+        mavlink_hil_state_quaternion_t hil_state_quaternion;
+        mavlink_system_time_t system_time;
+        mavlink_hil_gps_t hil_gps;
+        mavlink_hil_actuator_controls_t hil_actuator_controls;
+    } data;
+} MavlinkDecodedMessage;
 class MavLinkService : public IMavLinkService {
 public:
-    explicit MavLinkService(int index, MavlinkServiceIoType io_type, const IcommEndpointType *server_endpoint, const IcommEndpointType *client_endpoint);
+    explicit MavLinkService(int index, MavlinkServiceIoType io_type, const ::hako::comm::IcommEndpointType *server_endpoint, const ::hako::comm::IcommEndpointType *client_endpoint);
     virtual ~MavLinkService();
 
     static void init();
@@ -28,12 +40,12 @@ private:
     bool sendMessage(MavlinkDecodedMessage &message);
     bool sendCommandLongAck();
     void receiver();
-    std::unique_ptr<hako::comm::ICommClient> comm_client_;
-    std::unique_ptr<hako::comm::ICommServer> comm_server_;
-    std::unique_ptr<hako::mavlink::impl::IMavLinkComm> mavlink_comm_;
-    std::unique_ptr<IcommEndpointType> client_endpoint_;
-    std::unique_ptr<ICommIO> comm_io_;
-    IcommEndpointType server_endpoint_;
+    std::unique_ptr<::hako::comm::ICommClient> comm_client_;
+    std::unique_ptr<::hako::comm::ICommServer> comm_server_;
+    std::unique_ptr<IMavLinkComm> mavlink_comm_;
+    std::unique_ptr<::hako::comm::IcommEndpointType> client_endpoint_;
+    std::unique_ptr<::hako::comm::ICommIO> comm_io_;
+    ::hako::comm::IcommEndpointType server_endpoint_;
     MavlinkServiceIoType io_type_;
     std::atomic<bool> is_service_started_;
     int index_;
@@ -43,4 +55,3 @@ private:
 
 } // namespace hako::mavlink
 
-#endif /* _MAVLINK_SERVICE_HPP_ */

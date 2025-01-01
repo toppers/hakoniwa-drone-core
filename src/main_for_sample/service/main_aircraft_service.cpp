@@ -2,6 +2,7 @@
 #include "logger/impl/hako_logger.hpp"
 
 using namespace hako::service;
+using namespace hako::comm;
 using namespace hako::logger;
 
 

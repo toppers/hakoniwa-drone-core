@@ -1,5 +1,4 @@
-#ifndef _ICOMM_CONNECTOR_HPP_
-#define _ICOMM_CONNECTOR_HPP_
+#pragma once
 
 #include <memory>
 
@@ -39,5 +38,3 @@ namespace hako::comm {
     extern int comm_init();
 
 }
-
-#endif /* _ICOMM_CONNECTOR_HPP_ */

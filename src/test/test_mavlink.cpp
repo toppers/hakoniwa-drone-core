@@ -8,6 +8,7 @@
 #include "comm/impl/udp_connector.hpp"
 #include "comm/impl/tcp_connector.hpp"
 
+using namespace hako::mavlink;
 using namespace hako::mavlink::impl;
 using namespace hako::comm;
 

@@ -11,6 +11,7 @@
 using namespace hako::aircraft;
 using namespace hako::service;
 using namespace hako::service::impl;
+using namespace hako::comm;
 using namespace hako::logger;
 using namespace hako::drone::impl;
 

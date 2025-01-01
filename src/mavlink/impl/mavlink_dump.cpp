@@ -1,7 +1,6 @@
 #include "mavlink_dump.hpp"
 #include <iostream>
 
-using namespace hako::mavlink;
 using namespace hako::mavlink::impl;
 
 static void dump_heartbeat(const MavlinkDecodedMessage& message) {

@@ -7,7 +7,7 @@
 #include <utility>
 #include <iostream>
 #include <atomic>
-#include "mavlink_types.hpp"
+#include "impl/mavlink_service.hpp"
 
 namespace hako::mavlink::impl {
 
