@@ -1,5 +1,4 @@
-#ifndef _MAVLINK_COMM_MESSAGE_PARSER_HPP_
-#define _MAVLINK_COMM_MESSAGE_PARSER_HPP_
+#pragma once
 
 #include <cstring>
 #include <iostream>
@@ -49,5 +48,3 @@ public:
 };
 
 } // namespace hako::comm
-
-#endif /* _MAVLINK_COMM_MESSAGE_PARSER_HPP_ */

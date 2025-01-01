@@ -1,5 +1,4 @@
-#ifndef _MAVLINK_COMM_TCP_HPP_
-#define _MAVLINK_COMM_TCP_HPP_
+#pragma once
 
 #include "imavlink_comm.hpp"
 #include "mavlink_comm_message_parser.hpp"
@@ -50,5 +49,3 @@ public:
 };
 
 } // namespace hako::comm
-
-#endif /* _MAVLINK_COMM_TCP_HPP_ */

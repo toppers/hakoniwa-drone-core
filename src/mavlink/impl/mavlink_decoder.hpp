@@ -1,5 +1,4 @@
-#ifndef _MAVLINK_DECODER_HPP_
-#define _MAVLINK_DECODER_HPP_
+#pragma once
 
 #include <mavlink.h>
 #include "impl/mavlink_service.hpp"
@@ -12,4 +11,4 @@ extern bool mavlink_get_message(mavlink_message_t *msg, MavlinkDecodedMessage *m
 
 }
 
-#endif /* _MAVLINK_DECODER_HPP_ */
+

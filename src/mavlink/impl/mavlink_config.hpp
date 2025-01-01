@@ -1,5 +1,4 @@
-#ifndef _MAVLINK_CONFIG_HPP_
-#define _MAVLINK_CONFIG_HPP_
+#pragma once
 
 #define MAVLINK_CONFIG_CHAN_0           0
 #define MAVLINK_CONFIG_CHAN_1           1
@@ -9,4 +8,3 @@
 
 #define MAVLINK_CONFIG_VERSION          3
 
-#endif /* _MAVLINK_CONFIG_HPP_ */

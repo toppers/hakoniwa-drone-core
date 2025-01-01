@@ -1,5 +1,4 @@
-#ifndef MAVLINK_COMM_BUFFER_HPP
-#define MAVLINK_COMM_BUFFER_HPP
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -35,5 +34,3 @@ private:
 };
 
 } // namespace hako::mavlink
-
-#endif // MAVLINK_COMM_BUFFER_HPP
