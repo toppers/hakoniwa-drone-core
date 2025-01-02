@@ -1,13 +1,24 @@
-#ifndef _IAIRCRAFT_CONTROLLER_HPP_
-#define _IAIRCRAFT_CONTROLLER_HPP_
+#pragma once
 
-#include "controller/aircraft_controller_types.h"
-#include "controller/iaircraft_mixer.hpp"
 #include <memory>
 #include <string>
 
+#include "config/drone_config.hpp"
+#include "aircraft_controller_types.h"
+
 namespace hako::controller {
 
+
+struct PwmDuty {
+    double d[HAKO_AIRCRAFT_MAX_ROTOR_NUM];
+};
+
+
+class IAircraftMixer {
+public:
+    virtual ~IAircraftMixer() {}
+    virtual PwmDuty run(mi_aircraft_control_out_t& in) = 0;
+};
 class IAircraftController {
 private:
     std::shared_ptr<IAircraftMixer> mixer_;
@@ -27,7 +38,13 @@ public:
     }
     virtual mi_aircraft_control_out_t run(mi_aircraft_control_in_t& in) = 0;
 };
+
+class IAircraftControllerContainer {
+public:
+    static std::shared_ptr<IAircraftControllerContainer> create();
+    virtual ~IAircraftControllerContainer() = default;
+    virtual std::vector<std::shared_ptr<IAircraftController>>& getControllers() = 0;
+    virtual void createAircraftControllers(config::DroneConfigManager& configManager) = 0;
+};
+
 }
-
-
-#endif /* _IAIRCRAFT_CONTROLLER_HPP_ */

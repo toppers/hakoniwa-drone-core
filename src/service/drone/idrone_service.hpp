@@ -1,7 +1,7 @@
 #ifndef _IDRONE_SERVICE_HPP_
 #define _IDRONE_SERVICE_HPP_
 
-#include "controller/iaircraft_controller.hpp"
+#include "iaircraft_controller.hpp"
 #include "service/iservice_pdu_types.hpp"
 #include <cstdint>
 #include <atomic>

@@ -16,8 +16,11 @@ static std::string readFileToString(const std::string& filePath) {
     stringStream << fileStream.rdbuf();
     return stringStream.str();
 }
+std::shared_ptr<IAircraftControllerContainer> hako::controller::IAircraftControllerContainer::create() {
+    return std::make_shared<AircraftControllerContainer>();
+}
 
-std::shared_ptr<IAircraftController> hako::controller::create_aircraft_controller(int index, const DroneConfig& drone_config, bool is_param_text_base)
+std::shared_ptr<IAircraftController> hako::controller::impl::create_aircraft_controller(int index, const DroneConfig& drone_config, bool is_param_text_base)
 {
     std::string module_name = drone_config.getControllerModuleName();
     std::shared_ptr<IAircraftController> controller = nullptr;

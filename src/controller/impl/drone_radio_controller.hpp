@@ -1,5 +1,5 @@
-#ifndef _DRONE_RADIO_CONTROLLER_HPP_
-#define _DRONE_RADIO_CONTROLLER_HPP_
+#pragma once
+
 
 #include "drone_alt_controller.hpp"
 #include "drone_pos_controller.hpp"
@@ -8,6 +8,8 @@
 #include "hako_controller_param_loader.hpp"
 #include <stdexcept>
 #include <memory>
+
+namespace hako::controller::impl {
 
 class DroneRadioController {
 private:
@@ -147,5 +149,4 @@ public:
         return r_yaw;
     }
 };
-
-#endif /* _DRONE_RADIO_CONTROLLER_HPP_ */
+} // namespace hako::controller::impl

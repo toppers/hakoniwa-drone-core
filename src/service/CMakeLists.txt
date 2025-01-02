@@ -21,6 +21,7 @@ add_library(hako_service ${SOURCE_FILES})
 target_include_directories(hako_service 
     PRIVATE ${PROJECT_ROOT_DIR}/include/comm
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
+    PRIVATE ${PROJECT_ROOT_DIR}/include/controller
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${GLM_SOURCE_DIR}
     PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include

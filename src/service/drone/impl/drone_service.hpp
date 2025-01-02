@@ -7,8 +7,7 @@
 #include "service/drone/impl/drone_service_api.hpp"
 
 #include "aircraft/iaircraft_container.hpp"
-#include "controller/iaircraft_mixer.hpp"
-#include "controller/aircraft_controller_container.hpp"
+#include "iaircraft_controller.hpp"
 #include "service/iservice_pdu_syncher.hpp"
 #include "service/impl/service_pdu_syncher.hpp"
 #include <array>

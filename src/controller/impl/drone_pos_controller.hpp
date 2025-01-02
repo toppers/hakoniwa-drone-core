@@ -1,11 +1,14 @@
-#ifndef _DRONE_POS_CONTROLLER_HPP_
-#define _DRONE_POS_CONTROLLER_HPP_
+#pragma once
+
 
 #include "drone_pid_control.hpp"
 #include "body_physics.hpp"
 #include "flight_controller_types.hpp"
 #include "hako_controller_param_loader.hpp"
 #include <memory>
+
+namespace hako::controller::impl {
+
 
 struct DronePosInputType {
     FlightControllerInputPositionType pos;
@@ -161,5 +164,4 @@ public:
         spd_simulation_time = 0;
     }
 };
-
-#endif /* _DRONE_POS_CONTROLLER_HPP_ */
+}

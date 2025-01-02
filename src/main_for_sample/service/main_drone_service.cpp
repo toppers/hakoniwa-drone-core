@@ -41,8 +41,8 @@ int main(int argc, const char* argv[])
     AirCraftContainer aircraft_container;
     aircraft_container.createAirCrafts(configManager);
 
-    AircraftControllerContainer controller_container;
-    controller_container.createAircraftControllers(configManager);
+    std::shared_ptr<IAircraftControllerContainer> controller_container = IAircraftControllerContainer::create();
+    controller_container->createAircraftControllers(configManager);
 
     DroneServiceContainer service_container(aircraft_container, controller_container);
 

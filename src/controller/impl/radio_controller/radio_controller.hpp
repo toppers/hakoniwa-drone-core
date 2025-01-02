@@ -1,7 +1,7 @@
-#ifndef _RADIO_CONTROLLER_HPP_
-#define _RADIO_CONTROLLER_HPP_
+#pragma once
 
-#include "controller/iaircraft_controller.hpp"
+
+#include "iaircraft_controller.hpp"
 #include "controller/impl/drone_radio_controller.hpp"
 
 namespace hako::controller::impl {
@@ -19,4 +19,3 @@ private:
 };
 } // namespace hako::controller::impl
 
-#endif /* _RADIO_CONTROLLER_HPP_ */

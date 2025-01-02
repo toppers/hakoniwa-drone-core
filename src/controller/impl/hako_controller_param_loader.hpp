@@ -1,5 +1,4 @@
-#ifndef HAKO_CONTROLLER_PARAM_LOADER_HPP
-#define HAKO_CONTROLLER_PARAM_LOADER_HPP
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -13,6 +12,7 @@
 #ifdef _WIN32
 #include <cstdlib> // For _dupenv_s
 #endif
+namespace hako::controller::impl {
 
 class HakoControllerParamLoader {
 private:
@@ -125,4 +125,4 @@ private:
     }
 };
 
-#endif // HAKO_CONTROLLER_PARAM_LOADER_HPP
+}

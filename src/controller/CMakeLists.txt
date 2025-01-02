@@ -24,6 +24,7 @@ else()
 endif()
 
 target_include_directories(hako_controller 
+    PRIVATE ${PROJECT_ROOT_DIR}/include/controller
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/physics
     PRIVATE ${GLM_SOURCE_DIR}
@@ -35,15 +36,9 @@ target_compile_features(hako_controller PRIVATE cxx_std_17)
 target_link_libraries(hako_controller PRIVATE 
     drone_physics
 )
-set(PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/iaircraft_controller.hpp
-    ${PROJECT_SOURCE_DIR}/iaircraft_mixer.hpp
-)
-
 add_custom_target(
     controller_publish
     COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_HEADER_DIR}/controller/"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
-    COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADERS} "${HAKONIWA_PUBLIC_HEADER_DIR}/controller/"
     COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_controller> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
 )

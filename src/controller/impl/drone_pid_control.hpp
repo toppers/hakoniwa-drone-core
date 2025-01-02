@@ -1,8 +1,9 @@
-#ifndef _PID_CONTROL_HPP_
-#define _PID_CONTROL_HPP_
+#pragma once
 
 #include <vector>
 #include <iostream>
+
+namespace hako::controller::impl {
 
 class DronePidControl {
 private:
@@ -38,5 +39,4 @@ public:
         integral = 0.0;
     }
 };
-
-#endif /* _PID_CONTROL_HPP_ */
+}

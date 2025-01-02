@@ -1,10 +1,11 @@
-#ifndef _FLIGHT_CONTROLLER_TYPES_HPP_
-#define _FLIGHT_CONTROLLER_TYPES_HPP_
+#pragma once
+
 
 #include <cmath>
 #include "frame_types.h"
 
 #define ENV_HAKO_CONTROLLER_PARAM_FILE "HAKO_CONTROLLER_PARAM_FILE"
+namespace hako::controller::impl {
 
 struct PidControlInputType {
     double target;
@@ -64,5 +65,4 @@ static inline double flight_controller_get_limit_value(double input_value, doubl
     return limited_value;
 }
 
-
-#endif /* _FLIGHT_CONTROLLER_TYPES_HPP_ */
+}

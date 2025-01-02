@@ -5,7 +5,7 @@
 #include "service/drone/impl/drone_service.hpp"
 #include "service/drone/idrone_service.hpp"
 #include "aircraft/iaircraft_container.hpp"
-#include "controller/aircraft_controller_container.hpp"
+#include "iaircraft_controller.hpp"
 
 using namespace hako::aircraft;
 using namespace hako::controller;
@@ -14,12 +14,12 @@ namespace hako::service::impl {
 
 class DroneServiceContainer : public IDroneServiceContainer {
 public:
-    DroneServiceContainer(IAirCraftContainer& aircraft_container, AircraftControllerContainer& controller_container) {
-        if (aircraft_container.getAllAirCrafts().size() != controller_container.getControllers().size()) {
+    DroneServiceContainer(IAirCraftContainer& aircraft_container, std::shared_ptr<IAircraftControllerContainer> controller_container) {
+        if (aircraft_container.getAllAirCrafts().size() != controller_container->getControllers().size()) {
             throw std::runtime_error("aircraft and controller size mismatch");
         }
         for (std::shared_ptr<IAirCraft> aircraft : aircraft_container.getAllAirCrafts()) {
-            std::shared_ptr<DroneService> drone_service = std::make_shared<DroneService>(aircraft, controller_container.getControllers()[aircraft->get_index()]);
+            std::shared_ptr<DroneService> drone_service = std::make_shared<DroneService>(aircraft, controller_container->getControllers()[aircraft->get_index()]);
             drone_services_.push_back(drone_service);
         }
     };

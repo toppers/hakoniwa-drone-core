@@ -1,9 +1,11 @@
-#ifndef _DRONE_HEADING_CONTROLLER_HPP_
-#define _DRONE_HEADING_CONTROLLER_HPP_
+#pragma once
+
 
 #include "drone_pid_control.hpp"
 #include "flight_controller_types.hpp"
 #include "hako_controller_param_loader.hpp"
+
+namespace hako::controller::impl {
 
 struct DroneHeadingControlInputType {
     FlightControllerInputEulerType euler;
@@ -88,5 +90,4 @@ public:
         simulation_time = 0;
     }
 };
-
-#endif /* _DRONE_HEADING_CONTROLLER_HPP_ */
+}

@@ -1,5 +1,5 @@
-#ifndef _DRONE_CONTROLLER_HPP_
-#define _DRONE_CONTROLLER_HPP_
+#pragma once
+
 
 #include "drone_alt_controller.hpp"
 #include "drone_pos_controller.hpp"
@@ -8,6 +8,8 @@
 #include "hako_controller_param_loader.hpp"
 #include <stdexcept>
 #include <memory>
+
+namespace hako::controller::impl {
 
 class DroneController {
 public:
@@ -51,5 +53,4 @@ private:
     }
 
 };
-
-#endif /* _DRONE_CONTROLLER_HPP_ */
+}

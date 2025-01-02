@@ -1,10 +1,9 @@
-#ifndef _FLIGHT_CONTROLLER_HPP_
-#define _FLIGHT_CONTROLLER_HPP_
+#pragma once
 
-#include "controller/iaircraft_controller.hpp"
+
+#include "iaircraft_controller.hpp"
 #include "controller/impl/drone_controller.hpp"
 
-using namespace hako::controller;
 
 namespace hako::controller::impl {
 class FlightController : public IAircraftController {
@@ -20,5 +19,3 @@ private:
     DroneController ctrl_;
 };
 } // namespace hako::controller::impl
-
-#endif /* _FLIGHT_CONTROLLER_HPP_ */

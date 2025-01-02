@@ -1,8 +1,8 @@
-#ifndef _DRONE_MIXER_HPP_
-#define _DRONE_MIXER_HPP_
+#pragma once
+
 
 #include "config/drone_config.hpp"
-#include "controller/iaircraft_mixer.hpp"
+#include "iaircraft_controller.hpp"
 #include "aircraft/interfaces/primitive_types.hpp"
 #include "aircraft/interfaces/ithrust_dynamics.hpp"
 #include <vector>
@@ -14,7 +14,7 @@
 using namespace hako::config;
 using namespace hako::aircraft;
 
-namespace hako::controller {
+namespace hako::controller::impl {
     class AircraftMixer : public IAircraftMixer{
     private:
         double param_Kr;
@@ -180,5 +180,3 @@ namespace hako::controller {
         }
     };
 }
-
-#endif /* _DRONE_MIXER_HPP_ */
