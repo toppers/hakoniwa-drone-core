@@ -2,7 +2,7 @@
 #define _AIRCRAFT_HPP_
 
 #include "aircraft/iaircraft.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 #include <memory>
 
 using namespace hako::logger;
