@@ -1,5 +1,4 @@
 #pragma once
-
 /**
  * C interface for body_physics.hpp
  * Identifiers are prefixed by "dp_" avoiding namespace pollution.

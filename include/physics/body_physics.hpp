@@ -1,9 +1,7 @@
 #pragma once
 #include "drone_frames.hpp"
 
-
 namespace hako::drone_physics {
-
 /*
  *  Maths for anglular velocity and euler rate.
  */
