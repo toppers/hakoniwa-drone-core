@@ -39,3 +39,11 @@ target_compile_features(hako_aircraft PRIVATE cxx_std_17)
 target_link_libraries(hako_aircraft PRIVATE 
     hako_logger
     drone_physics)
+
+add_custom_target(
+    aircraft_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_HEADER_DIR}/controller/"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_aircraft> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)
+    
