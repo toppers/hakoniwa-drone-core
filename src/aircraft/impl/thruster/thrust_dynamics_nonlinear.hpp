@@ -1,8 +1,8 @@
 #pragma once
 
-#include "rotor_physics.hpp"
-#include "interfaces/ithrust_dynamics.hpp"
-#include "ilogger.hpp"
+#include "physics/rotor_physics.hpp"
+#include "aircraft/interfaces/ithrust_dynamics.hpp"
+#include "logger/ilogger.hpp"
 
 #include <glm/glm.hpp>
 #include <iostream>

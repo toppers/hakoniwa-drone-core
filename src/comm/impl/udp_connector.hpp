@@ -1,6 +1,6 @@
 #pragma once
 
-#include "icomm_connector.hpp"
+#include "comm/icomm_connector.hpp"
 #include "icomm_osdep.hpp"
 #include <mutex>
 namespace hako::comm::impl {

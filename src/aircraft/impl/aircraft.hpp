@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "iaircraft.hpp"
-#include "ilogger.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "logger/ilogger.hpp"
 #include <memory>
 
 using namespace hako::logger;

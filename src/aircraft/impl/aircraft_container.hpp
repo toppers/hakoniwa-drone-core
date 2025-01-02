@@ -1,7 +1,7 @@
 #pragma once
 
-#include "iaircraft.hpp"
-#include "drone_config.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "config/drone_config.hpp"
 #include <vector>
 
 namespace hako::aircraft::impl {

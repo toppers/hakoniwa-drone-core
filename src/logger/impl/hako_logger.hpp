@@ -1,8 +1,6 @@
 #pragma once
 
-#include "ilog.hpp"
-#include "ilog_file.hpp"
-#include "ilogger.hpp"
+#include "logger/ilogger.hpp"
 #include <vector>
 #include <string>
 #include <memory>      // For smart pointers

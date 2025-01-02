@@ -1,9 +1,9 @@
 #pragma once
 
-#include "iaircraft.hpp"
-#include "iaircraft_controller.hpp"
-#include "iservice_container.hpp"
-#include "iservice_pdu_types.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "controller/iaircraft_controller.hpp"
+#include "service/iservice_container.hpp"
+#include "service/iservice_pdu_types.hpp"
 #include <cstdint>
 #include <atomic>
 #include <memory>

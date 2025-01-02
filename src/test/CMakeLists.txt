@@ -63,12 +63,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE hako_aircraft
 )
 target_include_directories(${PROJECT_NAME}
-    PRIVATE ${PROJECT_ROOT_DIR}/include/comm
-    PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
-    PRIVATE ${PROJECT_ROOT_DIR}/include/config
-    PRIVATE ${PROJECT_ROOT_DIR}/include/logger
-    PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
-    PRIVATE ${PROJECT_ROOT_DIR}/include/physics
+    PRIVATE ${PROJECT_ROOT_DIR}/include
 
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/comm

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "interfaces/icurrent_dynamics.hpp"
-#include "drone_config_types.hpp"
+#include "aircraft/interfaces/icurrent_dynamics.hpp"
+#include "config/drone_config_types.hpp"
 #include <vector>
 #include <iostream>
 

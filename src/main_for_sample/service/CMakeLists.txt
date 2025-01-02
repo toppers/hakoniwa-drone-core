@@ -40,14 +40,7 @@ foreach(TARGET ${TARGETS})
 
 
     target_include_directories(${TARGET} 
-        PRIVATE ${PROJECT_ROOT_DIR}/include/comm
-        PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
-        PRIVATE ${PROJECT_ROOT_DIR}/include/controller
-        PRIVATE ${PROJECT_ROOT_DIR}/include/config
-        PRIVATE ${PROJECT_ROOT_DIR}/include/logger
-        PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
-        PRIVATE ${PROJECT_ROOT_DIR}/include/physics
-        PRIVATE ${PROJECT_ROOT_DIR}/include/service
+        PRIVATE ${PROJECT_ROOT_DIR}/include
         PRIVATE ${HAKO_SOURCE_DIR}
         PRIVATE ${GLM_SOURCE_DIR}
         PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include

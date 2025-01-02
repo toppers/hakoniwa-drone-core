@@ -2,7 +2,7 @@
 
 #include <glm/vec3.hpp>
 #include <math.h>
-#include "body_physics.hpp"
+#include "physics/body_physics.hpp"
 
 namespace hako::aircraft {
 

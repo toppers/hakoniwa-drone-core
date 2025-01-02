@@ -1,7 +1,7 @@
 #pragma once
 
-#include "imavlink_service.hpp"
-#include "iaircraft.hpp"
+#include "mavlink/imavlink_service.hpp"
+#include "aircraft/iaircraft.hpp"
 
 using namespace hako::aircraft;
 using namespace hako::mavlink;

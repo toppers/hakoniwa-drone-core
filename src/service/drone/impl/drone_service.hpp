@@ -1,13 +1,13 @@
 #pragma once
 
 
-#include "drone/idrone_service.hpp"
+#include "service/drone/idrone_service.hpp"
 #include "drone/impl/idrone_service_operation.hpp"
 #include "drone/impl/drone_service_rc.hpp"
 #include "drone/impl/drone_service_api.hpp"
 
-#include "iaircraft_controller.hpp"
-#include "iservice_pdu_syncher.hpp"
+#include "controller/iaircraft_controller.hpp"
+#include "service/iservice_pdu_syncher.hpp"
 #include "impl/service_pdu_syncher.hpp"
 #include <array>
 #include <stdexcept>

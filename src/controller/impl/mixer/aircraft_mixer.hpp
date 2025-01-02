@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "drone_config.hpp"
-#include "iaircraft_controller.hpp"
-#include "interfaces/primitive_types.hpp"
-#include "interfaces/ithrust_dynamics.hpp"
+#include "config/drone_config.hpp"
+#include "controller/iaircraft_controller.hpp"
+#include "aircraft/interfaces/primitive_types.hpp"
+#include "aircraft/interfaces/ithrust_dynamics.hpp"
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>

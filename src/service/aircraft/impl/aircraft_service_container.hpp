@@ -1,8 +1,8 @@
 #pragma once
 
-#include "imavlink_service.hpp"
-#include "iaircraft.hpp"
-#include "aircraft/iaircraft_service_container.hpp"
+#include "mavlink/imavlink_service.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "service/aircraft/iaircraft_service_container.hpp"
 #include "impl/service_pdu_syncher.hpp"
 
 using namespace hako::mavlink;

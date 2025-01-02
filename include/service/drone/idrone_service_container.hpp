@@ -1,8 +1,8 @@
 #pragma once
 
-#include "iaircraft.hpp"
-#include "iaircraft_controller.hpp"
-#include "iservice_container.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "controller/iaircraft_controller.hpp"
+#include "service/iservice_container.hpp"
 #include <memory>
 
 namespace hako::service {

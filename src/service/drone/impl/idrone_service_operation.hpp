@@ -2,8 +2,8 @@
 
 
 #include "drone/impl/drone_service.hpp"
-#include "drone/idrone_service.hpp"
-#include "iservice_pdu_syncher.hpp"
+#include "service/drone/idrone_service.hpp"
+#include "service/iservice_pdu_syncher.hpp"
 #include <array>
 
 namespace hako::service::impl {

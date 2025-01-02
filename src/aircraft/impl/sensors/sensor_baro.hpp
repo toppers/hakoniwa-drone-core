@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "interfaces/isensor_baro.hpp"
+#include "aircraft/interfaces/isensor_baro.hpp"
 #include "impl/sensors/sensor_baro.hpp"
 #include "impl/noise/sensor_data_assembler.hpp"
-#include "ilogger.hpp"
+#include "logger/ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;

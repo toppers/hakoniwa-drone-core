@@ -1,7 +1,7 @@
 #pragma once
 
 #include "drone_pid_control.hpp"
-#include "body_physics.hpp"
+#include "physics/body_physics.hpp"
 #include "flight_controller_types.hpp"
 #include "hako_controller_param_loader.hpp"
 #include <memory>

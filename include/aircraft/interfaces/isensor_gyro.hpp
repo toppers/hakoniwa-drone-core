@@ -2,7 +2,7 @@
 
 
 #include "isensor.hpp"
-#include "interfaces/idrone_dynamics.hpp"
+#include "aircraft/interfaces/idrone_dynamics.hpp"
 
 namespace hako::aircraft {
 

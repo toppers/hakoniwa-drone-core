@@ -2,10 +2,9 @@
 
 #include <math.h>
 #include <iostream>
-#include "drone_config_types.hpp"
-#include "interfaces/idrone_dynamics.hpp"
-#include "ilog.hpp"
-#include "ilogger.hpp"
+#include "config/drone_config_types.hpp"
+#include "aircraft/interfaces/idrone_dynamics.hpp"
+#include "logger/ilogger.hpp"
 
 namespace hako::aircraft::impl {
 

@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "drone_config.hpp"
+#include "config/drone_config.hpp"
 #include "aircraft_controller_types.h"
 
 namespace hako::controller {

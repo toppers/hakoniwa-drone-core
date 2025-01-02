@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "iaircraft_controller.hpp"
+#include "controller/iaircraft_controller.hpp"
 #include "impl/drone_radio_controller.hpp"
 
 namespace hako::controller::impl {

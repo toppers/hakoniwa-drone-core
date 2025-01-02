@@ -1,9 +1,9 @@
 #pragma once
 
-#include "interfaces/isensor_gyro.hpp"
+#include "aircraft/interfaces/isensor_gyro.hpp"
 #include "impl/sensors/sensor_gyro.hpp"
 #include "impl/noise/sensor_data_assembler.hpp"
-#include "ilogger.hpp"
+#include "logger/ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;

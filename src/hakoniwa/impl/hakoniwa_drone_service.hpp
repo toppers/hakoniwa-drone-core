@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ihakoniwa_drone_service.hpp"
+#include "hakoniwa/ihakoniwa_drone_service.hpp"
 #include "impl/hakoniwa_simulator.hpp"
 
 using namespace hako::service;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "interfaces/isensor_mag.hpp"
+#include "aircraft/interfaces/isensor_mag.hpp"
 #include "impl/sensors/sensor_mag.hpp"
 #include "impl/noise/sensor_data_assembler.hpp"
-#include "ilogger.hpp"
+#include "logger/ilogger.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>

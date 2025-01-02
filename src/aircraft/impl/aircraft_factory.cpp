@@ -9,10 +9,10 @@
 #include "impl/sensors/sensor_mag.hpp"
 #include "impl/noise/sensor_data_assembler.hpp"
 #include "impl/noise/sensor_noise.hpp"
-#include "drone_config.hpp"
+#include "config/drone_config.hpp"
 #include "aircraft_container.hpp"
 #include <math.h>
-#include "ilogger.hpp"
+#include "logger/ilogger.hpp"
 
 using namespace hako::aircraft;
 using namespace hako::aircraft::impl;

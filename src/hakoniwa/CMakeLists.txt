@@ -28,10 +28,7 @@ else()
 endif()
 
 target_include_directories(hako_drone_core 
-    PRIVATE ${PROJECT_ROOT_DIR}/include/logger
-    PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
-    PRIVATE ${PROJECT_ROOT_DIR}/include/service
-    PRIVATE ${PROJECT_ROOT_DIR}/include/hakoniwa
+    PRIVATE ${PROJECT_ROOT_DIR}/include
     PRIVATE ${HAKO_SOURCE_DIR}/hakoniwa
     PRIVATE ${HAKO_CORE_SOURCE_DIR}
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types

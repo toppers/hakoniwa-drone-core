@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "primitive_types.hpp"
-#include "ilog.hpp"
-#include "interfaces/idisturbance.hpp"
-#include "drone_config_types.hpp"
+#include "aircraft/interfaces/primitive_types.hpp"
+#include "aircraft/interfaces/idisturbance.hpp"
+#include "logger/ilog.hpp"
+#include "config/drone_config_types.hpp"
 
 using namespace hako::logger;
 using namespace hako::config;

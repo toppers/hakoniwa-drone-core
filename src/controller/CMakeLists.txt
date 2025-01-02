@@ -24,10 +24,7 @@ else()
 endif()
 
 target_include_directories(hako_controller 
-    PRIVATE ${PROJECT_ROOT_DIR}/include/controller
-    PRIVATE ${PROJECT_ROOT_DIR}/include/config
-    PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
-    PRIVATE ${PROJECT_ROOT_DIR}/include/physics
+    PRIVATE ${PROJECT_ROOT_DIR}/include
     PRIVATE ${HAKO_SOURCE_DIR}/controller
     PRIVATE ${GLM_SOURCE_DIR}
     PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include

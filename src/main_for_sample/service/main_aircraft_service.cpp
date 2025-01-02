@@ -1,7 +1,7 @@
-#include "iaircraft.hpp"
-#include "imavlink_service.hpp"
-#include "aircraft/iaircraft_service_container.hpp"
-#include "ilogger.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "mavlink/imavlink_service.hpp"
+#include "service/aircraft/iaircraft_service_container.hpp"
+#include "logger/ilogger.hpp"
 
 using namespace hako::service;
 using namespace hako::aircraft;

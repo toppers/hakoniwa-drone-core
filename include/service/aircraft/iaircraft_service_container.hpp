@@ -1,7 +1,7 @@
 #pragma once
 
-#include "iservice_container.hpp"
-#include "imavlink_service.hpp"
+#include "service/iservice_container.hpp"
+#include "mavlink/imavlink_service.hpp"
 #include <memory>
 
 namespace hako::service {

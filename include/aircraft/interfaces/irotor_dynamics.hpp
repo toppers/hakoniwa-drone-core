@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "primitive_types.hpp"
-#include "drone_config_types.hpp"
+#include "aircraft/interfaces/primitive_types.hpp"
+#include "config/drone_config_types.hpp"
 
 using namespace hako::config;
 

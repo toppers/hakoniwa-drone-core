@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mavlink.h"
-#include "imavlink_service.hpp"
-#include "icomm_connector.hpp"
+#include "mavlink/imavlink_service.hpp"
+#include "comm/icomm_connector.hpp"
 #include "impl/imavlink_comm.hpp"
 #include <iostream>
 #include <memory>

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "interfaces/isensor.hpp"
+#include "aircraft/interfaces/isensor.hpp"
 
 namespace hako::aircraft {
 

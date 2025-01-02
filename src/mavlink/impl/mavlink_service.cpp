@@ -1,4 +1,4 @@
-#include "icomm_connector.hpp"
+#include "comm/icomm_connector.hpp"
 #include "impl/mavlink_service.hpp"
 #include "impl/mavlink_comm_tcp.hpp"
 #include "impl/mavlink_comm_udp.hpp"

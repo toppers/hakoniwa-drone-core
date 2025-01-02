@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "drone_config.hpp"
-#include "iaircraft_controller.hpp"
+#include "config/drone_config.hpp"
+#include "controller/iaircraft_controller.hpp"
 #include <memory>
 
 using namespace hako::config;

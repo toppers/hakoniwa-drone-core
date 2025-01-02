@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interfaces/isensor_noise.hpp"
+#include "aircraft/interfaces/isensor_noise.hpp"
 #include <random>
 #include <cmath>
 #include <cstdlib>

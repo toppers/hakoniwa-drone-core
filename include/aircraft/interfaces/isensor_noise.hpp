@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "interfaces/primitive_types.hpp"
+#include "aircraft/interfaces/primitive_types.hpp"
 
 namespace hako::aircraft {
 

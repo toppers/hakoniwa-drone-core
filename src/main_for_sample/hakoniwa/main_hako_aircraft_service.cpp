@@ -1,9 +1,9 @@
-#include "iaircraft.hpp"
-#include "imavlink_service.hpp"
-#include "aircraft/iaircraft_service_container.hpp"
-#include "drone/idrone_service_container.hpp"
-#include "ihakoniwa_drone_service.hpp"
-#include "ilogger.hpp"
+#include "aircraft/iaircraft.hpp"
+#include "mavlink/imavlink_service.hpp"
+#include "service/aircraft/iaircraft_service_container.hpp"
+#include "service/drone/idrone_service_container.hpp"
+#include "hakoniwa/ihakoniwa_drone_service.hpp"
+#include "logger/ilogger.hpp"
 #include <iostream>
 #include <thread>
 #include <sstream>

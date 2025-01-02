@@ -1,9 +1,9 @@
 #pragma once
 
-#include "rotor_physics.hpp"
-#include "interfaces/irotor_dynamics.hpp"
-#include "interfaces/icurrent_dynamics.hpp"
-#include "ilogger.hpp"
+#include "physics/rotor_physics.hpp"
+#include "aircraft/interfaces/irotor_dynamics.hpp"
+#include "aircraft/interfaces/icurrent_dynamics.hpp"
+#include "logger/ilogger.hpp"
 #include <math.h>
 
 using namespace hako::logger;

@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "drone/idrone_service_container.hpp"
-#include "drone/idrone_service.hpp"
-#include "iaircraft_controller.hpp"
+#include "service/drone/idrone_service_container.hpp"
+#include "service/drone/idrone_service.hpp"
+#include "controller/iaircraft_controller.hpp"
 
 using namespace hako::aircraft;
 using namespace hako::controller;

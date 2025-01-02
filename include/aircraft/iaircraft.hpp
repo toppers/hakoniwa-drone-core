@@ -1,6 +1,6 @@
 #pragma once
 
-#include "drone_config.hpp"
+#include "config/drone_config.hpp"
 
 #include "interfaces/idrone_dynamics.hpp"
 #include "interfaces/irotor_dynamics.hpp"
