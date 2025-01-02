@@ -565,12 +565,12 @@ void test_one_shot_euler_to_quaternion() {
 
     // checking two euler angle options.
     // (phi, theta, psi) = (90, 90, 0)
-    EulerType e{90*(M_PI/180), 90*(M_PI/180), 0};
+    EulerType e{90*(PI/180), 90*(PI/180), 0};
     QuaternionType q1 = quaternion_from_euler(e);
     assert_almost_equal(q, q1);
 
     // (phi, theta, psi) = (0, 90, -90)
-    EulerType e2{0, 90*(M_PI/180), -90*(M_PI/180)};
+    EulerType e2{0, 90*(PI/180), -90*(PI/180)};
     QuaternionType q2 = quaternion_from_euler(e2);
     assert_almost_equal(q, q2);
 }
