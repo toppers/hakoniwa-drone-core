@@ -57,9 +57,6 @@ jobs:
           cd test
           export DRONE_CONFIG1_DIR=aircraft/test-data/drone-config1
           export DRONE_CONFIG2_DIR=aircraft/test-data/drone-config2
-          echo "DRONE_CONFIG1_DIR is $DRONE_CONFIG1_DIR"
-          echo "DRONE_CONFIG2_DIR is $DRONE_CONFIG2_DIR"          
-          ctest --output-on-failure
 
       - name: Build and Test on MacOS
         if: startsWith(matrix.os, 'macos')
