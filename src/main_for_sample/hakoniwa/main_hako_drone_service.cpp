@@ -1,6 +1,9 @@
-#include "service/drone/impl/drone_service_container.hpp"
-#include "service/aircraft/impl/aircraft_service_container.hpp"
-#include "hakoniwa/impl/hakoniwa_drone_service.hpp"
+#include "iaircraft.hpp"
+#include "iaircraft_controller.hpp"
+#include "iservice_container.hpp"
+#include "aircraft/iaircraft_service_container.hpp"
+#include "drone/drone_service_api_protocol.hpp"
+#include "ihakoniwa_drone_service.hpp"
 #include "logger/impl/hako_logger.hpp"
 #include <iostream>
 #include <thread>
@@ -9,10 +12,13 @@
 #include <string>
 
 using namespace hako::aircraft;
+using namespace hako::controller;
 using namespace hako::service;
-using namespace hako::service::impl;
+using namespace hako::drone;
 using namespace hako::logger;
-using namespace hako::drone::impl;
+using namespace hako::aircraft;
+using namespace hako::service;
+using namespace hako::logger;
 
 
 int main(int argc, const char* argv[])
@@ -27,20 +33,20 @@ int main(int argc, const char* argv[])
     DroneConfigManager configManager;
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
 
-    AirCraftContainer aircraft_container;
-    aircraft_container.createAirCrafts(configManager);
+    auto aircraft_container = IAirCraftContainer::create();
+    aircraft_container->createAirCrafts(configManager);
 
     auto controller_container = IAircraftControllerContainer::create();
     controller_container->createAircraftControllers(configManager);
 
-    auto service_container = std::make_shared<DroneServiceContainer>(aircraft_container, controller_container);
+    std::shared_ptr<IDroneServiceContainer> service_container = IDroneServiceContainer::create(aircraft_container, controller_container);
 
     IHakoLogger::enable();
 
     std::string asset_name = "drone";
     std::string config_path = custom_json_path;
     std::cout << "asset_name: " << asset_name << std::endl;
-    auto hako_drone_service = HakoniwaDroneService::getInstance();    
+    auto hako_drone_service = IHakoniwaDroneService::create();    
     hako_drone_service->registerService(
         asset_name, 
         config_path, 

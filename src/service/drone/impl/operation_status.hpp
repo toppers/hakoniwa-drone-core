@@ -1,5 +1,4 @@
-#ifndef _OPERATION_STATUS_HPP_
-#define _OPERATION_STATUS_HPP_
+#pragma once
 
 namespace hako::service::impl {
 
@@ -78,4 +77,3 @@ public:
 };
 }
 
-#endif /* _OPERATION_STATUS_HPP_ */

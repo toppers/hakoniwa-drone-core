@@ -1,7 +1,6 @@
-#ifndef _SERVICE_PDU_SYNCHER_HPP_
-#define _SERVICE_PDU_SYNCHER_HPP_
+#pragma once
 
-#include "service/iservice_pdu_syncher.hpp"
+#include "iservice_pdu_syncher.hpp"
 #include <atomic>
 #include <thread>
 
@@ -53,4 +52,4 @@ private:
 };
 } // namespace hako::service::drone::impl
 
-#endif /* _SERVICE_PDU_SYNCHER_HPP_ */
+

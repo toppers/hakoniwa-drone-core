@@ -1,14 +1,14 @@
-#ifndef _DRONE_SERVICE_HPP_
-#define _DRONE_SERVICE_HPP_
+#pragma once
 
-#include "service/drone/idrone_service.hpp"
-#include "service/drone/impl/idrone_service_operation.hpp"
-#include "service/drone/impl/drone_service_rc.hpp"
-#include "service/drone/impl/drone_service_api.hpp"
+
+#include "drone/idrone_service.hpp"
+#include "drone/impl/idrone_service_operation.hpp"
+#include "drone/impl/drone_service_rc.hpp"
+#include "drone/impl/drone_service_api.hpp"
 
 #include "iaircraft_controller.hpp"
-#include "service/iservice_pdu_syncher.hpp"
-#include "service/impl/service_pdu_syncher.hpp"
+#include "iservice_pdu_syncher.hpp"
+#include "impl/service_pdu_syncher.hpp"
 #include <array>
 #include <stdexcept>
 #include <memory>
@@ -78,10 +78,10 @@ public:
     void peek_pdu(ServicePduDataType& pdu) override {
         pdu_syncher_->load(aircraft_->get_index(), pdu);
     }
-    std::string getRobotName() const {
+    std::string getRobotName() override {
         return aircraft_->get_name();
     }
-    void setPduSyncher(std::shared_ptr<IServicePduSyncher> pdu_syncher) {
+    void setPduSyncher(std::shared_ptr<IServicePduSyncher> pdu_syncher) override {
         pdu_syncher_ = pdu_syncher;
         drone_service_operation_->setServicePduSyncher(pdu_syncher);
     }
@@ -114,4 +114,3 @@ private:
 
 }
 
-#endif /* _DRONE_SERVICE_HPP_ */

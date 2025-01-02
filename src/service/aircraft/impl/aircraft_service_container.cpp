@@ -1,28 +1,33 @@
-#include "service/aircraft/impl/aircraft_service_container.hpp"
-#include "service/aircraft/impl/aricraft_mavlink_message_buider.hpp"
+#include "aircraft/impl/aircraft_service_container.hpp"
+#include "aircraft/impl/aricraft_mavlink_message_buider.hpp"
+
+std::shared_ptr<hako::service::IAircraftServiceContainer> hako::service::IAircraftServiceContainer::create(std::shared_ptr<mavlink::MavLinkServiceContainer> mavlink_service_container, std::shared_ptr<aircraft::IAirCraftContainer> aircraft_container)
+{
+    return std::make_shared<hako::service::impl::AircraftServiceContainer>(mavlink_service_container, aircraft_container);
+}
 
 bool hako::service::impl::AircraftServiceContainer::startService(bool lockStep, uint64_t deltaTimeUsec)
 {
     lock_step_ = lockStep;
     delta_time_usec_ = deltaTimeUsec;
-    send_count_.resize(aircraft_container_.getAllAirCrafts().size());
-    sitl_simulation_time_usec_.resize(aircraft_container_.getAllAirCrafts().size());
+    send_count_.resize(aircraft_container_->getAllAirCrafts().size());
+    sitl_simulation_time_usec_.resize(aircraft_container_->getAllAirCrafts().size());
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
     activated_time_usec_ = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
     std::cout << "INFO: lockStep=" << lockStep << std::endl;
     std::cout << "INFO: deltaTimeUsec=" << deltaTimeUsec << std::endl;
-    aircraft_inputs_.resize(aircraft_container_.getAllAirCrafts().size());
+    aircraft_inputs_.resize(aircraft_container_->getAllAirCrafts().size());
     int index = 0;
-    for (std::reference_wrapper<IMavLinkService> mavlink_service: mavlink_service_container_.getServices()) {
+    for (std::reference_wrapper<IMavLinkService> mavlink_service: mavlink_service_container_->getServices()) {
         std::cout << "INFO: AircraftService startService wait for connection : " << index << std::endl;
         if (!mavlink_service.get().startService()) {
             throw std::runtime_error("Failed to start mavlink service");
         }
         std::cout << "INFO: AircraftService startService is returned : " << index << std::endl;
         aircraft_inputs_[index] = {};
-        aircraft_container_.getAllAirCrafts()[index]->set_delta_time_usec(deltaTimeUsec);
-        aircraft_container_.getAllAirCrafts()[index]->reset();
+        aircraft_container_->getAllAirCrafts()[index]->set_delta_time_usec(deltaTimeUsec);
+        aircraft_container_->getAllAirCrafts()[index]->reset();
         index++;
     }
     std::cout << "INFO: AircraftService started" << std::endl;
@@ -31,7 +36,7 @@ bool hako::service::impl::AircraftServiceContainer::startService(bool lockStep, 
 
 void hako::service::impl::AircraftServiceContainer::advanceTimeStep(uint32_t index)
 {
-    if (index >= static_cast<uint32_t>(aircraft_container_.getAllAirCrafts().size())) {
+    if (index >= static_cast<uint32_t>(aircraft_container_->getAllAirCrafts().size())) {
         throw std::runtime_error("Invalid index for advanceTimeStep : " + std::to_string(index));
     }
     setup_aircraft_inputs(index);
@@ -52,11 +57,11 @@ void hako::service::impl::AircraftServiceContainer::advanceTimeStepLockStep(uint
     /*
      * Setup input data for each aircraft
      */
-    auto aircraft = aircraft_container_.getAllAirCrafts()[index];
+    auto aircraft = aircraft_container_->getAllAirCrafts()[index];
     MavlinkHakoMessage message;
     message.type = MAVLINK_MSG_TYPE_HIL_ACTUATOR_CONTROLS;
     bool is_dirty = false;
-    if (mavlink_service_container_.getServices()[index].get().readMessage(message, is_dirty)) {
+    if (mavlink_service_container_->getServices()[index].get().readMessage(message, is_dirty)) {
         sitl_time_usec = message.data.hil_actuator_controls.time_usec;
         aircraft_inputs_[index].manual.control = false;
         for (int i = 0; i < hako::aircraft::ROTOR_NUM; i++) {
@@ -83,11 +88,11 @@ void hako::service::impl::AircraftServiceContainer::advanceTimeStepFreeRun(uint3
     /*
      * Setup input data for each aircraft
      */
-    auto aircraft = aircraft_container_.getAllAirCrafts()[index];
+    auto aircraft = aircraft_container_->getAllAirCrafts()[index];
     MavlinkHakoMessage message;
     message.type = MAVLINK_MSG_TYPE_HIL_ACTUATOR_CONTROLS;
     bool is_dirty = false;
-    if (mavlink_service_container_.getServices()[index].get().readMessage(message, is_dirty)) {
+    if (mavlink_service_container_->getServices()[index].get().readMessage(message, is_dirty)) {
         sitl_time_usec = message.data.hil_actuator_controls.time_usec;
         aircraft_inputs_[index].manual.control = false;
         for (int i = 0; i < hako::aircraft::ROTOR_NUM; i++) {
@@ -111,15 +116,15 @@ void hako::service::impl::AircraftServiceContainer::advanceTimeStepFreeRun(uint3
 
 uint64_t hako::service::impl::AircraftServiceContainer::getSimulationTimeUsec(uint32_t index)
 {
-    if (index >= static_cast<uint32_t>(aircraft_container_.getAllAirCrafts().size())) {
+    if (index >= static_cast<uint32_t>(aircraft_container_->getAllAirCrafts().size())) {
         throw std::runtime_error("Invalid index for getSimulationTimeUsec : " + std::to_string(index));
     }
-    return aircraft_container_.getAllAirCrafts()[index]->get_simulation_time_usec();
+    return aircraft_container_->getAllAirCrafts()[index]->get_simulation_time_usec();
 }
 
 uint64_t hako::service::impl::AircraftServiceContainer::getSitlTimeUsec(uint32_t index)
 {
-    if (index >= static_cast<uint32_t>(aircraft_container_.getAllAirCrafts().size())) {
+    if (index >= static_cast<uint32_t>(aircraft_container_->getAllAirCrafts().size())) {
         throw std::runtime_error("Invalid index for getSitlTimeUsec : " + std::to_string(index));
     }
     return sitl_simulation_time_usec_[index];
@@ -132,7 +137,7 @@ void hako::service::impl::AircraftServiceContainer::send_sensor_data(IAirCraft& 
     MavlinkHakoMessage sensor_message;
     sensor_message.type = MAVLINK_MSG_TYPE_HIL_SENSOR;
     AircraftMavlinkMessageBuilder::build_hil_sensor(aircraft, sensor_message.data.hil_sensor, time_usec);
-    bool ret = mavlink_service_container_.getServices()[index].get().sendMessage(sensor_message);
+    bool ret = mavlink_service_container_->getServices()[index].get().sendMessage(sensor_message);
     if (!ret) {
         std::cerr << "ERROR: Failed to send HIL_SENSOR message on aircraft: " << aircraft.get_index() << std::endl;
     }
@@ -140,7 +145,7 @@ void hako::service::impl::AircraftServiceContainer::send_sensor_data(IAirCraft& 
         MavlinkHakoMessage gps_message;
         gps_message.type = MAVLINK_MSG_TYPE_HIL_GPS;
         AircraftMavlinkMessageBuilder::build_hil_gps(aircraft, gps_message.data.hil_gps, time_usec);
-        ret = mavlink_service_container_.getServices()[aircraft.get_index()].get().sendMessage(gps_message);
+        ret = mavlink_service_container_->getServices()[aircraft.get_index()].get().sendMessage(gps_message);
         if (!ret) {
             std::cerr << "ERROR: Failed to send HIL_GPS message on aircraft: " << index << std::endl;
         }
@@ -150,7 +155,7 @@ void hako::service::impl::AircraftServiceContainer::send_sensor_data(IAirCraft& 
 
 void hako::service::impl::AircraftServiceContainer::resetService()
 {
-    for (auto aircraft : aircraft_container_.getAllAirCrafts()) {
+    for (auto aircraft : aircraft_container_->getAllAirCrafts()) {
         aircraft->reset();
     }
 }
@@ -158,7 +163,7 @@ void hako::service::impl::AircraftServiceContainer::resetService()
 void hako::service::impl::AircraftServiceContainer::setup_aircraft_inputs(uint32_t index)
 {
     aircraft_inputs_[index].manual.control = false;
-    if (aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().has_collision_detection()) {
+    if (aircraft_container_->getAllAirCrafts()[index]->get_drone_dynamics().has_collision_detection()) {
         ServicePduDataType pdu_data = {};
         pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_COLLISION;
         pdu_synchers_[index]->load(index, pdu_data);
@@ -176,7 +181,7 @@ void hako::service::impl::AircraftServiceContainer::setup_aircraft_inputs(uint32
             }
         }
     }
-    if (aircraft_container_.getAllAirCrafts()[index]->is_enabled_disturbance()) {
+    if (aircraft_container_->getAllAirCrafts()[index]->is_enabled_disturbance()) {
         ServicePduDataType pdu_data = {};
         pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
         pdu_synchers_[index]->load(index, pdu_data);
@@ -200,7 +205,7 @@ void hako::service::impl::AircraftServiceContainer::write_back_pdu(uint32_t inde
     // battery write back
     ServicePduDataType bat_pdu_data = {};
     bat_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_BATTERY_STATUS;
-    auto battery = aircraft_container_.getAllAirCrafts()[index]->get_battery_dynamics();
+    auto battery = aircraft_container_->getAllAirCrafts()[index]->get_battery_dynamics();
     if (battery != nullptr) {
         auto status = battery->get_status();
         bat_pdu_data.pdu.battery_status.full_voltage = status.full_voltage;
@@ -229,8 +234,8 @@ void hako::service::impl::AircraftServiceContainer::write_back_pdu(uint32_t inde
     // position write back
     ServicePduDataType pos_pdu_data = {};
     pos_pdu_data.id = SERVICE_PDU_DATA_ID_TYPE_POSITION;
-    DronePositionType dpos = aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().get_pos();
-    DroneEulerType dangle = aircraft_container_.getAllAirCrafts()[index]->get_drone_dynamics().get_angle();
+    DronePositionType dpos = aircraft_container_->getAllAirCrafts()[index]->get_drone_dynamics().get_pos();
+    DroneEulerType dangle = aircraft_container_->getAllAirCrafts()[index]->get_drone_dynamics().get_angle();
     pos_pdu_data.pdu.position.linear.x = dpos.data.x;
     pos_pdu_data.pdu.position.linear.y = -dpos.data.y;
     pos_pdu_data.pdu.position.linear.z = -dpos.data.z;

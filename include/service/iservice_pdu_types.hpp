@@ -1,5 +1,4 @@
-#ifndef _ISERVICE_PDU_TYPES_HPP_
-#define _ISERVICE_PDU_TYPES_HPP_
+#pragma once
 
 #include <cstdint>
 
@@ -51,4 +50,3 @@ typedef struct {
 
 } // namespace hako::service
 
-#endif /* _ISERVICE_PDU_TYPES_HPP_ */

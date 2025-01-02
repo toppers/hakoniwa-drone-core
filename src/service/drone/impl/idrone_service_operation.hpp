@@ -1,9 +1,9 @@
-#ifndef _IDRONE_SERVICE_OPERATION_HPP_
-#define _IDRONE_SERVICE_OPERATION_HPP_
+#pragma once
 
-#include "service/drone/impl/drone_service.hpp"
-#include "service/drone/idrone_service.hpp"
-#include "service/iservice_pdu_syncher.hpp"
+
+#include "drone/impl/drone_service.hpp"
+#include "drone/idrone_service.hpp"
+#include "iservice_pdu_syncher.hpp"
 #include <array>
 
 namespace hako::service::impl {
@@ -25,4 +25,3 @@ public:
 
 }
 
-#endif /* _IDRONE_SERVICE_OPERATION_HPP_ */

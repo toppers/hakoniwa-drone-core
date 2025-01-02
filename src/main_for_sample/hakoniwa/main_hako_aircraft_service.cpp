@@ -1,7 +1,9 @@
-#include "service/drone/impl/drone_service_container.hpp"
-#include "service/aircraft/impl/aircraft_service_container.hpp"
-#include "hakoniwa/impl/hakoniwa_drone_service.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "iaircraft.hpp"
+#include "imavlink_service.hpp"
+#include "aircraft/iaircraft_service_container.hpp"
+#include "drone/idrone_service_container.hpp"
+#include "ihakoniwa_drone_service.hpp"
+#include "ilogger.hpp"
 #include <iostream>
 #include <thread>
 #include <sstream>
@@ -10,10 +12,9 @@
 
 using namespace hako::aircraft;
 using namespace hako::service;
-using namespace hako::service::impl;
+using namespace hako::drone;
 using namespace hako::logger;
-using namespace hako::drone::impl;
-
+using namespace hako::mavlink;
 
 int main(int argc, const char* argv[])
 {
@@ -29,19 +30,19 @@ int main(int argc, const char* argv[])
 
     DroneConfigManager configManager;
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
-    AirCraftContainer aircraft_container;
-    aircraft_container.createAirCrafts(configManager);
+    auto aircraft_container = IAirCraftContainer::create();
+    aircraft_container->createAirCrafts(configManager);
     int aircraft_num = configManager.getConfigCount();
 
-    MavLinkServiceContainer mavlink_service_container;
+    auto mavlink_service_container = std::make_shared<MavLinkServiceContainer>();
     for (int i = 0; i < aircraft_num; i++) {
         std::cout << "INFO: aircraft_num=" << i << std::endl;
         IMavlinkCommEndpointType server_endpoint = {server_ip, server_port + i};
         auto mavlink_service = IMavLinkService::create(i, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
-        mavlink_service_container.addService(*mavlink_service);
+        mavlink_service_container->addService(*mavlink_service);
     }
 
-    std::shared_ptr<IServiceContainer> aircraft_service = std::make_unique<hako::service::impl::AircraftServiceContainer>(mavlink_service_container, aircraft_container);
+    auto aircraft_service = IAircraftServiceContainer::create(mavlink_service_container, aircraft_container);
     aircraft_service->setRealTimeStepUsec(1000); //1msec
 
     IHakoLogger::enable();
@@ -49,7 +50,7 @@ int main(int argc, const char* argv[])
     std::string asset_name = "drone";
     std::string config_path = custom_json_path;
     std::cout << "asset_name: " << asset_name << std::endl;
-    auto hako_drone_service = HakoniwaDroneService::getInstance();    
+    auto hako_drone_service = IHakoniwaDroneService::create();    
     hako_drone_service->registerService(
         asset_name, 
         config_path, 

@@ -1,7 +1,10 @@
-#include "service/aircraft/impl/aircraft_service_container.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "iaircraft.hpp"
+#include "imavlink_service.hpp"
+#include "aircraft/iaircraft_service_container.hpp"
+#include "ilogger.hpp"
 
 using namespace hako::service;
+using namespace hako::aircraft;
 using namespace hako::mavlink;
 using namespace hako::logger;
 
@@ -22,17 +25,17 @@ int main(int argc, const char* argv[])
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
     int aircraft_num = configManager.getConfigCount();
 
-    AirCraftContainer aircraft_container;
-    aircraft_container.createAirCrafts(configManager);
-    MavLinkServiceContainer mavlink_service_container;
+    auto aircraft_container = IAirCraftContainer::create();
+    aircraft_container->createAirCrafts(configManager);
+    auto mavlink_service_container = std::make_shared<MavLinkServiceContainer>();
     for (int i = 0; i < aircraft_num; i++) {
         std::cout << "INFO: aircraft_num=" << i << std::endl;
         IMavlinkCommEndpointType server_endpoint = {server_ip, server_port + i};
         auto mavlink_service = IMavLinkService::create(i, MAVLINK_SERVICE_IO_TYPE_TCP, &server_endpoint, nullptr);
-        mavlink_service_container.addService(*mavlink_service);
+        mavlink_service_container->addService(*mavlink_service);
     }
 
-    auto aircraft_service = std::make_unique<hako::service::impl::AircraftServiceContainer>(mavlink_service_container, aircraft_container);
+    auto aircraft_service = IAircraftServiceContainer::create(mavlink_service_container, aircraft_container);
     aircraft_service->startService(true, 3000);
     IHakoLogger::enable();
     aircraft_service->setRealTimeStepUsec(real_sleep_msec * 1000);

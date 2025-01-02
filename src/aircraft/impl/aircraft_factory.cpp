@@ -10,6 +10,7 @@
 #include "impl/noise/sensor_data_assembler.hpp"
 #include "impl/noise/sensor_noise.hpp"
 #include "drone_config.hpp"
+#include "aircraft_container.hpp"
 #include <math.h>
 #include "ilogger.hpp"
 
@@ -60,6 +61,10 @@ SensorType* createSensor(const DroneConfig& config, const std::string& type, dou
     return sensor;
 }
 
+std::shared_ptr<IAirCraftContainer> hako::aircraft::IAirCraftContainer::create()
+{
+    return std::make_shared<AirCraftContainer>();
+}
 
 IAirCraft* hako::aircraft::create_aircraft(int index, const DroneConfig& drone_config)
 {

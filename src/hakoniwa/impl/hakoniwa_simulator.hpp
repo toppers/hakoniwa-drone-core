@@ -6,9 +6,9 @@
 #include <mutex>
 #include <string>
 #include <map>
-#include "service/iservice_container.hpp"
-#include "service/iservice_pdu_syncher.hpp"
-#include "hakoniwa/impl/hakoniwa_pdu_accessor.hpp"
+#include "iservice_container.hpp"
+#include "iservice_pdu_syncher.hpp"
+#include "impl/hakoniwa_pdu_accessor.hpp"
 #include "ilogger.hpp"
 
 using namespace hako::service;

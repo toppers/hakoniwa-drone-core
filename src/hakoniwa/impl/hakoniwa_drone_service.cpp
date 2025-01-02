@@ -1,13 +1,20 @@
-#include "hakoniwa/impl/hakoniwa_drone_service.hpp"
-#include "hakoniwa/impl/hakoniwa_pdu_accessor.hpp"
-#include "hakoniwa/impl/hakoniwa_simulator.hpp"
-#include "hakoniwa/impl/hakoniwa_conductor.hpp"
+#include "ihakoniwa_drone_service.hpp"
+#include "impl/hakoniwa_drone_service.hpp"
+#include "impl/hakoniwa_pdu_accessor.hpp"
+#include "impl/hakoniwa_simulator.hpp"
+#include "impl/hakoniwa_conductor.hpp"
 
 #include <thread>
 
+using namespace hako::drone;
 using namespace hako::drone::impl;
 
 std::shared_ptr<HakoniwaDroneService> HakoniwaDroneService::instance_ = nullptr;
+
+std::shared_ptr<IHakoniwaDroneService> IHakoniwaDroneService::create()
+{
+    return HakoniwaDroneService::getInstance();
+}
 
 bool HakoniwaDroneService::registerService(std::string& asset_name, std::string& config_path, uint64_t delta_time_usec, uint64_t max_delay_usec, std::shared_ptr<IServiceContainer> service_container)
 {

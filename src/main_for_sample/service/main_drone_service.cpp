@@ -1,6 +1,8 @@
-#include "service/drone/impl/drone_service_container.hpp"
-#include "service/aircraft/impl/aircraft_service_container.hpp"
-#include "service/drone/drone_service_api_protocol.hpp"
+#include "iaircraft.hpp"
+#include "iaircraft_controller.hpp"
+#include "iservice_container.hpp"
+#include "aircraft/iaircraft_service_container.hpp"
+#include "drone/drone_service_api_protocol.hpp"
 #include "logger/impl/hako_logger.hpp"
 #include <iostream>
 #include <thread>
@@ -9,8 +11,8 @@
 #include <string>
 
 using namespace hako::aircraft;
+using namespace hako::controller;
 using namespace hako::service;
-using namespace hako::service::impl;
 using namespace hako::logger;
 
 
@@ -38,15 +40,15 @@ int main(int argc, const char* argv[])
     DroneConfigManager configManager;
     configManager.loadConfigsFromDirectory(drone_config_dir_path);
 
-    AirCraftContainer aircraft_container;
-    aircraft_container.createAirCrafts(configManager);
+    auto aircraft_container = IAirCraftContainer::create();
+    aircraft_container->createAirCrafts(configManager);
 
     std::shared_ptr<IAircraftControllerContainer> controller_container = IAircraftControllerContainer::create();
     controller_container->createAircraftControllers(configManager);
 
-    DroneServiceContainer service_container(aircraft_container, controller_container);
+    std::shared_ptr<IDroneServiceContainer> service_container = IDroneServiceContainer::create(aircraft_container, controller_container);
 
-    auto ret = service_container.startService(1000);
+    auto ret = service_container->startService(1000);
     if (!ret) {
         std::cerr << "Failed to start service" << std::endl;
         return 1;
@@ -54,9 +56,9 @@ int main(int argc, const char* argv[])
     IHakoLogger::enable();
     std::thread th([&service_container, real_sleep_msec]() {
         std::cout << "Start service" << std::endl;
-        while (service_container.isServiceAvailable()) {
-            IHakoLogger::set_time_usec(service_container.getSimulationTimeUsec(0));
-            service_container.advanceTimeStep();
+        while (service_container->isServiceAvailable()) {
+            IHakoLogger::set_time_usec(service_container->getSimulationTimeUsec(0));
+            service_container->advanceTimeStep();
             std::this_thread::sleep_for(std::chrono::milliseconds(real_sleep_msec));
         }
         std::cout << "Finish service" << std::endl;
@@ -100,7 +102,7 @@ int main(int argc, const char* argv[])
             std::cout << "Usage: takeoff <height> | land | move <x> <y> <z> | quit" << std::endl;
         }
     }
-    service_container.stopService();
+    service_container->stopService();
     th.join();
     return 0;
 }

@@ -1,8 +1,7 @@
-#ifndef _DRONE_SERVICE_RC_HPP_
-#define _DRONE_SERVICE_RC_HPP_
+#pragma once
 
-#include "service/drone/impl/idrone_service_operation.hpp"
-#include "service/drone/impl/drone_service.hpp"
+#include "drone/impl/idrone_service_operation.hpp"
+#include "drone/impl/drone_service.hpp"
 #include "iaircraft.hpp"
 #include <cstdint>
 #include <thread>
@@ -99,4 +98,4 @@ private:
 };
 
 }
-#endif /* _DRONE_SERVICE_RC_HPP_ */
+

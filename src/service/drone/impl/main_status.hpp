@@ -1,7 +1,6 @@
-#ifndef _MAIN_STATUS_HPP_
-#define _MAIN_STATUS_HPP_
+#pragma once
 
-#include "service/drone/impl/operation_status.hpp"
+#include "drone/impl/operation_status.hpp"
 #include <iostream>
 
 namespace hako::service::impl {
@@ -142,4 +141,3 @@ public:
 };
 }
 
-#endif /* _MAIN_STATUS_HPP_ */

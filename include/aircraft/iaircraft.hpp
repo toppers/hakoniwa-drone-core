@@ -12,6 +12,8 @@
 #include "interfaces/isensor_gyro.hpp"
 #include "interfaces/isensor_mag.hpp"
 
+#include <memory>
+
 namespace hako::aircraft {
 
 class IAirCraft {
@@ -161,6 +163,7 @@ public:
 
 class IAirCraftContainer {
 public:
+    static std::shared_ptr<IAirCraftContainer> create();
     virtual ~IAirCraftContainer() {}
     /*
      * create different air crafts from config directory.

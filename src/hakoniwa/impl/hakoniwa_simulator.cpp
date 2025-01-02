@@ -1,5 +1,5 @@
-#include "hakoniwa/impl/hakoniwa_simulator.hpp"
-#include "hakoniwa/impl/hakoniwa_pdu_accessor.hpp"
+#include "impl/hakoniwa_simulator.hpp"
+#include "impl/hakoniwa_pdu_accessor.hpp"
 #include "include/hako_asset.h"
 #include <thread>
 #include <errno.h>

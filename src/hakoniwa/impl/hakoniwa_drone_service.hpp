@@ -1,8 +1,8 @@
 #ifndef _HAKONIW_DRONE_SERVICE_HPP_
 #define _HAKONIW_DRONE_SERVICE_HPP_
 
-#include "hakoniwa/ihakoniwa_drone_service.hpp"
-#include "hakoniwa/impl/hakoniwa_simulator.hpp"
+#include "ihakoniwa_drone_service.hpp"
+#include "impl/hakoniwa_simulator.hpp"
 
 using namespace hako::service;
 

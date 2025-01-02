@@ -1,8 +1,7 @@
-#ifndef _ISERVICE_CONTAINER_HPP_
-#define _ISERVICE_CONTAINER_HPP_
+#pragma once
 
-#include "service/iservice_pdu_types.hpp"
-#include "service/iservice_pdu_syncher.hpp"
+#include "iservice_pdu_types.hpp"
+#include "iservice_pdu_syncher.hpp"
 #include <memory>
 
 namespace hako::service {
@@ -30,4 +29,4 @@ public:
 
 } // namespace hako::service
 
-#endif /* _ISERVICE_CONTAINER_HPP_ */
+

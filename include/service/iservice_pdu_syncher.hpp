@@ -1,7 +1,6 @@
-#ifndef _ISERIVCE_PDU_SYNCHER_HPP_
-#define _ISERIVCE_PDU_SYNCHER_HPP_
+#pragma once
 
-#include "service/iservice_pdu_types.hpp"
+#include "iservice_pdu_types.hpp"
 
 namespace hako::service {
 class IServicePduSyncher {
@@ -11,4 +10,4 @@ public:
     virtual bool load(uint32_t index, ServicePduDataType& pdu) = 0;
 };
 } // namespace hako::service
-#endif /* _ISERIVCE_PDU_SYNCHER_HPP_ */
+

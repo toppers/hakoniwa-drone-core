@@ -1,4 +1,4 @@
-#include "hakoniwa/impl/hakoniwa_pdu_accessor.hpp"
+#include "impl/hakoniwa_pdu_accessor.hpp"
 
 #include "hako_msgs/pdu_cpptype_conv_HakoDroneCmdTakeoff.hpp"
 #include "hako_msgs/pdu_cpptype_conv_HakoDroneCmdLand.hpp"

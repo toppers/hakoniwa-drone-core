@@ -1,25 +1,24 @@
-#ifndef _AIRCRAFT_SERVICE_CONTAINER_HPP_
-#define _AIRCRAFT_SERVICE_CONTAINER_HPP_
+#pragma once
 
-#include "service/aircraft/iaircraft_service_container.hpp"
-#include "aircraft/impl/aircraft_container.hpp"
 #include "imavlink_service.hpp"
-#include "service/impl/service_pdu_syncher.hpp"
+#include "iaircraft.hpp"
+#include "aircraft/iaircraft_service_container.hpp"
+#include "impl/service_pdu_syncher.hpp"
 
 using namespace hako::mavlink;
 using namespace hako::aircraft;
-using namespace hako::aircraft::impl;
+
 namespace hako::service::impl {
 
 class AircraftServiceContainer : public IAircraftServiceContainer {
 public:
-    AircraftServiceContainer(MavLinkServiceContainer& mavlink_service_container, AirCraftContainer& aircraft_container):
+    AircraftServiceContainer(std::shared_ptr<MavLinkServiceContainer> mavlink_service_container, std::shared_ptr<IAirCraftContainer> aircraft_container):
         mavlink_service_container_(mavlink_service_container), aircraft_container_(aircraft_container) 
         {
-            if (mavlink_service_container.getServices().size() != aircraft_container.getAllAirCrafts().size()) {
+            if (mavlink_service_container->getServices().size() != aircraft_container->getAllAirCrafts().size()) {
                 throw std::runtime_error("MavLinkServiceContainer size is not equal to AirCraftContainer size");
             }
-            for (auto& aircraft : aircraft_container_.getAllAirCrafts()) {
+            for (auto& aircraft : aircraft_container_->getAllAirCrafts()) {
                 (void)aircraft;
                 pdu_synchers_.push_back(std::make_shared<ServicePduSyncher>());
             }
@@ -40,7 +39,7 @@ public:
     void advanceTimeStep(uint32_t index) override;
     void advanceTimeStep() override
     {
-        for (uint32_t i = 0; i < aircraft_container_.getAllAirCrafts().size(); i++) {
+        for (uint32_t i = 0; i < aircraft_container_->getAllAirCrafts().size(); i++) {
             advanceTimeStep(i);
         }
         if (delta_real_time_usec_ > 0) {
@@ -77,15 +76,15 @@ public:
 
     uint32_t getNumServices() override
     {
-        return static_cast<uint32_t>(aircraft_container_.getAllAirCrafts().size());
+        return static_cast<uint32_t>(aircraft_container_->getAllAirCrafts().size());
     }
     std::string getRobotName(uint32_t index) override
     {
-        return aircraft_container_.getAirCraft(index)->get_name();
+        return aircraft_container_->getAirCraft(index)->get_name();
     }
     void setPduSyncher(std::shared_ptr<IServicePduSyncher> pdu_syncher) override
     {
-        for (auto& aircraft : aircraft_container_.getAllAirCrafts()) {
+        for (auto& aircraft : aircraft_container_->getAllAirCrafts()) {
             pdu_synchers_[aircraft->get_index()] = pdu_syncher;
         }
     }
@@ -97,8 +96,8 @@ private:
     uint64_t delta_real_time_usec_ = 0;
     std::vector<uint64_t> send_count_;
     std::vector<uint64_t> sitl_simulation_time_usec_;
-    MavLinkServiceContainer& mavlink_service_container_;
-    AirCraftContainer& aircraft_container_;
+    std::shared_ptr<MavLinkServiceContainer> mavlink_service_container_;
+    std::shared_ptr<IAirCraftContainer> aircraft_container_;
     std::vector<AircraftInputType> aircraft_inputs_;
     std::vector<std::shared_ptr<IServicePduSyncher>> pdu_synchers_;
 
@@ -111,4 +110,4 @@ private:
 
 };
 } // namespace hako::service
-#endif /* _AIRCRAFT_SERVICE_CONTAINER_HPP_ */
+

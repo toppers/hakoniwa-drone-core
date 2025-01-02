@@ -1,9 +1,8 @@
-#ifndef _DRONE_SERVICE_CONTAINER_HPP_
-#define _DRONE_SERVICE_CONTAINER_HPP_
+#pragma once
 
-#include "service/drone/idrone_service_container.hpp"
-#include "service/drone/impl/drone_service.hpp"
-#include "service/drone/idrone_service.hpp"
+
+#include "drone/idrone_service_container.hpp"
+#include "drone/idrone_service.hpp"
 #include "iaircraft_controller.hpp"
 
 using namespace hako::aircraft;
@@ -13,12 +12,12 @@ namespace hako::service::impl {
 
 class DroneServiceContainer : public IDroneServiceContainer {
 public:
-    DroneServiceContainer(IAirCraftContainer& aircraft_container, std::shared_ptr<IAircraftControllerContainer> controller_container) {
-        if (aircraft_container.getAllAirCrafts().size() != controller_container->getControllers().size()) {
+    DroneServiceContainer(std::shared_ptr<IAirCraftContainer> aircraft_container, std::shared_ptr<IAircraftControllerContainer> controller_container) {
+        if (aircraft_container->getAllAirCrafts().size() != controller_container->getControllers().size()) {
             throw std::runtime_error("aircraft and controller size mismatch");
         }
-        for (std::shared_ptr<IAirCraft> aircraft : aircraft_container.getAllAirCrafts()) {
-            std::shared_ptr<DroneService> drone_service = std::make_shared<DroneService>(aircraft, controller_container->getControllers()[aircraft->get_index()]);
+        for (std::shared_ptr<IAirCraft> aircraft : aircraft_container->getAllAirCrafts()) {
+            std::shared_ptr<IDroneService> drone_service = IDroneService::create(aircraft, controller_container->getControllers()[aircraft->get_index()]);
             drone_services_.push_back(drone_service);
         }
     };
@@ -111,8 +110,7 @@ public:
 
     }
 private:
-    std::vector<std::shared_ptr<DroneService>> drone_services_;
+    std::vector<std::shared_ptr<IDroneService>> drone_services_;
 };
 }
 
-#endif /* _DRONE_SERVICE_CONTAINER_HPP_ */
