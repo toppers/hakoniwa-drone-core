@@ -10,7 +10,7 @@
 #include "aircraft/impl/sensors/sensor_mag.hpp"
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
 #include "aircraft/impl/noise/sensor_noise.hpp"
-#include "config/drone_config.hpp"
+#include "drone_config.hpp"
 #include <math.h>
 #include "logger/impl/csv_log_file.hpp"
 

@@ -11,7 +11,7 @@
 #include "aircraft/interfaces/isensor_gps.hpp"
 #include "aircraft/interfaces/isensor_gyro.hpp"
 #include "aircraft/interfaces/isensor_mag.hpp"
-#include "config/drone_config.hpp"
+#include "drone_config.hpp"
 #include <vector>
 #include <memory>
 

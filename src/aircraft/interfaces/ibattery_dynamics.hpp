@@ -2,7 +2,7 @@
 #define _IBATTERY_DYNAMICS_HPP_
 
 #include "aircraft/interfaces/icurrent_dynamics.hpp"
-#include "config/drone_config_types.hpp"
+#include "drone_config_types.hpp"
 #include <vector>
 #include <iostream>
 

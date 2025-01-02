@@ -65,6 +65,7 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${PROJECT_ROOT_DIR}/include/comm
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
+    PRIVATE ${PROJECT_ROOT_DIR}/include/config
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/comm
     PRIVATE ${HAKO_SOURCE_DIR}/mavlink

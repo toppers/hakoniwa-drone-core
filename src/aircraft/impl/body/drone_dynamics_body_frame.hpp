@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <iostream>
-#include "config/drone_config_types.hpp"
+#include "drone_config_types.hpp"
 #include "aircraft/interfaces/idrone_dynamics.hpp"
 #include "logger/ilog.hpp"
 #include "logger/impl/hako_logger.hpp"

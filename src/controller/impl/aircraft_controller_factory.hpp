@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "config/drone_config.hpp"
+#include "drone_config.hpp"
 #include "iaircraft_controller.hpp"
 #include <memory>
 

@@ -25,6 +25,7 @@ foreach(TARGET ${TARGETS})
         PRIVATE ${PROJECT_ROOT_DIR}/include/comm
         PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
         PRIVATE ${PROJECT_ROOT_DIR}/include/controller
+        PRIVATE ${PROJECT_ROOT_DIR}/include/config
         PRIVATE ${HAKO_SOURCE_DIR}
         PRIVATE ${GLM_SOURCE_DIR}
         PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include

@@ -4,7 +4,7 @@
 #include "aircraft/iaircraft.hpp"
 #include "aircraft/iaircraft_container.hpp"
 #include "aircraft/impl/aircraft_factory.hpp"
-#include "config/drone_config.hpp"
+#include "drone_config.hpp"
 #include <vector>
 
 namespace hako::aircraft {

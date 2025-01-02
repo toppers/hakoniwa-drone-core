@@ -2,7 +2,7 @@
 #define _IAIRCRAFT_CONTAINER_HPP_
 
 #include "aircraft/iaircraft.hpp"
-#include "config/drone_config.hpp"
+#include "drone_config.hpp"
 
 namespace hako::aircraft {
 class IAirCraftContainer {
