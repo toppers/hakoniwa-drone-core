@@ -1,5 +1,4 @@
-#ifndef _ISENSOR_HPP_
-#define _ISENSOR_HPP_
+#pragma once
 
 #include "primitive_types.hpp"
 
@@ -27,5 +26,3 @@ public:
 };
 
 }
-
-#endif /* _ISENSOR_HPP_ */

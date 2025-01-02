@@ -1,12 +1,10 @@
-#ifndef _AIRCRAFT_CONTAINER_HPP_
-#define _AIRCRAFT_CONTAINER_HPP_
+#pragma once
 
-#include "aircraft/iaircraft.hpp"
-#include "aircraft/impl/aircraft_factory.hpp"
+#include "iaircraft.hpp"
 #include "drone_config.hpp"
 #include <vector>
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class AirCraftContainer : public IAirCraftContainer {
 private:
@@ -65,4 +63,3 @@ public:
 };
 }
 
-#endif /* _AIRCRAFT_CONTAINER_HPP_ */

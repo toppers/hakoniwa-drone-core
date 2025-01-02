@@ -1,13 +1,13 @@
-#ifndef _AIRCRAFT_HPP_
-#define _AIRCRAFT_HPP_
+#pragma once
 
-#include "aircraft/iaircraft.hpp"
+
+#include "iaircraft.hpp"
 #include "ilogger.hpp"
 #include <memory>
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class AirCraft : public IAirCraft {
 private:
@@ -65,5 +65,3 @@ public:
     }
 };
 }
-
-#endif /* _AIRCRAFT_HPP_ */

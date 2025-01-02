@@ -3,7 +3,7 @@
 
 #include "service/drone/impl/idrone_service_operation.hpp"
 #include "service/drone/impl/drone_service.hpp"
-#include "aircraft/iaircraft.hpp"
+#include "iaircraft.hpp"
 #include <cstdint>
 #include <thread>
 

@@ -1,16 +1,14 @@
-#ifndef _SENSOR_GYRO_HPP_
-#define _SENSOR_GYRO_HPP_
+#pragma once
 
-
-#include "aircraft/interfaces/isensor_gyro.hpp"
-#include "aircraft/impl/sensors/sensor_gyro.hpp"
-#include "aircraft/impl/noise/sensor_data_assembler.hpp"
+#include "interfaces/isensor_gyro.hpp"
+#include "impl/sensors/sensor_gyro.hpp"
+#include "impl/noise/sensor_data_assembler.hpp"
 #include "ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorGyro : public ISensorGyro, public ILog {
 private:
@@ -71,6 +69,3 @@ public:
 };
 
 }
-
-
-#endif /* _SENSOR_GYRO_HPP_ */

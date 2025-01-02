@@ -4,6 +4,7 @@
 #include "aircraft/impl/noise/sensor_noise.hpp"
 
 using namespace hako::aircraft;
+using namespace hako::aircraft::impl;
 using namespace hako::logger;
 
 class GyroTest : public ::testing::Test {

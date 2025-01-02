@@ -1,21 +1,21 @@
-#include "aircraft/impl/aircraft.hpp"
-#include "aircraft/impl/aircraft_factory.hpp"
-#include "aircraft/impl/body/drone_dynamics_body_frame.hpp"
-#include "aircraft/impl/thruster/thrust_dynamics_nonlinear.hpp"
-#include "aircraft/impl/rotor/rotor_dynamics.hpp"
-#include "aircraft/impl/sensors/sensor_acceleration.hpp"
-#include "aircraft/impl/sensors/sensor_baro.hpp"
-#include "aircraft/impl/sensors/sensor_gps.hpp"
-#include "aircraft/impl/sensors/sensor_gyro.hpp"
-#include "aircraft/impl/sensors/sensor_mag.hpp"
-#include "aircraft/impl/noise/sensor_data_assembler.hpp"
-#include "aircraft/impl/noise/sensor_noise.hpp"
+#include "impl/aircraft.hpp"
+#include "impl/body/drone_dynamics_body_frame.hpp"
+#include "impl/thruster/thrust_dynamics_nonlinear.hpp"
+#include "impl/rotor/rotor_dynamics.hpp"
+#include "impl/sensors/sensor_acceleration.hpp"
+#include "impl/sensors/sensor_baro.hpp"
+#include "impl/sensors/sensor_gps.hpp"
+#include "impl/sensors/sensor_gyro.hpp"
+#include "impl/sensors/sensor_mag.hpp"
+#include "impl/noise/sensor_data_assembler.hpp"
+#include "impl/noise/sensor_noise.hpp"
 #include "drone_config.hpp"
 #include <math.h>
-#include "logger/impl/csv_log_file.hpp"
+#include "ilogger.hpp"
 
 using namespace hako::aircraft;
-using namespace hako::logger::impl;
+using namespace hako::aircraft::impl;
+using namespace hako::logger;
 
 #define DELTA_TIME_SEC              drone_config.getSimTimeStep()
 #define REFERENCE_LATITUDE          drone_config.getSimLatitude()
@@ -36,7 +36,7 @@ using namespace hako::logger::impl;
 #define HAKO_ASSERT(cond)           if (!(cond)) { throw std::runtime_error("assertion failed: " #cond); }
 
 static inline std::unique_ptr<ILogFile> create_logfile(const std::string& path, ILog& entry) {
-    return std::make_unique<CsvLogFile>(path, entry.log_head());
+    return ILogFile::create(LOG_FILE_TYPE_CSV, path, entry.log_head());
 }
 
 static void registerLogEntry(const DroneConfig& drone_config, AirCraft& aircraft, ILog& entry, const std::string& filename) {

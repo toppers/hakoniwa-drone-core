@@ -1,5 +1,4 @@
-#ifndef _ITHRUST_DYNAMICS_HPP_
-#define _ITHRUST_DYNAMICS_HPP_
+#pragma once
 
 #include "primitive_types.hpp"
 
@@ -24,5 +23,3 @@ public:
 };
 
 }
-
-#endif /* _ITHRUST_DYNAMICS_HPP_ */

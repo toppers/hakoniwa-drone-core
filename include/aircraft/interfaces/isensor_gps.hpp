@@ -1,5 +1,4 @@
-#ifndef _ISENSOR_GPS_HPP_
-#define _ISENSOR_GPS_HPP_
+#pragma once
 
 #include "isensor.hpp"
 
@@ -23,5 +22,3 @@ public:
 };
 
 }
-
-#endif /* _ISENSOR_GPS_HPP_ */

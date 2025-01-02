@@ -1,5 +1,5 @@
-#ifndef _ISENSOR_DATA_ASSEMBLER_HPP_
-#define _ISENSOR_DATA_ASSEMBLER_HPP_
+#pragma once
+
 
 namespace hako::aircraft {
 
@@ -20,5 +20,3 @@ public:
 
 }
 
-
-#endif /* _ISENSOR_DATA_ASSEMBLER_HPP_ */

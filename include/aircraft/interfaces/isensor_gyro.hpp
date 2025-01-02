@@ -1,9 +1,8 @@
-#ifndef _ISENSOR_GYRO_HPP_
-#define _ISENSOR_GYRO_HPP_
+#pragma once
 
 
 #include "isensor.hpp"
-#include "aircraft/interfaces/idrone_dynamics.hpp"
+#include "interfaces/idrone_dynamics.hpp"
 
 namespace hako::aircraft {
 
@@ -15,5 +14,3 @@ public:
 };
 
 }
-
-#endif /* _ISENSOR_GYRO_HPP_ */

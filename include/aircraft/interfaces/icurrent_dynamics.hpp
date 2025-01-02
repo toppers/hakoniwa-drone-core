@@ -1,5 +1,5 @@
-#ifndef _ICURRENT_DYNAMICS_HPP_
-#define _ICURRENT_DYNAMICS_HPP_
+#pragma once
+
 
 
 namespace hako::aircraft {
@@ -13,4 +13,3 @@ public:
 };
 }
 
-#endif /* _ICURRENT_DYNAMICS_HPP_ */

@@ -26,6 +26,7 @@ endif()
 target_include_directories(hako_controller 
     PRIVATE ${PROJECT_ROOT_DIR}/include/controller
     PRIVATE ${PROJECT_ROOT_DIR}/include/config
+    PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/physics
     PRIVATE ${GLM_SOURCE_DIR}

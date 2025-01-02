@@ -8,7 +8,7 @@
 
 using namespace hako::mavlink;
 using namespace hako::aircraft;
-
+using namespace hako::aircraft::impl;
 namespace hako::service::impl {
 
 class AircraftServiceContainer : public IAircraftServiceContainer {

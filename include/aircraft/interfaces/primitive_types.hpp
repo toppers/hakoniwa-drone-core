@@ -1,9 +1,8 @@
-#ifndef _PRIMITIVE_TYPES_HPP_
-#define _PRIMITIVE_TYPES_HPP_
+#pragma once
 
 #include <glm/vec3.hpp>
 #include <math.h>
-#include "physics/body_physics.hpp"
+#include "body_physics.hpp"
 
 namespace hako::aircraft {
 
@@ -391,4 +390,3 @@ typedef struct {
 #define NT_TO_G(nT) ((nT) * 1e-5)
 
 }
-#endif /* _PRIMITIVE_TYPES_HPP_ */
