@@ -6,7 +6,7 @@ std::atomic<bool> hako::logger::impl::HakoLogger::enable_flag{false};
 std::atomic<uint64_t> hako::logger::impl::HakoLogger::time_usec{0};
 
 
-std::unique_ptr<ILogFile> ILogFile::create(LogFileType type, const std::string& file_name, const std::vector<LogHeaderType>& header) {
+std::unique_ptr<ILogFile> hako::logger::ILogFile::create(LogFileType type, const std::string& file_name, const std::vector<LogHeaderType>& header) {
     switch (type) {
     case LOG_FILE_TYPE_CSV:
         return std::make_unique<hako::logger::impl::CsvLogFile>(file_name, header);
