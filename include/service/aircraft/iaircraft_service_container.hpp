@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aircraft/iaircraft.hpp"
 #include "service/iservice_container.hpp"
 #include "mavlink/imavlink_service.hpp"
 #include <memory>

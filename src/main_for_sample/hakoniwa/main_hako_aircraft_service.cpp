@@ -1,7 +1,4 @@
-#include "aircraft/iaircraft.hpp"
-#include "mavlink/imavlink_service.hpp"
 #include "service/aircraft/iaircraft_service_container.hpp"
-#include "service/drone/idrone_service_container.hpp"
 #include "hakoniwa/ihakoniwa_drone_service.hpp"
 #include "logger/ilogger.hpp"
 #include <iostream>

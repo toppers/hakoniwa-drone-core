@@ -1,5 +1,3 @@
-#include "aircraft/iaircraft.hpp"
-#include "mavlink/imavlink_service.hpp"
 #include "service/aircraft/iaircraft_service_container.hpp"
 #include "logger/ilogger.hpp"
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "service/drone/idrone_service_container.hpp"
+#include <thread>
 
 namespace hako::service {
 
