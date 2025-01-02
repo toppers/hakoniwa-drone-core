@@ -1,7 +1,6 @@
 #include "drone_physics_debug.h"
-#include "drone_physics_osdep.h"
 
-const double PI = M_PI;
+const double PI = 3.14159265358979;
 
 void static test_frame_all_unit_vectors_with_some_angles() {
     const dp_velocity_t v1 = {1, 0, 0};

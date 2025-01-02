@@ -1,12 +1,6 @@
-#ifndef _DRONE_FRAMES_HPP_
-#define _DRONE_FRAMES_HPP_
+#pragma once
+#include <cmath>
 
-#ifdef WIN32
-#define _USE_MATH_DEFINES
-#include <cmath>
-#else
-#include <cmath>
-#endif
 
 #ifdef BP_INCLUDE_IO /* for printint out */
 #include <iostream>
@@ -113,7 +107,7 @@ std::ostream& operator << (std::ostream& os, const VectorType& v) {
     return os;
 }
 std::ostream& operator << (std::ostream& os, const EulerType& v) {
-    os << "(" << (v.phi)*180/M_PI << "d, " << (v.theta)*180/M_PI << "d, " << (v.psi)*180/M_PI << "d)";
+    os << "(" << (v.phi)*180/(3.1415926535) << "d, " << (v.theta)*180/(3.1415926535) << "d, " << (v.psi)*180/(3.1415926535) << "d)";
     return os;
 }
 std::ostream& operator << (std::ostream& os, const QuaternionType& v) {
@@ -135,5 +129,3 @@ VectorType body_vector_from_ground(
     const EulerType& angle);
 
 } /* namespace hako::drone_physics */
-
-#endif /* _DRONE_FRAMES_HPP_ */

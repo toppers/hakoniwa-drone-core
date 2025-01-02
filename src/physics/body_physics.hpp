@@ -1,13 +1,7 @@
-#ifndef _BODY_PHYSICS_HPP_
-#define _BODY_PHYSICS_HPP_
-
-
-
+#pragma once
 #include "drone_frames.hpp"
 
-
 namespace hako::drone_physics {
-
 /*
  *  Maths for anglular velocity and euler rate.
  */
@@ -95,5 +89,3 @@ VectorType velocity_after_contact_with_wall(
     double restitution_coefficient /* 0.0 - 1.0 */);
 
 } /* namespace hako::drone_physics */
-
-#endif /* _BODY_PHYSICS_HPP_ */

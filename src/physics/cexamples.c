@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <math.h>
-#include "drone_physics_osdep.h"
 
 // include the library header
 #include "drone_physics_c.h"
 
 int main() {
     // create a body frame from Euler angles.
-    dp_euler_t frame = {0, 0, M_PI/2};
+    dp_euler_t frame = {0, 0, 3.14159265358979/2};
     dp_velocity_t body_velocity = {100, 200, 300};
     
     // Convert the body velocity to the ground frame.
@@ -20,7 +19,7 @@ int main() {
     // you can also use explicit initialization.
     // reverse the conversion to the body frame.
     dp_velocity_t b = dp_body_vector_from_ground(
-        &g, &(dp_euler_t){0, 0, M_PI/2}
+        &g, &(dp_euler_t){0, 0, 3.14159265358979/2}
     );
 
     // get the x,y,z components of the velocity.

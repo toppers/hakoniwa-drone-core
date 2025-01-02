@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cmath>
-#include "drone_physics_osdep.h"
 
 // include the library header
 #include "drone_physics.hpp"
@@ -10,7 +9,7 @@ int main() {
     using namespace hako::drone_physics;
 
     // create a body frame from Euler angles.
-    EulerType frame = {0, 0, M_PI/2};
+    EulerType frame = {0, 0, 3.14159265358979/2};
     VelocityType body_velocity = {100, 200, 300};
     
     // Convert the body velocity to the ground frame.
@@ -26,7 +25,7 @@ int main() {
     // reverse the conversion to the body frame.
     VelocityType body_velocity2 = body_vector_from_ground(
         VelocityType{u, v, w},
-        EulerType{0, 0, M_PI/2}
+        EulerType{0, 0, 3.14159265358979/2}
     );
 
     // another way to get the x,y,z components.

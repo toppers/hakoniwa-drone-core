@@ -1,10 +1,9 @@
 #include "drone_physics.hpp"
 #include "drone_physics_debug.h"
-#include "drone_physics_osdep.h"
 
 using namespace hako::drone_physics;
-
-const double PI = M_PI;
+using std::sqrt; using std::sin; using std::cos;
+const double PI = 3.14159265358979;
 
 void test_frame_all_unit_vectors_with_angle0() {
     VelocityType v1{1, 0, 0}; // Update the constructor call to use curly braces instead of parentheses

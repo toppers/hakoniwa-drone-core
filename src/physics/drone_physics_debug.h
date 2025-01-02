@@ -1,4 +1,4 @@
-#ifndef _DRONE_PHYSICS_DEBUG_H_
+#pragma once
 /* Only for test files in this directory. User of this library do not use this. */
 
 const double almost_tolerance = 0.0001;
@@ -90,5 +90,3 @@ static int AssertCount = 0;
 
 
 #endif /* __cplusplus */
-
-#endif /* _DRONE_PHYSICS_DEBUG_H_ */

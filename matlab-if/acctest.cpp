@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include "drone_physics_osdep.h"
 
 #include "drone_physics_matlab.h"
 #include "drone_physics_c.h"

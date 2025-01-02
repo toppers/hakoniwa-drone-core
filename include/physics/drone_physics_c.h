@@ -1,5 +1,4 @@
-#ifndef _BODY_PHYSICS_C_H_
-#define _BODY_PHYSICS_C_H_
+#pragma once
 
 /**
  * C interface for body_physics.hpp
@@ -67,5 +66,3 @@ dp_angular_acceleration_t dp_angular_acceleration_in_body_frame(
 #if defined(__cplusplus)
 }
 #endif
-
-#endif /* _BODY_PHYSICS_C_H_ */

@@ -1,6 +1,4 @@
-#ifndef _ROTOR_PHYSICS_HPP_
-#define _ROTOR_PHYSICS_HPP_
-
+#pragma once
 #include "body_physics.hpp"
 
 namespace hako::drone_physics {
@@ -87,5 +85,3 @@ double body_thrust_linear(double Ct2, unsigned n, double omega[]);
 
 
 } /* namespace hako::drone_physics */
-
-#endif /* _ROTOR_PHYSICS_HPP_ */
