@@ -1,5 +1,4 @@
-#ifndef _HAKONIWA_PDU_ACCESSOR_HPP_
-#define _HAKONIWA_PDU_ACCESSOR_HPP_
+#pragma once
 
 #include "iservice_pdu_types.hpp"
 #include "include/hako_asset_pdu.hpp"
@@ -62,4 +61,4 @@ private:
 };
 } // namespace hako::pdu
 
-#endif /* _HAKONIWA_PDU_ACCESSOR_HPP_ */
+

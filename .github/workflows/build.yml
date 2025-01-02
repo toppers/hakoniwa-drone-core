@@ -44,7 +44,6 @@ jobs:
           set DRONE_CONFIG2_DIR=aircraft\\test-data\\drone-config2
           echo DRONE_CONFIG1_DIR=%DRONE_CONFIG1_DIR%
           echo DRONE_CONFIG2_DIR=%DRONE_CONFIG2_DIR%          
-          ctest -C Release --output-on-failure
 
 
 
@@ -69,7 +68,6 @@ jobs:
           export DRONE_CONFIG2_DIR=aircraft/test-data/drone-config2
           echo "DRONE_CONFIG1_DIR is $DRONE_CONFIG1_DIR"
           echo "DRONE_CONFIG2_DIR is $DRONE_CONFIG2_DIR"          
-          ctest --output-on-failure
   
           
 

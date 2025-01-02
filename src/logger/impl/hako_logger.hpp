@@ -1,5 +1,4 @@
-#ifndef _LOGGER_HPP_
-#define _LOGGER_HPP_
+#pragma once
 
 #include "ilog.hpp"
 #include "ilog_file.hpp"
@@ -94,4 +93,3 @@ public:
 
 } // namespace hako::logger::impl
 
-#endif /* _LOGGER_HPP_ */

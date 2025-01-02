@@ -1,5 +1,4 @@
-#ifndef _IHAKONIWA_DRONE_SERVICE_HPP_
-#define _IHAKONIWA_DRONE_SERVICE_HPP_
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -24,4 +23,3 @@ public:
 };
 } // namespace hako::drone
 
-#endif /* _IHAKONIWA_DRONE_SERVICE_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef _SENSOR_NOISE_HPP_
-#define _SENSOR_NOISE_HPP_
+#pragma once
 
 #include "interfaces/isensor_noise.hpp"
 #include <random>
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif /* _SENSOR_NOISE_HPP_ */

@@ -1,5 +1,4 @@
-#ifndef _HAKONIWA_CONDUCTOR_HPP_
-#define _HAKONIWA_CONDUCTOR_HPP_
+#pragma once
 
 #include <stdint.h>
 
@@ -18,4 +17,3 @@ private:
 
 } // namespace hako::drone
 
-#endif /* _HAKONIWA_CONDUCTOR_HPP_ */

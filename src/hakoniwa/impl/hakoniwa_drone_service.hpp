@@ -1,5 +1,4 @@
-#ifndef _HAKONIW_DRONE_SERVICE_HPP_
-#define _HAKONIW_DRONE_SERVICE_HPP_
+#pragma once
 
 #include "ihakoniwa_drone_service.hpp"
 #include "impl/hakoniwa_simulator.hpp"
@@ -36,4 +35,3 @@ private:
 };
 } // namespace hako::drone::impl
 
-#endif /* _HAKONIW_DRONE_SERVICE_HPP_ */

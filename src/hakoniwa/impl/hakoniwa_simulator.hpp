@@ -1,5 +1,4 @@
-#ifndef _HAKONIWA_SIMULATOR_HPP_
-#define _HAKONIWA_SIMULATOR_HPP_
+#pragma once
 
 #include <stdint.h>
 #include <memory>
@@ -85,4 +84,3 @@ private:
 };
 } // namespace hako::drone
 
-#endif /* _HAKONIWA_SIMULATOR_HPP_ */

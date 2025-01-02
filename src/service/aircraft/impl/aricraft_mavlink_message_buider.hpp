@@ -1,5 +1,4 @@
-#ifndef _AIRCRAFT_MAVLINK_MESSAGE_BUILDER_HPP_
-#define _AIRCRAFT_MAVLINK_MESSAGE_BUILDER_HPP_
+#pragma once
 
 #include "imavlink_service.hpp"
 #include "iaircraft.hpp"
@@ -66,4 +65,3 @@ public:
 };
 }
 
-#endif /* _AIRCRAFT_MAVLINK_MESSAGE_BUILDER_HPP_ */
