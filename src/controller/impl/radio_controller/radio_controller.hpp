@@ -2,7 +2,7 @@
 
 
 #include "iaircraft_controller.hpp"
-#include "controller/impl/drone_radio_controller.hpp"
+#include "impl/drone_radio_controller.hpp"
 
 namespace hako::controller::impl {
 class RadioController : public IAircraftController {

@@ -2,7 +2,7 @@
 
 
 #include "iaircraft_controller.hpp"
-#include "controller/impl/drone_controller.hpp"
+#include "impl/drone_controller.hpp"
 
 
 namespace hako::controller::impl {
