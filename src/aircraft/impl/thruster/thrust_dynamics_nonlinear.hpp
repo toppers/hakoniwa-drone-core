@@ -3,8 +3,7 @@
 
 #include "physics/rotor_physics.hpp"
 #include "aircraft/interfaces/ithrust_dynamics.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 
 #include <glm/glm.hpp>
 #include <iostream>
@@ -125,7 +124,7 @@ public:
         DroneTorqueType _torque = get_torque();
         static std::vector<LogDataType> data;
         data.clear();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(_thrust.data);
         data.push_back(_torque.data.x); 
         data.push_back(_torque.data.y); 

@@ -9,7 +9,7 @@
 #include "service/iservice_container.hpp"
 #include "service/iservice_pdu_syncher.hpp"
 #include "hakoniwa/impl/hakoniwa_pdu_accessor.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 
 using namespace hako::service;
 using namespace hako::logger;
@@ -42,7 +42,7 @@ public:
 
     void advanceTimeStep() {
         if (isStarted_) {
-            HakoLogger::set_time_usec(service_container_->getSimulationTimeUsec(0));
+            IHakoLogger::set_time_usec(service_container_->getSimulationTimeUsec(0));
             //std::cout << "simtime = " << service_container_->getSimulationTimeUsec(0) << std::endl;
             service_container_->advanceTimeStep();
         }

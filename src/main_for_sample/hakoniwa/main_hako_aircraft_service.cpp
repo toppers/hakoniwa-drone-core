@@ -44,7 +44,7 @@ int main(int argc, const char* argv[])
     std::shared_ptr<IServiceContainer> aircraft_service = std::make_unique<hako::service::impl::AircraftServiceContainer>(mavlink_service_container, aircraft_container);
     aircraft_service->setRealTimeStepUsec(1000); //1msec
 
-    HakoLogger::enable();
+    IHakoLogger::enable();
 
     std::string asset_name = "drone";
     std::string config_path = custom_json_path;

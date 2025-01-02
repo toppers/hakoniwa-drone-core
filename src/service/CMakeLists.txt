@@ -23,6 +23,7 @@ target_include_directories(hako_service
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${PROJECT_ROOT_DIR}/include/controller
     PRIVATE ${PROJECT_ROOT_DIR}/include/config
+    PRIVATE ${PROJECT_ROOT_DIR}/include/logger
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${GLM_SOURCE_DIR}
     PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include

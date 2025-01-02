@@ -51,11 +51,11 @@ int main(int argc, const char* argv[])
         std::cerr << "Failed to start service" << std::endl;
         return 1;
     }
-    HakoLogger::enable();
+    IHakoLogger::enable();
     std::thread th([&service_container, real_sleep_msec]() {
         std::cout << "Start service" << std::endl;
         while (service_container.isServiceAvailable()) {
-            HakoLogger::set_time_usec(service_container.getSimulationTimeUsec(0));
+            IHakoLogger::set_time_usec(service_container.getSimulationTimeUsec(0));
             service_container.advanceTimeStep();
             std::this_thread::sleep_for(std::chrono::milliseconds(real_sleep_msec));
         }

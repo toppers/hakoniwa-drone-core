@@ -15,6 +15,7 @@
 #include "logger/impl/csv_log_file.hpp"
 
 using namespace hako::aircraft;
+using namespace hako::logger::impl;
 
 #define DELTA_TIME_SEC              drone_config.getSimTimeStep()
 #define REFERENCE_LATITUDE          drone_config.getSimLatitude()
@@ -39,7 +40,7 @@ static inline std::unique_ptr<ILogFile> create_logfile(const std::string& path, 
 }
 
 static void registerLogEntry(const DroneConfig& drone_config, AirCraft& aircraft, ILog& entry, const std::string& filename) {
-    aircraft.get_logger().add_entry(
+    aircraft.get_logger()->add_entry(
         entry, 
         create_logfile(
             drone_config.getSimLogFullPathFromIndex(aircraft.get_index(), filename), 
@@ -106,7 +107,7 @@ IAirCraft* hako::aircraft::create_aircraft(int index, const DroneConfig& drone_c
     drone_dynamics->set_out_of_bounds_reset(out_of_bounds_reset);
     drone->set_drone_dynamics(drone_dynamics);
     std::cout << "INFO: logpath: " << LOGPATH(drone->get_index(), "drone_dynamics.csv") << std::endl;
-    drone->get_logger().add_entry(*drone_dynamics, 
+    drone->get_logger()->add_entry(*drone_dynamics, 
         create_logfile(LOGPATH(drone->get_index(), "drone_dynamics.csv"), *drone_dynamics));
 
     //battery dynamics
@@ -147,7 +148,7 @@ IAirCraft* hako::aircraft::create_aircraft(int index, const DroneConfig& drone_c
             HAKO_ASSERT(rotor != nullptr);
             rotor->set_battery_dynamics_constants(rotor_constants);
             static_cast<RotorDynamics*>(rotor)->set_params(RadPerSecMax, RotorTau, RadPerSecMax);
-            drone->get_logger().add_entry(*static_cast<RotorDynamics*>(rotor), 
+            drone->get_logger()->add_entry(*static_cast<RotorDynamics*>(rotor), 
                 create_logfile(LOGPATH(drone->get_index(), logfilename), *static_cast<RotorDynamics*>(rotor)));
         }
         rotors[i] = rotor;
@@ -168,7 +169,7 @@ IAirCraft* hako::aircraft::create_aircraft(int index, const DroneConfig& drone_c
         HAKO_ASSERT(thrust != nullptr);
         std::cout << "param_J: " << rotor_constants.J << std::endl;
         static_cast<ThrustDynamicsNonLinear*>(thrust)->set_params(param_Ct, param_Cq, rotor_constants.J);
-        drone->get_logger().add_entry(*static_cast<ThrustDynamicsNonLinear*>(thrust), 
+        drone->get_logger()->add_entry(*static_cast<ThrustDynamicsNonLinear*>(thrust), 
             create_logfile(LOGPATH(drone->get_index(), "log_thrust.csv"), *static_cast<ThrustDynamicsNonLinear*>(thrust)));
     }
     drone->set_thrus_dynamics(thrust);

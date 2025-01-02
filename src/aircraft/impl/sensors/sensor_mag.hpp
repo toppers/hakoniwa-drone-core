@@ -4,8 +4,7 @@
 #include "aircraft/interfaces/isensor_mag.hpp"
 #include "aircraft/impl/sensors/sensor_mag.hpp"
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -121,7 +120,7 @@ public:
         auto v = sensor_value();
         static std::vector<LogDataType> data;
         data.clear();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(v.data.x);                  // X (double)
         data.push_back(v.data.y);                  // Y (double)
         data.push_back(v.data.z);                  // Z (double)

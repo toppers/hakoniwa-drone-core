@@ -1,7 +1,7 @@
 #ifndef _CSV_LOG_FILE_HPP_
 #define _CSV_LOG_FILE_HPP_
 
-#include "logger/ilog_file.hpp"
+#include "ilog_file.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -9,7 +9,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace hako::logger {
+namespace hako::logger::impl {
 
 /**
  * CsvLogFile

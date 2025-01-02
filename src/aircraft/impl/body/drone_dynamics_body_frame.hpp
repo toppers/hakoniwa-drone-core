@@ -5,7 +5,7 @@
 #include <iostream>
 #include "drone_config_types.hpp"
 #include "aircraft/interfaces/idrone_dynamics.hpp"
-#include "logger/ilog.hpp"
+#include "ilog.hpp"
 #include "logger/impl/hako_logger.hpp"
 
 namespace hako::aircraft {
@@ -340,7 +340,7 @@ public:
         data.clear();
 
         // Add timestamp
-        data.push_back(HakoLogger::get_time_usec()); // Assuming this returns uint64_t
+        data.push_back(IHakoLogger::get_time_usec()); // Assuming this returns uint64_t
 
         // Add positional data
         data.push_back(position.data.x);

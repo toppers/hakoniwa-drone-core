@@ -1,5 +1,4 @@
-#ifndef _ILOG_HPP_
-#define _ILOG_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -42,4 +41,3 @@ public:
 
 } // namespace hako::logger
 
-#endif /* _ILOG_HPP_ */

@@ -17,7 +17,9 @@ set(SOURCE_FILES
 add_library(hako_logger ${SOURCE_FILES})
 
 target_include_directories(hako_logger 
-    PRIVATE ${HAKO_SOURCE_DIR})
+    PRIVATE ${PROJECT_ROOT_DIR}/include/logger
+    PRIVATE ${HAKO_SOURCE_DIR}
+    )
 target_compile_features(hako_logger PRIVATE cxx_std_17)
 
 target_link_libraries(hako_logger PRIVATE hako_comm)

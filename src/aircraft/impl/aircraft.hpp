@@ -3,6 +3,7 @@
 
 #include "aircraft/iaircraft.hpp"
 #include "logger/impl/hako_logger.hpp"
+#include <memory>
 
 using namespace hako::logger;
 
@@ -10,11 +11,11 @@ namespace hako::aircraft {
 
 class AirCraft : public IAirCraft {
 private:
-    HakoLogger logger;
+    std::shared_ptr<IHakoLogger> logger;
 public:
     virtual ~AirCraft() 
     {
-        logger.close();
+        logger->close();
     }
 
     void reset() override
@@ -55,10 +56,10 @@ public:
         mag->run(drone_dynamics->get_angle());
         baro->run(drone_dynamics->get_pos());
 
-        logger.run();
+        logger->run();
         simulation_time_usec += delta_time_usec;
     }
-    HakoLogger& get_logger()
+    std::shared_ptr<IHakoLogger> get_logger()
     {
         return logger;
     }

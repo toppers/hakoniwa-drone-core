@@ -5,8 +5,7 @@
 #include "aircraft/interfaces/isensor_gps.hpp"
 #include "aircraft/impl/sensors/sensor_gps.hpp"
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;
@@ -134,7 +133,7 @@ public:
         DroneGpsDataType v = sensor_value();
         static std::vector<LogDataType> data;
         data.clear();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(v.lat); 
         data.push_back(v.lon); 
         data.push_back(v.alt); 

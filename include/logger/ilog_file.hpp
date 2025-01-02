@@ -1,5 +1,4 @@
-#ifndef _ILOGFILE_HPP_
-#define _ILOGFILE_HPP_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -82,4 +81,3 @@ protected:
 
 } // namespace hako::logger
 
-#endif /* _ILOGFILE_HPP_ */

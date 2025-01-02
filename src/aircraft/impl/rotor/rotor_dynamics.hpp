@@ -4,8 +4,7 @@
 #include "physics/rotor_physics.hpp"
 #include "aircraft/interfaces/irotor_dynamics.hpp"
 #include "aircraft/interfaces/icurrent_dynamics.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 #include <math.h>
 
 using namespace hako::logger;
@@ -139,7 +138,7 @@ public:
         DroneRotorSpeedType v = get_rotor_speed();
         static std::vector<LogDataType> data;
         data.clear();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(duty);
         data.push_back(v.data); 
         data.push_back(current); 

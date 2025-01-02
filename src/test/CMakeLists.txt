@@ -66,6 +66,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE ${PROJECT_ROOT_DIR}/include/comm
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${PROJECT_ROOT_DIR}/include/config
+    PRIVATE ${PROJECT_ROOT_DIR}/include/logger
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/comm
     PRIVATE ${HAKO_SOURCE_DIR}/mavlink

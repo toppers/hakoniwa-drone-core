@@ -4,8 +4,7 @@
 #include "aircraft/interfaces/isensor_baro.hpp"
 #include "aircraft/impl/sensors/sensor_baro.hpp"
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;
@@ -73,7 +72,7 @@ public:
         DroneBarometricPressureType v = sensor_value();
         static std::vector<LogDataType> data;
         data.clear();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(v.abs_pressure); 
         data.push_back(v.diff_pressure); 
         data.push_back(v.pressure_alt); 

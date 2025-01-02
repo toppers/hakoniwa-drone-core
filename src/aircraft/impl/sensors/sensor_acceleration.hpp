@@ -4,8 +4,7 @@
 #include "aircraft/interfaces/isensor_acceleration.hpp"
 #include "aircraft/impl/sensors/sensor_acceleration.hpp"
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
-#include "logger/ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 
 using namespace hako::logger;
 namespace hako::aircraft {
@@ -66,7 +65,7 @@ public:
         static std::vector<LogDataType> data;
         data.clear();
         DroneAccelerationBodyFrameType v = sensor_value();
-        data.push_back(HakoLogger::get_time_usec()); // timestamp (uint64_t)
+        data.push_back(IHakoLogger::get_time_usec()); // timestamp (uint64_t)
         data.push_back(v.data.x);                  // X (double)
         data.push_back(v.data.y);                  // Y (double)
         data.push_back(v.data.z);                  // Z (double)

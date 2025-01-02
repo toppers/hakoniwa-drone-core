@@ -2,7 +2,7 @@
 #define _IDRONE_DYNAMICS_HPP_
 
 #include "primitive_types.hpp"
-#include "logger/ilog.hpp"
+#include "ilog.hpp"
 #include "aircraft/interfaces/idisturbance.hpp"
 #include "drone_config_types.hpp"
 

@@ -35,7 +35,7 @@ int main(int argc, const char* argv[])
 
     auto service_container = std::make_shared<DroneServiceContainer>(aircraft_container, controller_container);
 
-    HakoLogger::enable();
+    IHakoLogger::enable();
 
     std::string asset_name = "drone";
     std::string config_path = custom_json_path;

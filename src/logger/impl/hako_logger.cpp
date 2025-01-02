@@ -2,5 +2,21 @@
 
 using namespace hako::logger;
 
-std::atomic<bool> hako::logger::HakoLogger::enable_flag{false};
-std::atomic<uint64_t> hako::logger::HakoLogger::time_usec{0};
+std::atomic<bool> hako::logger::impl::HakoLogger::enable_flag{false};
+std::atomic<uint64_t> hako::logger::impl::HakoLogger::time_usec{0};
+
+void hako::logger::IHakoLogger::set_time_usec(uint64_t t) {
+    hako::logger::impl::HakoLogger::time_usec.store(t, std::memory_order_relaxed);
+}
+
+uint64_t hako::logger::IHakoLogger::get_time_usec() {
+    return hako::logger::impl::HakoLogger::time_usec.load(std::memory_order_relaxed);
+}
+
+void hako::logger::IHakoLogger::enable() {
+    hako::logger::impl::HakoLogger::enable_flag.store(true, std::memory_order_relaxed);
+}
+
+void hako::logger::IHakoLogger::disable() {
+    hako::logger::impl::HakoLogger::enable_flag.store(false, std::memory_order_relaxed);
+}

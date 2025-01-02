@@ -1,8 +1,9 @@
 #ifndef _LOGGER_HPP_
 #define _LOGGER_HPP_
 
-#include "logger/ilog.hpp"
-#include "logger/ilog_file.hpp"
+#include "ilog.hpp"
+#include "ilog_file.hpp"
+#include "ilogger.hpp"
 #include <vector>
 #include <string>
 #include <memory>      // For smart pointers
@@ -10,55 +11,35 @@
 #include <atomic>      // For atomic operations
 #include <stdexcept>   // For exceptions
 
-namespace hako::logger {
-
-typedef struct {
-    ILog* log;
-    std::unique_ptr<ILogFile> log_file;
-} LogEntryType;
+namespace hako::logger::impl {
 
 #define MAX_WRITE_COUNT 256
 
-class HakoLogger {
+class HakoLogger : public IHakoLogger {
 private:
     std::vector<LogEntryType> entries;
     int write_count;
+    mutable std::mutex logger_mutex;
+public:
     static std::atomic<bool> enable_flag;
     static std::atomic<uint64_t> time_usec;
-    mutable std::mutex logger_mutex;
 
 public:
     HakoLogger() : write_count(0) {}
 
-    ~HakoLogger() {
+    virtual ~HakoLogger() override {
         close();
     }
-    std::vector<LogEntryType>& get_entries() {
+    std::vector<LogEntryType>& get_entries() override {
         return entries;
     }
-    void add_entry(ILog& log, std::unique_ptr<ILogFile> log_file) {
+    void add_entry(ILog& log, std::unique_ptr<ILogFile> log_file) override {
         std::lock_guard<std::mutex> lock(logger_mutex);
         log_file->flush();
         entries.push_back({&log, std::move(log_file)});
     }
 
-    static void set_time_usec(uint64_t t) {
-        time_usec.store(t, std::memory_order_relaxed);
-    }
-
-    static uint64_t get_time_usec() {
-        return time_usec.load(std::memory_order_relaxed);
-    }
-
-    static void enable() {
-        enable_flag.store(true, std::memory_order_relaxed);
-    }
-
-    static void disable() {
-        enable_flag.store(false, std::memory_order_relaxed);
-    }
-
-    void run() {
+    void run() override {
         if (!enable_flag.load(std::memory_order_relaxed)) {
             return;
         }
@@ -81,14 +62,14 @@ public:
             throw std::runtime_error(std::string("Error during logging: ") + e.what());
         }
     }
-    void flush() {
+    void flush() override {
         std::lock_guard<std::mutex> lock(logger_mutex);
         for (auto& entry : entries) {
             entry.log_file->flush();
         }
     }
 
-    void reset() {
+    void reset() override {
         std::lock_guard<std::mutex> lock(logger_mutex);
         for (auto& entry : entries) {
             if (entry.log_file) {
@@ -99,7 +80,7 @@ public:
         write_count = 0;
     }
 
-    void close() {
+    void close() override {
         std::lock_guard<std::mutex> lock(logger_mutex);
         for (auto& entry : entries) {
             if (entry.log_file) {
@@ -111,6 +92,6 @@ public:
     }
 };
 
-} // namespace hako::logger
+} // namespace hako::logger::impl
 
 #endif /* _LOGGER_HPP_ */

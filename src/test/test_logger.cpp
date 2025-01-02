@@ -1,6 +1,6 @@
 #include "logger/impl/csv_log_file.hpp"
 #include "logger/impl/hako_logger.hpp"
-#include "logger/ilog.hpp"
+#include "ilog.hpp"
 #include <gtest/gtest.h>
 #include <filesystem> // For std::filesystem::remove
 #include <vector>
@@ -41,22 +41,22 @@ private:
 };
 
 TEST(HakoLoggerTest, AddEntryAndRun) {
-    hako::logger::HakoLogger logger;
+    hako::logger::impl::HakoLogger logger;
 
     MockLog mock_log1(sample_data1);
     MockLog mock_log2(sample_data2);
 
-    auto csv_file1 = std::make_unique<hako::logger::CsvLogFile>(TEMP_FILE1, header);
+    auto csv_file1 = std::make_unique<hako::logger::impl::CsvLogFile>(TEMP_FILE1, header);
     logger.add_entry(mock_log1, std::move(csv_file1));
-    auto csv_file2 = std::make_unique<hako::logger::CsvLogFile>(TEMP_FILE2, header);
+    auto csv_file2 = std::make_unique<hako::logger::impl::CsvLogFile>(TEMP_FILE2, header);
     logger.add_entry(mock_log2, std::move(csv_file2));
 
-    hako::logger::HakoLogger::enable();
+    hako::logger::IHakoLogger::enable();
 
     logger.run();
     logger.flush();
 
-    hako::logger::CsvLogFile csv_reader1(TEMP_FILE1);
+    hako::logger::impl::CsvLogFile csv_reader1(TEMP_FILE1);
     csv_reader1.load(header);
     std::vector<hako::logger::LogDataType> read_data1;
     ASSERT_TRUE(csv_reader1.read(read_data1));
@@ -65,7 +65,7 @@ TEST(HakoLoggerTest, AddEntryAndRun) {
     ASSERT_FLOAT_EQ(std::get<float>(read_data1[1]), std::get<float>(sample_data1[1]));
     ASSERT_EQ(std::get<std::string>(read_data1[2]), std::get<std::string>(sample_data1[2]));
 
-    hako::logger::CsvLogFile csv_reader2(TEMP_FILE2);
+    hako::logger::impl::CsvLogFile csv_reader2(TEMP_FILE2);
     csv_reader2.load(header);
     std::vector<hako::logger::LogDataType> read_data2;
     ASSERT_TRUE(csv_reader2.read(read_data2));
@@ -77,19 +77,19 @@ TEST(HakoLoggerTest, AddEntryAndRun) {
 
 
 TEST(HakoLoggerTest, ResetAndClose) {
-    hako::logger::HakoLogger logger;
+    hako::logger::impl::HakoLogger logger;
 
     MockLog mock_log(sample_data1);
 
-    auto csv_file = std::make_unique<hako::logger::CsvLogFile>(TEMP_FILE, header);
+    auto csv_file = std::make_unique<hako::logger::impl::CsvLogFile>(TEMP_FILE, header);
     logger.add_entry(mock_log, std::move(csv_file));
 
-    hako::logger::HakoLogger::enable();
+    hako::logger::IHakoLogger::enable();
     logger.run();
 
     logger.reset();
 
-    hako::logger::CsvLogFile csv_reader(TEMP_FILE);
+    hako::logger::impl::CsvLogFile csv_reader(TEMP_FILE);
     std::vector<hako::logger::LogDataType> read_data;
     csv_reader.load(header);
     EXPECT_FALSE(csv_reader.read(read_data));
