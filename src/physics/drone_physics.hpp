@@ -1,5 +1,4 @@
-#ifndef _DRONE_PYHSICS_HPP_
-#define _DRONE_PYHSICS_HPP_
+#pragma once
 
 /**
  * Includes the two public headers in this directory.
@@ -12,5 +11,3 @@
 #include "drone_frames.hpp"
 #include "rotor_physics.hpp"
 #include "body_physics.hpp"
-
-#endif /* _DRONE_PYHSICS_HPP_ */
