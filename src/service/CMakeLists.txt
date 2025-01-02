@@ -34,3 +34,9 @@ target_link_libraries(hako_service PRIVATE
     hako_aircraft
     hako_mavlink
     )
+
+add_custom_target(
+    service_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_service> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)

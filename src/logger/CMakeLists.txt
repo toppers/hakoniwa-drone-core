@@ -23,3 +23,9 @@ target_include_directories(hako_logger
 target_compile_features(hako_logger PRIVATE cxx_std_17)
 
 target_link_libraries(hako_logger PRIVATE hako_comm)
+
+add_custom_target(
+    logger_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_logger> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)    

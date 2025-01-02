@@ -53,6 +53,5 @@ target_link_libraries(hako_mavlink PRIVATE hako_comm)
 add_custom_target(
     mavlink_publish
     COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
-    COMMAND ${CMAKE_COMMAND} -E copy ${PUBLIC_HEADERS} "${HAKONIWA_PUBLIC_HEADER_DIR}/mavlink/"
     COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_mavlink> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
 )

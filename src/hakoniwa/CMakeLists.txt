@@ -40,3 +40,9 @@ target_compile_features(hako_drone_core PRIVATE cxx_std_17)
 target_link_libraries(hako_drone_core PRIVATE 
     hako_service
     )
+
+add_custom_target(
+    hakoniwa_publish
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+    COMMAND ${CMAKE_COMMAND} -E copy  $<TARGET_FILE:hako_drone_core> "${HAKONIWA_PUBLIC_LIB_DIR}/${CMAKE_SYSTEM_NAME}/${CMAKE_SYSTEM_PROCESSOR}/"
+)    
