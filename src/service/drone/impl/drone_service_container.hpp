@@ -4,7 +4,6 @@
 #include "service/drone/idrone_service_container.hpp"
 #include "service/drone/impl/drone_service.hpp"
 #include "service/drone/idrone_service.hpp"
-#include "aircraft/iaircraft_container.hpp"
 #include "iaircraft_controller.hpp"
 
 using namespace hako::aircraft;

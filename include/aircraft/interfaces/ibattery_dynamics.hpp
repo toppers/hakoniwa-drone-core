@@ -1,7 +1,6 @@
-#ifndef _IBATTERY_DYNAMICS_HPP_
-#define _IBATTERY_DYNAMICS_HPP_
+#pragma once
 
-#include "aircraft/interfaces/icurrent_dynamics.hpp"
+#include "interfaces/icurrent_dynamics.hpp"
 #include "drone_config_types.hpp"
 #include <vector>
 #include <iostream>
@@ -63,4 +62,3 @@ public:
 };
 }
 
-#endif /* _IBATTERY_DYNAMICS_HPP_ */

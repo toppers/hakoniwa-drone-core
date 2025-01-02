@@ -67,9 +67,13 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE ${PROJECT_ROOT_DIR}/include/mavlink
     PRIVATE ${PROJECT_ROOT_DIR}/include/config
     PRIVATE ${PROJECT_ROOT_DIR}/include/logger
+    PRIVATE ${PROJECT_ROOT_DIR}/include/aircraft
+    PRIVATE ${PROJECT_ROOT_DIR}/include/physics
+
     PRIVATE ${HAKO_SOURCE_DIR}
     PRIVATE ${HAKO_SOURCE_DIR}/comm
     PRIVATE ${HAKO_SOURCE_DIR}/mavlink
+    PRIVATE ${HAKO_SOURCE_DIR}/aircraft
     PRIVATE ${MAVLINK_SOURCE_DIR}/all
     PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
     PRIVATE ${GLM_SOURCE_DIR}

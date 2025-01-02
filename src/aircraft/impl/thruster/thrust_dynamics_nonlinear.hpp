@@ -1,8 +1,7 @@
-#ifndef _THRUST_DYNAMICS_NONLINEAR_HPP_
-#define _THRUST_DYNAMICS_NONLINEAR_HPP_
+#pragma once
 
-#include "physics/rotor_physics.hpp"
-#include "aircraft/interfaces/ithrust_dynamics.hpp"
+#include "rotor_physics.hpp"
+#include "interfaces/ithrust_dynamics.hpp"
 #include "ilogger.hpp"
 
 #include <glm/glm.hpp>
@@ -10,7 +9,7 @@
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class ThrustDynamicsNonLinear : public IThrustDynamics, public ILog {
 private:
@@ -136,5 +135,3 @@ public:
 };
 
 }
-
-#endif /* _THRUST_DYNAMICS_NONLINEAR_HPP_ */

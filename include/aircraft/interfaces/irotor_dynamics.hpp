@@ -1,5 +1,5 @@
-#ifndef _IROTOR_DYNAMICS_HPP_
-#define _IROTOR_DYNAMICS_HPP_
+#pragma once
+
 
 #include "primitive_types.hpp"
 #include "drone_config_types.hpp"
@@ -28,5 +28,3 @@ public:
 };
 
 }
-
-#endif /* _IROTOR_DYNAMICS_HPP_ */

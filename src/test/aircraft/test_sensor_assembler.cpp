@@ -4,6 +4,7 @@
 #include "aircraft/impl/noise/sensor_data_assembler.hpp"
 
 using namespace hako::aircraft;
+using namespace hako::aircraft::impl;
 
 class UtilsTest : public ::testing::Test {
 protected:

@@ -1,14 +1,14 @@
-#ifndef _SENSOR_BARO_HPP_
-#define _SENSOR_BARO_HPP_
+#pragma once
 
-#include "aircraft/interfaces/isensor_baro.hpp"
-#include "aircraft/impl/sensors/sensor_baro.hpp"
-#include "aircraft/impl/noise/sensor_data_assembler.hpp"
+
+#include "interfaces/isensor_baro.hpp"
+#include "impl/sensors/sensor_baro.hpp"
+#include "impl/noise/sensor_data_assembler.hpp"
 #include "ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorBaro : public ISensorBaro, public ILog {
 private:
@@ -82,5 +82,3 @@ public:
 
 }
 
-
-#endif /* _SENSOR_BARO_HPP_ */

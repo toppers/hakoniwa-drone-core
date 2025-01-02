@@ -3,6 +3,7 @@
 #include "aircraft/impl/rotor/rotor_dynamics.hpp"
 
 using namespace hako::aircraft;
+using namespace hako::aircraft::impl;
 using namespace hako::logger;
 
 class RotorDynamicsTest : public ::testing::Test {

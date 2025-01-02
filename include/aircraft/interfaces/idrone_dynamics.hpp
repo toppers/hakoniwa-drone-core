@@ -1,9 +1,9 @@
-#ifndef _IDRONE_DYNAMICS_HPP_
-#define _IDRONE_DYNAMICS_HPP_
+#pragma once
+
 
 #include "primitive_types.hpp"
 #include "ilog.hpp"
-#include "aircraft/interfaces/idisturbance.hpp"
+#include "interfaces/idisturbance.hpp"
 #include "drone_config_types.hpp"
 
 using namespace hako::logger;
@@ -78,5 +78,3 @@ public:
 };
 
 }
-
-#endif /* _IDRONE_DYNAMICS_HPP_ */

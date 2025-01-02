@@ -1,9 +1,8 @@
-#ifndef _SENSOR_MAG_HPP_
-#define _SENSOR_MAG_HPP_
+#pragma once
 
-#include "aircraft/interfaces/isensor_mag.hpp"
-#include "aircraft/impl/sensors/sensor_mag.hpp"
-#include "aircraft/impl/noise/sensor_data_assembler.hpp"
+#include "interfaces/isensor_mag.hpp"
+#include "impl/sensors/sensor_mag.hpp"
+#include "impl/noise/sensor_data_assembler.hpp"
 #include "ilogger.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -11,7 +10,7 @@
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorMag : public ISensorMag, public ILog {
 private:
@@ -131,5 +130,3 @@ public:
 
 }
 
-
-#endif /* _SENSOR_MAG_HPP_ */

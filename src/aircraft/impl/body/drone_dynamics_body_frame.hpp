@@ -1,14 +1,13 @@
-#ifndef _DRON_DYNAMICS_BODY_FRAME_HPP_
-#define _DRON_DYNAMICS_BODY_FRAME_HPP_
+#pragma once
 
 #include <math.h>
 #include <iostream>
 #include "drone_config_types.hpp"
-#include "aircraft/interfaces/idrone_dynamics.hpp"
+#include "interfaces/idrone_dynamics.hpp"
 #include "ilog.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "ilogger.hpp"
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 
 class DroneDynamicsBodyFrame : public IDroneDynamics {
@@ -375,5 +374,3 @@ public:
 
 }
 
-
-#endif /* _DRON_DYNAMICS_BODY_FRAME_HPP_ */

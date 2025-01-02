@@ -1,5 +1,5 @@
-#ifndef _ISENSOR_BARO_HPP_
-#define _ISENSOR_BARO_HPP_
+#pragma once
+
 
 
 #include "isensor.hpp"
@@ -24,5 +24,3 @@ public:
 };
 
 }
-
-#endif /* _ISENSOR_BARO_HPP_ */

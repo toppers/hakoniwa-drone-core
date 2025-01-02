@@ -1,5 +1,4 @@
-#ifndef _IDISTURBANCE_HPP_
-#define _IDISTURBANCE_HPP_
+#pragma once
 
 namespace hako::aircraft {
 
@@ -26,5 +25,3 @@ typedef struct {
 } mi_drone_sensor_gyro_in_t;
 
 }
-
-#endif /* _IDISTURBANCE_HPP_ */

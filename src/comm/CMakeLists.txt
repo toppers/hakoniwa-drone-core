@@ -28,7 +28,7 @@ endif()
 
 target_include_directories(hako_comm 
     PRIVATE ${PROJECT_ROOT_DIR}/include/comm
-    PRIVATE ${PROJECT_SOURCE_DIR}
+    PRIVATE ${HAKO_SOURCE_DIR}/comm
 )
 target_compile_features(hako_comm PRIVATE cxx_std_17)
 

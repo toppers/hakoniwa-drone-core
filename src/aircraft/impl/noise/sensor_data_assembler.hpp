@@ -1,11 +1,10 @@
-#ifndef _SENSOR_DATA_ASSEMBLER_HPP_
-#define _SENSOR_DATA_ASSEMBLER_HPP_
+#pragma once
 
-#include "aircraft/interfaces/isensor_data_assembler.hpp"
+#include "interfaces/isensor_data_assembler.hpp"
 #include <vector>
 #include <numeric> 
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorDataAssembler : public ISensorDataAssembler {
 private:
@@ -44,5 +43,3 @@ public:
 };
 
 }
-
-#endif /* _SENSOR_DATA_ASSEMBLER_HPP_ */

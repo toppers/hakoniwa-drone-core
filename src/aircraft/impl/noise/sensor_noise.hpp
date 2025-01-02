@@ -1,13 +1,13 @@
 #ifndef _SENSOR_NOISE_HPP_
 #define _SENSOR_NOISE_HPP_
 
-#include "aircraft/interfaces/isensor_noise.hpp"
+#include "interfaces/isensor_noise.hpp"
 #include <random>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorNoise : public ISensorNoise {
 private:

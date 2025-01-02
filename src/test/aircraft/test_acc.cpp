@@ -19,8 +19,8 @@ protected:
     }
 
 };
-using hako::aircraft::SensorAcceleration;
-using hako::aircraft::SensorNoise;
+using hako::aircraft::impl::SensorAcceleration;
+using hako::aircraft::impl::SensorNoise;
 using hako::aircraft::DroneVelocityBodyFrameType;
 using hako::aircraft::DroneAccelerationBodyFrameType;
 

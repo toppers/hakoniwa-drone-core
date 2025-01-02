@@ -1,15 +1,16 @@
-#ifndef _IAIRCRAFT_HPP_
-#define _IAIRCRAFT_HPP_
+#pragma once
 
-#include "aircraft/interfaces/idrone_dynamics.hpp"
-#include "aircraft/interfaces/irotor_dynamics.hpp"
-#include "aircraft/interfaces/ithrust_dynamics.hpp"
-#include "aircraft/interfaces/ibattery_dynamics.hpp"
-#include "aircraft/interfaces/isensor_acceleration.hpp"
-#include "aircraft/interfaces/isensor_baro.hpp"
-#include "aircraft/interfaces/isensor_gps.hpp"
-#include "aircraft/interfaces/isensor_gyro.hpp"
-#include "aircraft/interfaces/isensor_mag.hpp"
+#include "drone_config.hpp"
+
+#include "interfaces/idrone_dynamics.hpp"
+#include "interfaces/irotor_dynamics.hpp"
+#include "interfaces/ithrust_dynamics.hpp"
+#include "interfaces/ibattery_dynamics.hpp"
+#include "interfaces/isensor_acceleration.hpp"
+#include "interfaces/isensor_baro.hpp"
+#include "interfaces/isensor_gps.hpp"
+#include "interfaces/isensor_gyro.hpp"
+#include "interfaces/isensor_mag.hpp"
 
 namespace hako::aircraft {
 
@@ -157,6 +158,21 @@ public:
     }
 
 };
-}
 
-#endif /* _IAIRCRAFT_HPP_ */
+class IAirCraftContainer {
+public:
+    virtual ~IAirCraftContainer() {}
+    /*
+     * create different air crafts from config directory.
+     */
+    virtual void createAirCrafts(DroneConfigManager& configManager) = 0;
+    /*
+     * create same air crafts from config 0.
+     */
+    virtual bool createSameAirCrafts(DroneConfigManager& configManager, int create_num) = 0;
+    virtual std::shared_ptr<IAirCraft> getAirCraft(size_t index) = 0;
+    virtual std::vector<std::shared_ptr<IAirCraft>> getAllAirCrafts() = 0;
+};
+extern IAirCraft* create_aircraft(int index, const DroneConfig& drone_config);
+
+}

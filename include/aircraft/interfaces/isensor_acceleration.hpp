@@ -1,7 +1,7 @@
-#ifndef _ISENSOR_ACCELERATION_HPP_
-#define _ISENSOR_ACCELERATION_HPP_
+#pragma once
 
-#include "aircraft/interfaces/isensor.hpp"
+
+#include "interfaces/isensor.hpp"
 
 namespace hako::aircraft {
 
@@ -17,5 +17,3 @@ public:
 
 }
 
-
-#endif /* _ISENSOR_ACCELERATION_HPP_ */

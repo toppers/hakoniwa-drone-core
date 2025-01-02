@@ -2,9 +2,18 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "ilog.hpp"
 
 namespace hako::logger {
+
+typedef enum {
+    LOG_FILE_TYPE_CSV,
+    LOG_FILE_TYPE_BINARY,
+    LOG_FILE_TYPE_JSON,
+    LOG_FILE_TYPE_NONE,
+    LOG_FILE_TYPE_NUM
+} LogFileType;
 
 /**
  * Abstract interface for log file management.
@@ -12,6 +21,7 @@ namespace hako::logger {
  */
 class ILogFile {
 public:
+    static std::unique_ptr<ILogFile> create(LogFileType type, const std::string& file_name, const std::vector<LogHeaderType>& header);
     /**
      * Virtual destructor to ensure proper cleanup in derived classes.
      */

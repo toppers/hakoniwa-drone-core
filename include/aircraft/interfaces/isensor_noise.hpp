@@ -1,7 +1,7 @@
-#ifndef _ISENSOR_NOISE_HPP_
-#define _ISENSOR_NOISE_HPP_
+#pragma once
 
-#include "aircraft/interfaces/primitive_types.hpp"
+
+#include "interfaces/primitive_types.hpp"
 
 namespace hako::aircraft {
 
@@ -13,5 +13,3 @@ public:
 
 }
 
-
-#endif /* _ISENSOR_NOISE_HPP_ */

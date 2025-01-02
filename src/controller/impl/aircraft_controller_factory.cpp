@@ -1,7 +1,7 @@
-#include "controller/impl/aircraft_controller_factory.hpp"
-#include "controller/impl/radio_controller/radio_controller.hpp"
-#include "controller/impl/flight_controller/flight_controller.hpp"
-#include "controller/impl/mixer/aircraft_mixer.hpp"
+#include "impl/aircraft_controller_factory.hpp"
+#include "impl/radio_controller/radio_controller.hpp"
+#include "impl/flight_controller/flight_controller.hpp"
+#include "impl/mixer/aircraft_mixer.hpp"
 
 using namespace hako::controller;
 using namespace hako::controller::impl;

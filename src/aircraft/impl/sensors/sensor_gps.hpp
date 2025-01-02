@@ -1,16 +1,14 @@
-#ifndef _SENSOR_GPS_HPP_
-#define _SENSOR_GPS_HPP_
+#pragma once
 
-
-#include "aircraft/interfaces/isensor_gps.hpp"
-#include "aircraft/impl/sensors/sensor_gps.hpp"
-#include "aircraft/impl/noise/sensor_data_assembler.hpp"
+#include "interfaces/isensor_gps.hpp"
+#include "impl/sensors/sensor_gps.hpp"
+#include "impl/noise/sensor_data_assembler.hpp"
 #include "ilogger.hpp"
 #include <iostream>
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class SensorGps : public ISensorGps, public ILog {
 private:
@@ -148,6 +146,3 @@ public:
 };
 
 }
-
-
-#endif /* _SENSOR_GPS_HPP_ */

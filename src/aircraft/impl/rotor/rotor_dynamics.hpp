@@ -1,15 +1,14 @@
-#ifndef _ROTOR_DYNAMICS_HPP_
-#define _ROTOR_DYNAMICS_HPP_
+#pragma once
 
-#include "physics/rotor_physics.hpp"
-#include "aircraft/interfaces/irotor_dynamics.hpp"
-#include "aircraft/interfaces/icurrent_dynamics.hpp"
+#include "rotor_physics.hpp"
+#include "interfaces/irotor_dynamics.hpp"
+#include "interfaces/icurrent_dynamics.hpp"
 #include "ilogger.hpp"
 #include <math.h>
 
 using namespace hako::logger;
 
-namespace hako::aircraft {
+namespace hako::aircraft::impl {
 
 class RotorDynamics : public IRotorDynamics, public ICurrentDynamics, public ILog {
 private:
@@ -148,4 +147,3 @@ public:
 
 }
 
-#endif /* _ROTOR_DYNAMICS_HPP_ */
