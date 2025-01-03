@@ -1,18 +1,11 @@
 #pragma once
 
 #include "service/drone/idrone_service_container.hpp"
+#include "service/drone/drone_service_protocol.hpp"
 #include <thread>
 
 namespace hako::service {
 
-inline double radian_to_degree(double radian) {
-    return radian * (180.0 / M_PI);
-}
-typedef struct {
-    double x;
-    double y;
-    double z;
-} Vector3Type;
 class DroneServiceApiProtocol {
 private:
     std::shared_ptr<IDroneServiceContainer> drone_service_container_;
