@@ -285,6 +285,49 @@ int drone_service_rc_get_attitude(int index, double* x, double* y, double* z)
     }
     return 0;
 }
+int drone_service_rc_get_controls(int index, double* c1, double* c2, double* c3, double* c4, double* c5, double* c6, double* c7, double* c8)
+{
+    try {
+        if (rc == nullptr) {
+            return -1;
+        }
+        if (c1 == nullptr) {
+            return -1;
+        }
+        if (c2 == nullptr) {
+            return -1;
+        }
+        if (c3 == nullptr) {
+            return -1;
+        }
+        if (c4 == nullptr) {
+            return -1;
+        }
+        auto controls = rc->get_controls(index);
+        *c1 = controls.duty_rate[0];
+        *c2 = controls.duty_rate[1];
+        *c3 = controls.duty_rate[2];
+        *c4 = controls.duty_rate[3];
+        if (c5 != nullptr) {
+            *c5 = 0.0;
+        }
+        if (c6 != nullptr) {
+            *c6 = 0.0;
+        }
+        if (c7 != nullptr) {
+            *c7 = 0.0;
+        }
+        if (c8 != nullptr) {
+            *c8 = 0.0;
+        }
+        return 0;
+    }
+    catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return -1;
+    }
+}
+
 /*
  * miscs
  */

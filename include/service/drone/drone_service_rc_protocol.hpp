@@ -128,8 +128,19 @@ public:
         local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_POSITION;
         drone_service_container_->peek_pdu(index, local_pdu);
         return { local_pdu.pdu.position.angular.x, local_pdu.pdu.position.angular.y, local_pdu.pdu.position.angular.z };
-    }   
-
+    }
+    RotorControlType get_controls(int index)
+    {
+        ServicePduDataType local_pdu = {};
+        local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS;
+        drone_service_container_->peek_pdu(index, local_pdu);
+        RotorControlType rotor_control = {};
+        rotor_control.num = 4;
+        for (auto i = 0; i < rotor_control.num; i++) {
+            rotor_control.duty_rate[i] = local_pdu.pdu.actuator_controls.controls[i];
+        }
+        return rotor_control;
+    }
     void run()
     {
         if (keyboard_control_) {

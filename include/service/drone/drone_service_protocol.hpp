@@ -10,4 +10,10 @@ typedef struct {
     double z;
 } Vector3Type;
 
+#define DRONE_SERVICE_MAX_ROTOR_NUM 8
+typedef struct {
+    int num;
+    double duty_rate[DRONE_SERVICE_MAX_ROTOR_NUM];
+} RotorControlType;
+
 } // namespace hako::service
