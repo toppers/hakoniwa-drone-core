@@ -14,6 +14,7 @@ endif()
 set(SOURCE_FILES
     aircraft/impl/aircraft_service_container.cpp
     drone/impl/drone_service.cpp
+    drone/impl/drone_service_rc_api.cpp
 )
 add_library(hako_service ${SOURCE_FILES})
 

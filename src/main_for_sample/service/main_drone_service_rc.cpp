@@ -1,16 +1,11 @@
-#include "service/drone/drone_service_rc_protocol.hpp"
-#include "logger/impl/hako_logger.hpp"
+#include "service/drone/drone_service_rc_api.h"
 #include <iostream>
 #include <thread>
 #include <sstream>
 #include <vector>
 #include <string>
 #include <queue>
-
-using namespace hako::aircraft;
-using namespace hako::controller;
-using namespace hako::service;
-using namespace hako::logger;
+#include <iomanip>
 
 
 int main(int argc, const char* argv[])
@@ -22,68 +17,17 @@ int main(int argc, const char* argv[])
     int real_sleep_msec = std::stoi(argv[1]);
     const char* drone_config_dir_path = argv[2];
 
-    /*
-     * Load drone config 
-     */
-    DroneConfigManager configManager;
-    configManager.loadConfigsFromDirectory(drone_config_dir_path);
-
-    /*
-     * Create aircraft container
-     */
-    auto aircraft_container = IAirCraftContainer::create();
-    aircraft_container->createAirCrafts(configManager);
-
-    /*
-     * Create controller container
-     */
-    std::shared_ptr<IAircraftControllerContainer> controller_container = IAircraftControllerContainer::create();
-    controller_container->createAircraftControllers(configManager);
-
-    /*
-     * Create service container
-     */
-    std::shared_ptr<IDroneServiceContainer> service_container = IDroneServiceContainer::create(aircraft_container, controller_container);
-
-    /*
-     * Setup Service
-     */
-    DroneConfig config;
-    configManager.getConfig(0, config);
-    uint64_t timestep_usec = (uint64_t)(config.getSimTimeStep() * 1000000.0);
-    std::cout << "timestep_usec: " << timestep_usec << std::endl;
-    auto ret = service_container->startService(timestep_usec);
-    if (!ret) {
-        std::cerr << "Failed to start service" << std::endl;
+    int ret = drone_service_rc_init(drone_config_dir_path, nullptr, true);
+    if (ret != 0) {
+        std::cerr << "Failed to initialize drone service" << std::endl;
         return 1;
     }
-    IHakoLogger::enable();
 
-
-    /*
-     * Setup Radio Control Protocol
-     * keyboard control is enabled
-     */
-    DroneServiceRcProtocol rc(service_container, true);
-
-    /*
-     * Main loop
-     */
-    std::thread th([&service_container, real_sleep_msec]() {
-        std::cout << "> Start service" << std::endl;
-        while (service_container->isServiceAvailable()) {
-            /*
-            * Advance time step
-            */
-            IHakoLogger::set_time_usec(service_container->getSimulationTimeUsec(0));
-            service_container->advanceTimeStep();
-            std::this_thread::sleep_for(std::chrono::milliseconds(real_sleep_msec));
-        }
-        std::cout << "Finish service" << std::endl;
-    });
+    ret = drone_service_rc_start();
     std::queue<char> queue_keyboard;
     std::thread keyboard_th([&queue_keyboard]() {
-        while (true) {
+        bool running = true;
+        while (running) {
             std::string line;
             std::getline(std::cin, line);
             char c = line[0];
@@ -93,12 +37,17 @@ int main(int argc, const char* argv[])
             else if (line.size() > 1) {
                 c = line[0];
             }
+            if (c == 'q') {
+                running = false;
+            }
             //printf("c: 0x%x\n", c);
             queue_keyboard.push(c);
         }
+        std::cout << "keyboard thread exit" << std::endl;
     });
     char event_c = 0;
-    while (true) {
+    bool running = true;
+    while (running) {
         if (!queue_keyboard.empty()) {
             event_c = queue_keyboard.front();
             queue_keyboard.pop();
@@ -124,46 +73,52 @@ int main(int argc, const char* argv[])
         //keyboard read
         switch (event_c) {
         case 'w':
-            rc.drone_vertical_op(0, -1.0);
+            drone_service_rc_put_vertical(0, -1.0);
             break;
         case 's':
-            rc.drone_vertical_op(0, 1.0);
+            drone_service_rc_put_vertical(0, 1.0);
             break;
         case 'a':
-            rc.drone_heading_op(0, -1.0);
+            drone_service_rc_put_heading(0, -1.0);
             break;
         case 'd':
-            rc.drone_heading_op(0, 1.0);
+            drone_service_rc_put_heading(0, 1.0);
             break;
         case 'i':
-            rc.drone_forward_op(0, -1.0);
+            drone_service_rc_put_forward(0, -1.0);
             break;
         case 'k':
-            rc.drone_forward_op(0, 1.0);
+            drone_service_rc_put_forward(0, 1.0);
             break;
         case 'j':
-            rc.drone_horizontal_op(0, -1.0);
+            drone_service_rc_put_horizontal(0, -1.0);
             break;
         case 'l':
-            rc.drone_horizontal_op(0, 1.0);
+            drone_service_rc_put_horizontal(0, 1.0);
             break;
         case 'x':
-            rc.drone_radio_control_button(0, true);
+            drone_service_rc_put_radio_control_button(0, 1);
             break;
         case 'p':
             {
-                auto pos = rc.get_position(0);
-                std::cout << "position x=" << std::fixed << std::setprecision(1) << pos.x << " y=" << pos.y << " z=" << pos.z << std::endl;
+                double x, y, z;
+                drone_service_rc_get_position(0, &x, &y, &z);
+                std::cout << "position x=" << std::fixed << std::setprecision(1) << x << " y=" << y << " z=" << z << std::endl;
             }
             break;
         case 'r':
             {
-                auto att = rc.get_attitude(0);
-                std::cout << "attitude roll=" << std::fixed << std::setprecision(1) << att.x << " pitch=" << att.y << " yaw=" << att.z << std::endl;
+                double x, y, z;
+                drone_service_rc_get_attitude(0, &x, &y, &z);
+                std::cout << "attitude roll=" << std::fixed << std::setprecision(1) << x << " pitch=" << y << " yaw=" << z << std::endl;
             }
             break;
         case 't':
-            std::cout << "simtime usec: " << service_container->getSimulationTimeUsec(0) << std::endl;
+            std::cout << "simtime usec: " << drone_service_rc_get_time_usec(0) << std::endl;
+            break;
+        case 'q':
+            std::cout << "quit" << std::endl;
+            running = false;
             break;
         case 0:
             break;
@@ -180,12 +135,17 @@ int main(int argc, const char* argv[])
             std::cout  << " r : get attitude" << std::endl;
             break;
         }
-        rc.run();
-        static Vector3Type prev_pos = { 0.0, 0.0, 0.0 };
-        auto pos = rc.get_position(0);
-        if (fabs(pos.x - prev_pos.x) > 0.1 || fabs(pos.y - prev_pos.y) > 0.1 || fabs(pos.z - prev_pos.z) > 0.1) {
-            std::cout << "position x=" << std::fixed << std::setprecision(1) << pos.x << " y=" << pos.y << " z=" << pos.z << std::endl;
-            prev_pos = pos;
+        drone_service_rc_run();
+        static double prev_x = 0.0;
+        static double prev_y = 0.0;
+        static double prev_z = 0.0;
+        double x, y, z;
+        drone_service_rc_get_position(0, &x, &y, &z);
+        if (fabs(x - prev_x) > 0.1 || fabs(y - prev_y) > 0.1 || fabs(z - prev_z) > 0.1) {
+            std::cout << "position x=" << std::fixed << std::setprecision(1) << x << " y=" << y << " z=" << z << std::endl;
+            prev_x = x;
+            prev_y = y;
+            prev_z = z;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(real_sleep_msec));
     }
@@ -193,7 +153,7 @@ int main(int argc, const char* argv[])
     /*
      * Stop service
      */
-    service_container->stopService();
-    th.join();
+    drone_service_rc_stop();
+    keyboard_th.join();
     return 0;
 }
