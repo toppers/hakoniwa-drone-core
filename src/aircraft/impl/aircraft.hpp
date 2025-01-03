@@ -17,7 +17,10 @@ public:
     {
         logger->close();
     }
-
+    void set_logger(std::shared_ptr<IHakoLogger> logger)
+    {
+        this->logger = logger;
+    }
     void reset() override
     {
         drone_dynamics->reset();
@@ -28,7 +31,7 @@ public:
             rotor_dynamics[i]->reset();
         }
         thrust_dynamis->reset();
-        logger.reset();
+        logger->reset();
         simulation_time_usec = 0;
     }
     void run(AircraftInputType& input) override

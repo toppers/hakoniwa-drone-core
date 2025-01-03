@@ -13,6 +13,7 @@
 #include "aircraft_container.hpp"
 #include <math.h>
 #include "logger/ilogger.hpp"
+#include "impl/hako_logger.hpp"
 
 using namespace hako::aircraft;
 using namespace hako::aircraft::impl;
@@ -37,7 +38,11 @@ using namespace hako::logger;
 #define HAKO_ASSERT(cond)           if (!(cond)) { throw std::runtime_error("assertion failed: " #cond); }
 
 static inline std::unique_ptr<ILogFile> create_logfile(const std::string& path, ILog& entry) {
-    return ILogFile::create(LOG_FILE_TYPE_CSV, path, entry.log_head());
+    auto ret = ILogFile::create(LOG_FILE_TYPE_CSV, path, entry.log_head());
+    if (ret == nullptr) {
+        throw std::runtime_error("failed to create logfile");
+    }
+    return ret;
 }
 
 static void registerLogEntry(const DroneConfig& drone_config, AirCraft& aircraft, ILog& entry, const std::string& filename) {
@@ -73,6 +78,11 @@ IAirCraft* hako::aircraft::create_aircraft(int index, const DroneConfig& drone_c
     HAKO_ASSERT(drone != nullptr);
     drone->set_name(drone_config.getRoboName());
     drone->set_index(index);
+    auto logger = std::make_shared<hako::logger::impl::HakoLogger>();
+    if (logger == nullptr) {
+        throw std::runtime_error("failed to create logger");
+    }
+    drone->set_logger(logger);
     
     //drone dynamics
     IDroneDynamics *drone_dynamics = nullptr;

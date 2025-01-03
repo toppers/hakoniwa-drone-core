@@ -12,11 +12,13 @@ endif()
 
 set(TARGETS 
     aircraft_service
-    drone_service
+    drone_service_api
+    drone_service_rc
 )
 
 add_executable(aircraft_service main_aircraft_service.cpp)
-add_executable(drone_service main_drone_service.cpp)
+add_executable(drone_service_api main_drone_service_api.cpp)
+add_executable(drone_service_rc main_drone_service_rc.cpp)
 
 foreach(TARGET ${TARGETS})
     MESSAGE(STATUS "TARGET: ${TARGET}")

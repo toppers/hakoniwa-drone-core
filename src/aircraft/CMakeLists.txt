@@ -29,6 +29,7 @@ MESSAGE(STATUS "nlohmann_json_SOURCE_DIR=${nlohmann_json_SOURCE_DIR}")
 target_include_directories(hako_aircraft 
     PRIVATE ${PROJECT_ROOT_DIR}/include
     PRIVATE ${HAKO_SOURCE_DIR}/aircraft
+    PRIVATE ${HAKO_SOURCE_DIR}/logger
     PRIVATE ${GLM_SOURCE_DIR}
     #PRIVATE ${NOLMAN_JSON_SOURCE_DIR}
     PRIVATE ${nlohmann_json_SOURCE_DIR}/single_include
