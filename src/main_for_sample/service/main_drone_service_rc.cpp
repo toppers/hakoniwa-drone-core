@@ -6,6 +6,7 @@
 #include <string>
 #include <queue>
 #include <iomanip>
+#include <cmath>
 
 
 int main(int argc, const char* argv[])
@@ -141,7 +142,7 @@ int main(int argc, const char* argv[])
         static double prev_z = 0.0;
         double x, y, z;
         drone_service_rc_get_position(0, &x, &y, &z);
-        if (fabs(x - prev_x) > 0.1 || fabs(y - prev_y) > 0.1 || fabs(z - prev_z) > 0.1) {
+        if (std::fabs(x - prev_x) > 0.1 || std::fabs(y - prev_y) > 0.1 || std::fabs(z - prev_z) > 0.1) {
             std::cout << "position x=" << std::fixed << std::setprecision(1) << x << " y=" << y << " z=" << z << std::endl;
             prev_x = x;
             prev_y = y;
