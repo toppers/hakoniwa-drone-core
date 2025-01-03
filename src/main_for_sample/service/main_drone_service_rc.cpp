@@ -70,7 +70,7 @@ int main(int argc, const char* argv[])
      * Main loop
      */
     std::thread th([&service_container, real_sleep_msec]() {
-        std::cout << "Start service" << std::endl;
+        std::cout << "> Start service" << std::endl;
         while (service_container->isServiceAvailable()) {
             /*
             * Advance time step
@@ -84,17 +84,17 @@ int main(int argc, const char* argv[])
     std::queue<char> queue_keyboard;
     std::thread keyboard_th([&queue_keyboard]() {
         while (true) {
-            char c;
-            std::cin >> c;
-            //c = getch();
-            if (isalpha(c)) {
-                c = tolower(c);
-                std::cout << "c: " << c << std::endl;
-                queue_keyboard.push(c);
+            std::string line;
+            std::getline(std::cin, line);
+            char c = line[0];
+            if (line.empty()) {
+                c = 'h';
             }
-            else {
-                c = 0;
+            else if (line.size() > 1) {
+                c = line[0];
             }
+            //printf("c: 0x%x\n", c);
+            queue_keyboard.push(c);
         }
     });
     char event_c = 0;
@@ -136,10 +136,10 @@ int main(int argc, const char* argv[])
             rc.drone_heading_op(0, 1.0);
             break;
         case 'i':
-            rc.drone_forward_op(0, 1.0);
+            rc.drone_forward_op(0, -1.0);
             break;
         case 'k':
-            rc.drone_forward_op(0, -1.0);
+            rc.drone_forward_op(0, 1.0);
             break;
         case 'j':
             rc.drone_horizontal_op(0, -1.0);
@@ -156,13 +156,37 @@ int main(int argc, const char* argv[])
                 std::cout << "position x=" << std::fixed << std::setprecision(1) << pos.x << " y=" << pos.y << " z=" << pos.z << std::endl;
             }
             break;
+        case 'r':
+            {
+                auto att = rc.get_attitude(0);
+                std::cout << "attitude roll=" << std::fixed << std::setprecision(1) << att.x << " pitch=" << att.y << " yaw=" << att.z << std::endl;
+            }
+            break;
         case 't':
             std::cout << "simtime usec: " << service_container->getSimulationTimeUsec(0) << std::endl;
             break;
+        case 0:
+            break;
         default:
+            std::cout  << " ----- USAGE -----" << std::endl;
+            std::cout  << " ----- STICK -----" << std::endl;
+            std::cout  << "|  LEFT  | RIGHT  |" << std::endl;
+            std:: cout << "|   w    |   i    |" << std::endl;
+            std:: cout << "| a   d  | j   l  |" << std::endl;
+            std:: cout << "|   s    |   k    |" << std::endl;
+            std::cout  << " ---- BUTTON ----" << std::endl;
+            std::cout  << " x : radio control button" << std::endl;
+            std::cout  << " p : get position" << std::endl;
+            std::cout  << " r : get attitude" << std::endl;
             break;
         }
         rc.run();
+        static Vector3Type prev_pos = { 0.0, 0.0, 0.0 };
+        auto pos = rc.get_position(0);
+        if (fabs(pos.x - prev_pos.x) > 0.1 || fabs(pos.y - prev_pos.y) > 0.1 || fabs(pos.z - prev_pos.z) > 0.1) {
+            std::cout << "position x=" << std::fixed << std::setprecision(1) << pos.x << " y=" << pos.y << " z=" << pos.z << std::endl;
+            prev_pos = pos;
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(real_sleep_msec));
     }
 

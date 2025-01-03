@@ -44,9 +44,19 @@ private:
     {
         for (auto i = 0; i < GAME_CTRL_AXIS_NUM; i++) {
             if (pdu.pdu.game_ctrl.axis[i] > 0.0) {
-                pdu.pdu.game_ctrl.axis[i] -= stick_value_auto_decrease_value_;
+                if (pdu.pdu.game_ctrl.axis[i] < stick_value_auto_decrease_value_) {
+                    pdu.pdu.game_ctrl.axis[i] = 0.0;
+                } else {
+                    pdu.pdu.game_ctrl.axis[i] -= stick_value_auto_decrease_value_;
+                }
+                //std::cout << "axis: " << i << " value: " << pdu.pdu.game_ctrl.axis[i] << std::endl;
             } else if (pdu.pdu.game_ctrl.axis[i] < 0.0) {
-                pdu.pdu.game_ctrl.axis[i] += stick_value_auto_decrease_value_;
+                if (pdu.pdu.game_ctrl.axis[i] > -stick_value_auto_decrease_value_) {
+                    pdu.pdu.game_ctrl.axis[i] = 0.0;
+                } else {
+                    pdu.pdu.game_ctrl.axis[i] += stick_value_auto_decrease_value_;
+                }
+                //std::cout << "axis: " << i << " value: " << pdu.pdu.game_ctrl.axis[i] << std::endl;
             }
             stick_op(index, i, pdu.pdu.game_ctrl.axis[i]);
         }
@@ -116,7 +126,7 @@ public:
     {
         ServicePduDataType local_pdu = {};
         local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_POSITION;
-        drone_service_container_->peek_pdu(index, pdu);
+        drone_service_container_->peek_pdu(index, local_pdu);
         return { local_pdu.pdu.position.angular.x, local_pdu.pdu.position.angular.y, local_pdu.pdu.position.angular.z };
     }   
 

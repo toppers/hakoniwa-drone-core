@@ -181,9 +181,18 @@ bash ../sim/simstart.bash
 
 1. ドローンサービスを実行。
 
+
+api操作：
+
 ```
- ./main_for_sample/service/drone_service 1 ../../config/drone/api
+ ./main_for_sample/service/drone_service_api 1 ../../config/drone/api
 ```
+
+rc操作：
+```
+ ./main_for_sample/service/drone_service_rc 1 ../../config/drone/rc
+```
+
 
 成功するとこうなります。
 
@@ -194,8 +203,25 @@ bash ../sim/simstart.bash
 
 2. 操作コマンドで、ドローンを操作できます。
 
+api操作：
+
 ```
 Usage: takeoff <height> | land | move <x> <y> <z> | quit
+```
+
+rc操作：
+
+```
+ ----- USAGE -----
+ ----- STICK -----
+|  LEFT  | RIGHT  |
+|   w    |   i    |
+| a   d  | j   l  |
+|   s    |   k    |
+ ---- BUTTON ----
+ x : radio control button
+ p : get position
+ r : get attitude
 ```
 
 ## 箱庭ありで、ドローンシミュレーションを実行する
