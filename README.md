@@ -65,7 +65,7 @@
 
 # アーキテクチャ
 
-![image](docs/images/architecture.png)
+![image](https://github.com/user-attachments/assets/e36e559e-a424-4a4d-a66a-a498378c375e)
 
 - comm (通信モジュール) : TCP/UDP の通信インタフェース
 - mavlink (MAVLINK通信) : MAVLINK通信のインタフェース
