@@ -1,11 +1,12 @@
 # タスクの説明
 ## タスクの概要
 
-本タスクでは、ICommServer の create API のAPI仕様書を作成します。
+本タスクでは、ICommServer API のAPI仕様書を作成します。
 
 ## 対象API
 
 static std::unique_ptr<ICommServer> create(CommIoType type);
+std::shared_ptr<ICommIO> server_open(ICommEndpointType *endpoint) = 0;
 
 ## 前提情報
 
@@ -23,8 +24,10 @@ static std::unique_ptr<ICommServer> create(CommIoType type);
   - [comm/icomm_connector.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm/icomm_connector.hpp)
 
 ## タスク
-- ICommServer の create API の API仕様書をAPI仕様書のテンプレートの書式に従って作成してください。
+- ICommServer の API仕様書をAPI仕様書のテンプレートの書式に従って作成してください。
 - API仕様書を作成する上で、クラス設計情報は大切なので、必ず参照して理解を進めてください。
+- create()時に指定する通信タイプによって、適切な通信オブジェクトが生成されますので、その点も記載してください。
+- コード例をAPI毎に書くと冗長になるので、まとめて書いてください。
 - 出力は、README.md形式でテキストで日本語出力してください。
 
 

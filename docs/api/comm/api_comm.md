@@ -130,16 +130,6 @@ sequenceDiagram
 
 ## APIリファレンス
 
-### ICommServer
-
-- [create](server/api_comm_server_create.md)
-- [server_open](server/api_comm_server_open.md)
-
-### ICommClient
-
-- [create](client/api_comm_client_create.md)
-- [client_open](client/api_comm_client_open.md)
-
-### ICommIO
-
-- [io](io/api_comm_io.md)
+- [ICommServer](server/api_comm_server.md)
+- [ICommClient](client/api_comm_client.md)
+- [ICommIO](io/api_comm_io.md)
