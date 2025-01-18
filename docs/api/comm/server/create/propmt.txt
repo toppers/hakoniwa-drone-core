@@ -1,0 +1,18 @@
+1. タスクの説明：
+[入力情報]
+- クラス設計情報：README.md
+- ヘッダ情報：comm.hppおよび関連するヘッダファイル
+
+[タスク]
+- ICommServer の create APIのAPI仕様書を以下のテンプレートの書式に従って作成してください。
+
+2. 前提情報
+本APIを利用する場合は、必ず、comm_init()を呼び出す必要があることを注意点として記載してください。
+
+出力は、README.md形式でテキストで日本語出力してください。
+
+テンプレートの書式は、api-template.md を参照してください。
+
+3. API プロトタイプ
+
+static std::unique_ptr<ICommServer> create(CommIoType type);
