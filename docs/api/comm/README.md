@@ -58,7 +58,6 @@
 ## クラス図
 
 ```mermaid
-```mermaid
 classDiagram
     direction TB
     class ICommIO {
