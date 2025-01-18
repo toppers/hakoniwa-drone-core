@@ -55,6 +55,45 @@
   - サーバーとクライアント間のデータ送受信を担当。
   - サーバーでは`server_open`で、クライアントでは`client_open`で生成される。
 
+## クラス図
+
+```mermaid
+classDiagram
+    direction TB
+    class ICommIO {
+        +~ICommIO()
+        +bool send(char* data, int datalen, int* send_datalen)
+        +bool recv(char* data, int datalen, int* recv_datalen)
+        +bool close()
+    }
+    class ICommServer {
+        +static std::unique_ptr<ICommServer> create(CommIoType type)
+        +~ICommServer()
+        +std::shared_ptr<ICommIO> server_open(ICommEndpointType* endpoint)
+    }
+    class ICommClient {
+        +static std::unique_ptr<ICommClient> create(CommIoType type)
+        +~ICommClient()
+        +std::shared_ptr<ICommIO> client_open(ICommEndpointType* src, ICommEndpointType* dst)
+    }
+    class ICommEndpointType {
+        +const char* ipaddr
+        +int portno
+    }
+    enum CommIoType {
+        COMM_IO_TYPE_TCP
+        COMM_IO_TYPE_UDP
+        COMM_IO_TYPE_NUM
+    }
+
+    ICommServer ..> ICommIO
+    ICommClient ..> ICommIO
+    ICommServer --> ICommEndpointType
+    ICommClient --> ICommEndpointType
+    ICommServer --> CommIoType : uses
+    ICommClient --> CommIoType : uses
+```
+
 ## シーケンス
 
 ```mermaid
