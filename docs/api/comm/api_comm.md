@@ -142,6 +142,4 @@ sequenceDiagram
 
 ### ICommIO
 
-- [send](io/api_comm_io_send.md)
-- [recv](io/api_comm_io_recv.md)
-- [close](io/api_comm_io_close.md)
+- [io](io/api_comm_io.md)
