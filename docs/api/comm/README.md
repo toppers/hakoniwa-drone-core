@@ -58,6 +58,7 @@
 ## クラス図
 
 ```mermaid
+```mermaid
 classDiagram
     direction TB
     class ICommIO {
@@ -80,10 +81,11 @@ classDiagram
         +const char* ipaddr
         +int portno
     }
-    enum CommIoType {
-        COMM_IO_TYPE_TCP
-        COMM_IO_TYPE_UDP
-        COMM_IO_TYPE_NUM
+    class CommIoType {
+        <<enumeration>>
+        +COMM_IO_TYPE_TCP
+        +COMM_IO_TYPE_UDP
+        +COMM_IO_TYPE_NUM
     }
 
     ICommServer ..> ICommIO
