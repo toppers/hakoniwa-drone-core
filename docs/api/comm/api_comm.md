@@ -134,13 +134,11 @@ sequenceDiagram
 
 - [create](server/api_comm_server_create.md)
 - [server_open](server/api_comm_server_open.md)
-- [server_close](server/api_comm_server_close.md)
 
 ### ICommClient
 
 - [create](client/api_comm_client_create.md)
 - [client_open](client/api_comm_client_open.md)
-- [client_close](client/api_comm_client_close.md)
 
 ### ICommIO
 
