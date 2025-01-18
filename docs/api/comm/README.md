@@ -55,8 +55,22 @@
   - サーバーとクライアント間のデータ送受信を担当。
   - サーバーでは`server_open`で、クライアントでは`client_open`で生成される。
 
-
-
 ## APIリファレンス
 
-- [send](send/README.md)
+### ICommServer
+
+- [create](server/create/README.md)
+- [server_open](server/server_open/README.md)
+- [server_close](server/server_close/README.md)
+
+### ICommClient
+
+- [create](client/create/README.md)
+- [client_open](client/client_open/README.md)
+- [client_close](client/client_close/README.md)
+
+### ICommIO
+
+- [send](io/send/README.md)
+- [recv](io/recv/README.md)
+- [close](io/close/README.md)
