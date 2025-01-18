@@ -59,14 +59,32 @@
 
 ```mermaid
 sequenceDiagram
-    participant User
-    participant WebServer
-    participant Database
+    participant Client
+    participant Server
+    participant ClientCommIO
+    participant ServerCommIO
 
-    User->>WebServer: Send Request
-    WebServer->>Database: Query Data
-    Database-->>WebServer: Return Data
-    WebServer-->>User: Send Response
+    Server ->> comm_init(): Initialize communication
+    Server ->> ICommServer::create(): Create server instance
+    Server ->> ICommServer::server_open(): Open server endpoint
+    activate ServerCommIO
+    Note right of ServerCommIO: ServerCommIO created
+    ServerCommIO ->> ServerCommIO: Waiting for incoming data
+    Note right of ServerCommIO: ServerCommIO is now listening
+
+    Client ->> comm_init(): Initialize communication
+    Client ->> ICommClient::create(): Create client instance
+    Client ->> ICommClient::client_open(): Connect to server
+    activate ClientCommIO
+    Note right of ClientCommIO: ClientCommIO created
+
+    ClientCommIO ->> ServerCommIO: Send data
+    ServerCommIO ->> ServerCommIO: Process received data
+    Note right of ServerCommIO: Data received successfully
+    ServerCommIO ->> ClientCommIO: Send response
+
+    deactivate ServerCommIO
+    deactivate ClientCommIO
 ```
 
 
