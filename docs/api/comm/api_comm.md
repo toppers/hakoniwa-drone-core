@@ -132,18 +132,18 @@ sequenceDiagram
 
 ### ICommServer
 
-- [create](server/create/README.md)
-- [server_open](server/server_open/README.md)
-- [server_close](server/server_close/README.md)
+- [create](server/api_comm_server_create.md)
+- [server_open](server/api_comm_server_open.md)
+- [server_close](server/api_comm_server_close.md)
 
 ### ICommClient
 
-- [create](client/create/README.md)
-- [client_open](client/client_open/README.md)
-- [client_close](client/client_close/README.md)
+- [create](client/api_comm_client_create.md)
+- [client_open](client/api_comm_client_open.md)
+- [client_close](client/api_comm_client_close.md)
 
 ### ICommIO
 
-- [send](io/send/README.md)
-- [recv](io/recv/README.md)
-- [close](io/close/README.md)
+- [send](io/api_comm_io_send.md)
+- [recv](io/api_comm_io_recv.md)
+- [close](io/api_comm_io_close.md)

@@ -1,2 +1,2 @@
 # API ドキュメント
-- [comm](api/comm/README.md)
+- [comm](api/comm/api_comm.md)
