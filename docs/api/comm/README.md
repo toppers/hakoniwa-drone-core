@@ -55,6 +55,21 @@
   - サーバーとクライアント間のデータ送受信を担当。
   - サーバーでは`server_open`で、クライアントでは`client_open`で生成される。
 
+## シーケンス
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant WebServer
+    participant Database
+
+    User->>WebServer: Send Request
+    WebServer->>Database: Query Data
+    Database-->>WebServer: Return Data
+    WebServer-->>User: Send Response
+```
+
+
 ## APIリファレンス
 
 ### ICommServer
