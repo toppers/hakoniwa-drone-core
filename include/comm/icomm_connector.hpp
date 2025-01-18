@@ -32,6 +32,7 @@ namespace hako::comm {
 
     class ICommClient {
     public:
+        static std::unique_ptr<ICommClient> create(CommIoType type);
         virtual ~ICommClient() = default;
         virtual ICommIO* client_open(ICommEndpointType *src, ICommEndpointType *dst) = 0;
     };
