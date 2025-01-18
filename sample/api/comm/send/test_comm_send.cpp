@@ -1,123 +1,144 @@
 #include <gtest/gtest.h>
 #include <thread>
-#include <chrono>
 #include <memory>
-#include "comm.hpp"
+#include <atomic>
+#include <condition_variable>
+#include "comm.hpp" // Include your provided comm.hpp file
 
-namespace hako::comm::test {
+std::unique_ptr<hako::comm::ICommServer> server;
+std::unique_ptr<hako::comm::ICommIO> serverCommIO;
+std::unique_ptr<hako::comm::ICommClient> client;
+std::unique_ptr<hako::comm::ICommIO> clientCommIO;
 
-class CommSendTest : public ::testing::Test {
-protected:
-    std::unique_ptr<ICommServer> server_;
-    std::unique_ptr<ICommClient> client_;
-    ICommIO* server_io_;
-    ICommIO* client_io_;
-    std::thread server_thread_;
-    
-    void SetUp() override {
-        // 通信初期化
-        ASSERT_EQ(0, comm_init());
-        
-        // サーバー作成
-        server_ = ICommServer::create(COMM_IO_TYPE_TCP);
-        ASSERT_NE(nullptr, server_);
-        
-        // クライアント作成
-        client_ = ICommClient::create(COMM_IO_TYPE_TCP);
-        ASSERT_NE(nullptr, client_);
-        
-        // サーバーエンドポイント設定
-        ICommEndpointType server_endpoint = {
-            .ipaddr = "127.0.0.1",
-            .portno = 8080
-        };
-        
-        // サーバースレッド起動
-        server_thread_ = std::thread([this, server_endpoint]() {
-            server_io_ = server_->server_open(&server_endpoint);
-        });
-        
-        // サーバー起動待ち
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        
-        // クライアント接続
-        ICommEndpointType client_src = {
-            .ipaddr = "127.0.0.1",
-            .portno = 0  // 自動割当
-        };
-        ICommEndpointType client_dst = {
-            .ipaddr = "127.0.0.1",
-            .portno = 8080
-        };
-        client_io_ = client_->client_open(&client_src, &client_dst);
-        ASSERT_NE(nullptr, client_io_);
+std::atomic<bool> serverReady(false);
+std::condition_variable cv;
+std::mutex cv_m;
+
+// サーバーを別スレッドで起動し、受信待機を行う
+void runServer() {
+    hako::comm::ICommEndpointType endpoint;
+    endpoint.ipaddr = "127.0.0.1";
+    endpoint.portno = 8080;
+
+    serverCommIO = server->server_open(&endpoint);
+    ASSERT_NE(serverCommIO, nullptr) << "Server failed to open.";
+
+    {
+        std::lock_guard<std::mutex> lk(cv_m);
+        serverReady = true;
+        cv.notify_all();
     }
-    
-    void TearDown() override {
-        if (client_io_) {
-            client_io_->close();
-        }
-        if (server_io_) {
-            server_io_->close();
-        }
-        if (server_thread_.joinable()) {
-            server_thread_.join();
-        }
-    }
-};
 
-TEST_F(CommSendTest, TEST001_NormalCase) {
-    // Arrange
-    const char* test_data = "test data";
-    int datalen = 9;
-    int send_datalen = 0;
-    
-    // Act
-    bool result = client_io_->send(test_data, datalen, &send_datalen);
-    
-    // Assert
-    EXPECT_TRUE(result);
-    EXPECT_GT(send_datalen, 0);
-    EXPECT_LE(send_datalen, datalen);
+    // サーバー側の受信待ち
+    const int bufferSize = 256;
+    char buffer[bufferSize];
+    int receivedLen = 0;
+
+    bool received = serverCommIO->recv(buffer, bufferSize, &receivedLen);
+    if (received) {
+        std::cout << "Server received data: " << std::string(buffer, receivedLen) << std::endl;
+    } else {
+        std::cerr << "Server failed to receive data." << std::endl;
+    }
+
+    // レスポンスを送信
+    const char* response = "Response from Server";
+    int responseLen = strlen(response);
+    serverCommIO->send(response, responseLen, &receivedLen);
 }
 
-TEST_F(CommSendTest, TEST002_NullDataPointer) {
-    // Arrange
+// テストの初期化処理
+bool initializeCommunication() {
+    if (hako::comm::comm_init() != 0) {
+        std::cerr << "Initialization failed." << std::endl;
+        return false;
+    }
+
+    server = hako::comm::ICommServer::create(hako::comm::COMM_IO_TYPE_TCP);
+    if (!server) {
+        std::cerr << "Failed to create server." << std::endl;
+        return false;
+    }
+
+    // サーバーを別スレッドで起動
+    std::thread serverThread(runServer);
+    serverThread.detach();
+
+    // サーバー準備待ち
+    std::unique_lock<std::mutex> lk(cv_m);
+    cv.wait(lk, [] { return serverReady.load(); });
+
+    client = hako::comm::ICommClient::create(hako::comm::COMM_IO_TYPE_TCP);
+    if (!client) {
+        std::cerr << "Failed to create client." << std::endl;
+        return false;
+    }
+
+    hako::comm::ICommEndpointType serverEndpoint;
+    serverEndpoint.ipaddr = "127.0.0.1";
+    serverEndpoint.portno = 8080;
+
+    clientCommIO = client->client_open(&serverEndpoint);
+    if (!clientCommIO) {
+        std::cerr << "Failed to connect to server." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+// テスト終了時のクリーンアップ処理
+void cleanup() {
+    if (clientCommIO) {
+        clientCommIO->close();
+    }
+    if (serverCommIO) {
+        serverCommIO->close();
+    }
+}
+
+// TEST001: クライアントからサーバーへの正常なデータ送信
+TEST(ICommIOTest, TEST001_ValidData) {
+    const char* data = "Hello Server";
+    int datalen = strlen(data);
+    int sentLen = 0;
+
+    ASSERT_TRUE(clientCommIO->send(data, datalen, &sentLen));
+    EXPECT_EQ(sentLen, datalen);
+
+    char response[256];
+    int responseLen = 0;
+
+    ASSERT_TRUE(clientCommIO->recv(response, 256, &responseLen));
+    EXPECT_GT(responseLen, 0);
+    std::cout << "Client received response: " << std::string(response, responseLen) << std::endl;
+}
+
+// TEST002: クライアントからNULLデータ送信時のエラー処理
+TEST(ICommIOTest, TEST002_NullDataPointer) {
+    const char* data = nullptr;
     int datalen = 10;
-    int send_datalen = 0;
-    
-    // Act
-    bool result = client_io_->send(nullptr, datalen, &send_datalen);
-    
-    // Assert
-    EXPECT_FALSE(result);
-    EXPECT_EQ(send_datalen, 0);
+    int sentLen = 0;
+
+    EXPECT_FALSE(clientCommIO->send(data, datalen, &sentLen));
+    EXPECT_EQ(sentLen, 0);
 }
 
-TEST_F(CommSendTest, TEST003_NegativeDataLength) {
-    // Arrange
-    const char* test_data = "test data";
+// TEST003: クライアントから負のデータ長送信時のエラー処理
+TEST(ICommIOTest, TEST003_NegativeDataLength) {
+    const char* data = "Invalid";
     int datalen = -1;
-    int send_datalen = 0;
-    
-    // Act
-    bool result = client_io_->send(test_data, datalen, &send_datalen);
-    
-    // Assert
-    EXPECT_FALSE(result);
-    EXPECT_EQ(send_datalen, 0);
+    int sentLen = 0;
+
+    EXPECT_FALSE(clientCommIO->send(data, datalen, &sentLen));
+    EXPECT_EQ(sentLen, 0);
 }
 
-TEST_F(CommSendTest, TEST004_NullSendDataLen) {
-    // Arrange
-    const char* test_data = "test data";
-    int datalen = 10;
-    
-    // Act
-    bool result = client_io_->send(test_data, datalen, nullptr);
-    
-    // Assert
-    EXPECT_FALSE(result);
-}
+// TEST004: NULLポインタをsend_datalenに指定した場合のエラー処理
+TEST(ICommIOTest, TEST004_NullSendDataLenPointer) {
+    const char* data = "Hello";
+    int datalen = 5;
+    int* sentLen = nullptr;
 
-}  // namespace hako::comm::test
+    EXPECT_FALSE(clientCommIO->send(data, datalen, sentLen));
+}

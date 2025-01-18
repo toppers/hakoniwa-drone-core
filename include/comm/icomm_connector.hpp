@@ -27,14 +27,14 @@ namespace hako::comm {
     public:
         static std::unique_ptr<ICommServer> create(CommIoType type);
         virtual ~ICommServer() = default;
-        virtual ICommIO* server_open(ICommEndpointType *endpoint) = 0;
+        virtual std::shared_ptr<ICommIO> server_open(ICommEndpointType *endpoint) = 0;
     };
 
     class ICommClient {
     public:
         static std::unique_ptr<ICommClient> create(CommIoType type);
         virtual ~ICommClient() = default;
-        virtual ICommIO* client_open(ICommEndpointType *src, ICommEndpointType *dst) = 0;
+        virtual std::shared_ptr<ICommIO> client_open(ICommEndpointType *src, ICommEndpointType *dst) = 0;
     };
     extern int comm_init();
 
