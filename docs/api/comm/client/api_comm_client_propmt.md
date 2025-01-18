@@ -22,11 +22,8 @@ std::shared_ptr<ICommIO> client_open(ICommEndpointType *src, ICommEndpointType *
 - ヘッダ情報
   - [comm.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm.hpp)
   - [comm/icomm_connector.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm/icomm_connector.hpp)
-- 共通プロンプト
-  - [api_comm_prompt.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm_prompt.md)
 
 ## タスク
-- [api_comm_prompt.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm_prompt.md)を参照してください。
 - ICommClient の API仕様書をAPI仕様書のテンプレートの書式に従って作成してください。
 - API仕様書を作成する上で、クラス設計情報は大切なので、必ず参照して理解を進めてください。
 - create()時に指定する通信タイプによって、適切な通信オブジェクトが生成されますので、その点も記載してください。
