@@ -33,9 +33,10 @@ MavlinkHakoMessageは、Mavlinkメッセージをラップするクラスです�
 - Hako_HakoHilGps
 
 Hako_xxx は、箱庭プロジェクトで使用されるMavlinkメッセージの名前空間です。
-以下で一般公開されています。
+ヘッダファイル一式は、以下で一般公開されています。
 
 https://github.com/toppers/hakoniwa-ros2pdu/tree/main/pdu/types/hako_mavlink_msgs
+
 
 ### IMavlinkCommEndpointType
 IMavlinkCommEndpointTypeは、Mavlink通信のエンドポイントを抽象化したインターフェースクラスです。TCP/UDPのサーバーやクライアントエンドポイントを実装する際の基盤となります。
@@ -93,28 +94,43 @@ IMavLinkServiceのインスタンス生成、エンドポイントの設定、�
 sequenceDiagram
     participant User as User
     participant Service as IMavLinkService
-    participant ServerEndpoint as IMavlinkCommEndpointType
-    participant ClientEndpoint as IMavlinkCommEndpointType
+    participant IoThread
+    participant ReceiveBuffers
+    participant Target
 
     User ->> Service: create()
     activate Service
-    Service ->> ServerEndpoint: Setup(server_endpoint)
-    activate ServerEndpoint
-    Service ->> ClientEndpoint: Setup(client_endpoint)
-    activate ClientEndpoint
-    deactivate Service
 
+    User ->> Service: startService()
+    Service ->> IoThread: Start thread
+    activate IoThread
+    IoThread ->> ReceiveBuffers: Create receive buffers
+    activate ReceiveBuffers
+    IoThread -->> IoThread: listen port and receive data
+
+    Target ->> IoThread: Connect to server
+    IoThread ->> Target: OK
+    
 
     User ->> Service: send(MavlinkHakoMessage)
-    activate Service
-    Service -->> Service: Transmit data
-    deactivate Service
+    Service -->> Target: Transmit data
+
+    Target -->> IoThread: Send data
+    IoThread ->> ReceiveBuffers: Put data
+    ReceiveBuffers ->> ReceiveBuffers: Buffering data
+    ReceiveBuffers ->> IoThread: OK
 
     User ->> Service: readMessage()
-    activate Service
-    Service -->> Service: Receive data
+    Service ->> ReceiveBuffers: Receive data
+    ReceiveBuffers ->> Service: Get data
     Service ->> User: MavlinkHakoMessage
+
+    User ->> Service: stopService()
+    Service ->> IoThread: Stop thread
+    deactivate IoThread
+    deactivate ReceiveBuffers
     deactivate Service
+    Service ->> User: OK
 ```
 
 ## API リファレンスへの参照
