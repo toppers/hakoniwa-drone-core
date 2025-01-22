@@ -1,4 +1,4 @@
-# Mavlink.hpp クラス設計情報
+# Mavlink API ドキュメント
 
 ## クラス概要
 
@@ -136,8 +136,7 @@ sequenceDiagram
 ## API リファレンスへの参照
 以下のクラスについてのAPIリファレンスを参照してください：
 
-- IMavLinkService
-- MavLinkServiceContainer
+- [service](api_mavlink_service.md)
 
 ドキュメントはプロジェクトの `docs/api/comm/api_comm.md` を参照してください。
 
