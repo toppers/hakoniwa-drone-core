@@ -1,0 +1,12 @@
+[submodule "thirdparty/hakoniwa-ros2pdu"]
+	path = thirdparty/hakoniwa-ros2pdu
+	url = https://github.com/toppers/hakoniwa-ros2pdu.git
+[submodule "thirdparty/glm"]
+	path = thirdparty/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "thirdparty/mavlink_c_library_v2"]
+	path = thirdparty/mavlink_c_library_v2
+	url = https://github.com/mavlink/c_library_v2.git
+[submodule "thirdparty/hakoniwa-core-cpp-client"]
+	path = thirdparty/hakoniwa-core-cpp-client
+	url = https://github.com/toppers/hakoniwa-core-cpp-client.git
