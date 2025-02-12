@@ -54,7 +54,7 @@ def my_on_manual_timing_control(arg):
         while True:
             if not my_context.message_queue.is_empty():
                 mavlink_message = my_context.message_queue.dequeue()
-                print(f"queue len: {my_context.message_queue.size()}")
+                #print(f"queue len: {my_context.message_queue.size()}")
                 try:
                     pdu_message = my_context.convertor.create_pdu(mavlink_message)
                     if my_context.conv_registry.get_converter(pdu_message.msg_type):
@@ -89,6 +89,8 @@ def main():
     args = parse_arguments()
     my_context = BridgeContext(args)
 
+    hakopy.conductor_start(my_context.delta_time_usec, 100*1000)
+    
     if args.mode == "log":
         log_thread = threading.Thread(
             target=start_log_replay,
