@@ -32,7 +32,7 @@ class UdpReceiver:
             while True:
                 data, addr = self.sock.recvfrom(1024)  # UDPパケットを受信
                 ip_addr, port = addr
-
+                #print(f"Received {len(data)} bytes from {ip_addr}:{port}")
                 # MAVLinkメッセージを解析
                 for byte in data:
                     msg = self.mavlink_connection.parse_char(bytes([byte]))

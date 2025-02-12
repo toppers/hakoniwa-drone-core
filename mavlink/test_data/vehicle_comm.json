@@ -1,12 +1,12 @@
 {
     "vehicles": {
         "DroneAvatar": {
-            "ip_address": "192.168.2.105",
+            "ip_address": "192.168.2.100",
             "port": 54001,
             "initial_position": {
-                "latitude": -353632621,
-                "longitude": 1491652374,
-                "altitude": 584.0899658203125
+                "latitude": 476414680,
+                "longitude": -1221401650,
+                "altitude": 121.321
             }
         }
     }

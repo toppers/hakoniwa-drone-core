@@ -67,11 +67,13 @@ class AHRS2ToTwistConvertor:
         altitude = pdu_message.data.get("altitude")
         lat = pdu_message.data.get("lat")
         lng = pdu_message.data.get("lng")
+        #print(f"lat: {lat}, lng: {lng}, altitude: {altitude}")
         if None in (roll, pitch, yaw, altitude, lat, lng):
             raise ValueError("Missing required AHRS2 fields")
 
         # 相対位置を計算
         x, y, z = self._calculate_relative_position(lat, lng, altitude)
+        #print(f"x: {x}, y: {y}, z: {z}")
 
         # MAVLink座標系からROS座標系への変換
         ros_roll = roll

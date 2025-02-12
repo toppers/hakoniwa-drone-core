@@ -31,7 +31,7 @@ class MessageQueue:
             try:
                 self.queue.put(message, block=False)
             except queue.Full:
-                print("Queue is full! Oldest message will be discarded.")
+                #print("Queue is full! Oldest message will be discarded.")
                 self.queue.get()  # 古いメッセージを削除
                 self.queue.put(message, block=False)
 
