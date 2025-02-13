@@ -1,6 +1,6 @@
 {
     "vehicles": {
-        "DroneAvatar": {
+        "Drone": {
             "ip_address": "192.168.2.100",
             "port": 54001,
             "initial_position": {

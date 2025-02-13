@@ -1,7 +1,7 @@
 {
     "robots": [
     {
-      "name": "DroneAvatar",
+      "name": "Drone",
       "shm_pdu_readers": [
         {
         "type": "hako_mavlink_msgs/HakoSERVO_OUTPUT_RAW"

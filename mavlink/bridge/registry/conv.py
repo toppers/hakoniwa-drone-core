@@ -33,7 +33,7 @@ def setup_converters(comm_config_path: str) -> ConverterRegistry:
     initial_pos = None
     with open(comm_config_path, 'r') as f:
         comm_config = json.load(f)
-        initial_pos = comm_config["vehicles"]["DroneAvatar"]["initial_position"]
+        initial_pos = comm_config["vehicles"]["Drone"]["initial_position"]
 
     registry = ConverterRegistry()
 

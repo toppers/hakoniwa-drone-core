@@ -1,14 +1,14 @@
 {
     "robots": [
     {
-      "name": "DroneAvatar",
+      "name": "Drone",
       "rpc_pdu_readers": [],
       "rpc_pdu_writers": [],
       "shm_pdu_readers": [
         {
           "type": "geometry_msgs/Twist",
           "org_name": "pos",
-          "name": "DroneAvatar_pos",
+          "name": "Drone_pos",
           "class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduReader",
           "conv_class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduReaderConverter",
           "channel_id": 0,
@@ -19,7 +19,7 @@
         {
           "type": "hako_mavlink_msgs/HakoHilActuatorControls",
           "org_name": "motor",
-          "name": "DroneAvatar_motor",
+          "name": "Drone_motor",
           "class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduReader",
           "conv_class_name": "Hakoniwa.PluggableAsset.Communication.Pdu.Raw.RawPduReaderConverter",
           "channel_id": 1,
