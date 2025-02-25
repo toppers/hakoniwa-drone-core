@@ -37,11 +37,22 @@ def setup_converters(comm_config_path: str) -> ConverterRegistry:
         for vehicle_name, vehicle_info in comm_config["vehicles"].items():
             initial_pos = comm_config["vehicles"][vehicle_name]["initial_position"]
             registry = ConverterRegistry()
-            ahrs2_conv.addInitialPosition(
-                robot_name=vehicle_name,
-                ref_lat=initial_pos["latitude"], 
-                ref_lng=initial_pos["longitude"], 
-                ref_alt=initial_pos["altitude"])
+            if "fixed_altitude" in initial_pos:
+                ahrs2_conv.addInitialPosition(
+                    robot_name=vehicle_name,
+                    ref_lat=initial_pos["latitude"], 
+                    ref_lng=initial_pos["longitude"], 
+                    ref_alt=initial_pos["altitude"],
+                    is_fixed_altitude=True,
+                    fixed_altitude=initial_pos["fixed_altitude"]["value"])
+            else:
+                ahrs2_conv.addInitialPosition(
+                    robot_name=vehicle_name,
+                    ref_lat=initial_pos["latitude"], 
+                    ref_lng=initial_pos["longitude"], 
+                    ref_alt=initial_pos["altitude"],
+                    is_fixed_altitude=False,
+                    fixed_altitude=0)
 
     # AHRS2 → Twist変換コンバータ
     registry.register(

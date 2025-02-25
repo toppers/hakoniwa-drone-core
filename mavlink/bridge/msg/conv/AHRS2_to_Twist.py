@@ -2,7 +2,7 @@ import math
 from msg.pdu_message import PduMessage
 
 class AHRS2PrivatePosition:
-    def __init__(self, ref_lat: int, ref_lng: int, ref_alt: float):
+    def __init__(self, ref_lat: int, ref_lng: int, ref_alt: float,is_fixed_altitude: bool, fixed_altitude: float):
         """
         AHRS2からTwistへのコンバータ
         :param ref_lat: 基準緯度 (度)
@@ -12,21 +12,22 @@ class AHRS2PrivatePosition:
         self.ref_lat = ref_lat
         self.ref_lng = ref_lng
         self.ref_alt = ref_alt
-
-
+        self.is_fixed_altitude = is_fixed_altitude
+        self.fixed_altitude = fixed_altitude
+        print(f"ref_lat: {ref_lat}, ref_lng: {ref_lng}, ref_alt: {ref_alt}, is_fixed_altitude: {is_fixed_altitude}, fixed_altitude: {fixed_altitude}")
 
 class AHRS2ToTwistConvertor:
     def __init__(self):
         self.map_for_initial_position = {}
         pass
-    def addInitialPosition(self, robot_name:str, ref_lat: int, ref_lng: int, ref_alt: float):
+    def addInitialPosition(self, robot_name:str, ref_lat: int, ref_lng: int, ref_alt: float, is_fixed_altitude: bool, fixed_altitude: float):
         """
         AHRS2からTwistへのコンバータ
         :param ref_lat: 基準緯度 (度)
         :param ref_lng: 基準経度 (度)
         :param ref_alt: 基準高度 (メートル)
         """
-        self.map_for_initial_position[robot_name] = AHRS2PrivatePosition(ref_lat, ref_lng, ref_alt)
+        self.map_for_initial_position[robot_name] = AHRS2PrivatePosition(ref_lat, ref_lng, ref_alt, is_fixed_altitude, fixed_altitude)
 
     def _calculate_relative_position(self, robot_name, lat, lng, altitude):
         """
@@ -58,7 +59,11 @@ class AHRS2ToTwistConvertor:
         # メートル単位での相対位置
         x = earth_radius * delta_lat                      # 緯度方向
         y = -earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
-        z = altitude - self.map_for_initial_position[robot_name].ref_alt  # 高度方向
+        if self.map_for_initial_position[robot_name].is_fixed_altitude:
+            z = self.map_for_initial_position[robot_name].fixed_altitude
+            #print(f"Fixed Altitude: {z}")
+        else:
+            z = altitude - self.map_for_initial_position[robot_name].ref_alt  # 高度方向
 
         # デバッグ出力
         #print(f"Relative Position: x={x}, y={y}, z={z}")
