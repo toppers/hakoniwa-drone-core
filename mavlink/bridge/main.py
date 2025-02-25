@@ -10,6 +10,7 @@ from hako_bridge.pdu_writer import HakoBridgePduWriter
 from registry.conv import setup_converters
 from registry.listen import setup_listen_msgs
 import hakopy
+import json
 
 global my_context
 class BridgeContext:
@@ -81,7 +82,7 @@ def parse_arguments():
     log_parser = subparsers.add_parser("log", help="Replay a MAVLink log file.")
     log_parser.add_argument("log_file", type=str, help="Path to the MAVLink log file.")
     udp_parser = subparsers.add_parser("udp", help="Receive MAVLink messages over UDP.")
-    udp_parser.add_argument("udp_address", type=str, help="IP and port to bind to, in the format <ip>:<port>.")
+    udp_parser.add_argument("udp_address", type=str, help="IP and port to bind to, in the format <ip>.")
     return parser.parse_args()
 
 def main():
@@ -98,12 +99,17 @@ def main():
         )
         my_context.threads.append(log_thread)
     elif args.mode == "udp":
-        udp_ip, udp_port = args.udp_address.split(":")
-        udp_thread = threading.Thread(
-            target=start_udp_receiver,
-            args=(my_context, udp_ip, int(udp_port))
-        )
-        my_context.threads.append(udp_thread)
+        with open(args.comm_config, 'r') as f:
+            comm_config = json.load(f)
+            for vehicle_name, vehicle_info in comm_config["vehicles"].items():
+                #udp_ip, udp_port = args.udp_address.split(":")
+                udp_ip = args.udp_address
+                udp_port = comm_config["vehicles"][vehicle_name]["my_port"]
+                udp_thread = threading.Thread(
+                    target=start_udp_receiver,
+                    args=(my_context, udp_ip, int(udp_port))
+                )
+                my_context.threads.append(udp_thread)
 
     for thread in my_context.threads:
         thread.start()

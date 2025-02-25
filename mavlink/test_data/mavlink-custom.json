@@ -11,6 +11,19 @@
         }
        ],
        "shm_pdu_writers": []
-      }
+    },
+    {
+      "name": "Rover",
+      "shm_pdu_readers": [
+        {
+        "type": "hako_mavlink_msgs/HakoSERVO_OUTPUT_RAW"
+        },
+        {
+        "type": "hako_mavlink_msgs/HakoAHRS2"
+        }
+       ],
+       "shm_pdu_writers": []
+    }
+
     ]
 }

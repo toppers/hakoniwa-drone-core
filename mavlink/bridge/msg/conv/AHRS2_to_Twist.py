@@ -1,7 +1,7 @@
 import math
 from msg.pdu_message import PduMessage
 
-class AHRS2ToTwistConvertor:
+class AHRS2PrivatePosition:
     def __init__(self, ref_lat: int, ref_lng: int, ref_alt: float):
         """
         AHRS2からTwistへのコンバータ
@@ -13,7 +13,22 @@ class AHRS2ToTwistConvertor:
         self.ref_lng = ref_lng
         self.ref_alt = ref_alt
 
-    def _calculate_relative_position(self, lat, lng, altitude):
+
+
+class AHRS2ToTwistConvertor:
+    def __init__(self):
+        self.map_for_initial_position = {}
+        pass
+    def addInitialPosition(self, robot_name:str, ref_lat: int, ref_lng: int, ref_alt: float):
+        """
+        AHRS2からTwistへのコンバータ
+        :param ref_lat: 基準緯度 (度)
+        :param ref_lng: 基準経度 (度)
+        :param ref_alt: 基準高度 (メートル)
+        """
+        self.map_for_initial_position[robot_name] = AHRS2PrivatePosition(ref_lat, ref_lng, ref_alt)
+
+    def _calculate_relative_position(self, robot_name, lat, lng, altitude):
         """
         緯度経度高度を基準点からの相対位置に変換
         :param lat: 緯度 (度 * 1E7)
@@ -24,8 +39,8 @@ class AHRS2ToTwistConvertor:
         # 緯度経度のスケール変換 (基準値も同じスケールで扱う)
         lat = lat / 1E7
         lng = lng / 1E7
-        ref_lat = self.ref_lat / 1E7
-        ref_lng = self.ref_lng / 1E7
+        ref_lat = self.map_for_initial_position[robot_name].ref_lat / 1E7
+        ref_lng = self.map_for_initial_position[robot_name].ref_lng / 1E7
 
         # デバッグ出力
         #print(f"lat: {lat}, lng: {lng}, altitude: {altitude}")
@@ -43,7 +58,7 @@ class AHRS2ToTwistConvertor:
         # メートル単位での相対位置
         x = earth_radius * delta_lat                      # 緯度方向
         y = -earth_radius * delta_lng * math.cos(mean_lat)  # 経度方向
-        z = altitude - self.ref_alt                       # 高度方向
+        z = altitude - self.map_for_initial_position[robot_name].ref_alt  # 高度方向
 
         # デバッグ出力
         #print(f"Relative Position: x={x}, y={y}, z={z}")
@@ -72,7 +87,7 @@ class AHRS2ToTwistConvertor:
             raise ValueError("Missing required AHRS2 fields")
 
         # 相対位置を計算
-        x, y, z = self._calculate_relative_position(lat, lng, altitude)
+        x, y, z = self._calculate_relative_position(pdu_message.robot_name, lat, lng, altitude)
         #print(f"x: {x}, y: {y}, z: {z}")
 
         # MAVLink座標系からROS座標系への変換

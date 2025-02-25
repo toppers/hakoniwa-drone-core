@@ -25,10 +25,10 @@ class UdpReceiver:
         """
         # ソケットを作成してバインド
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind((self.udp_ip, self.udp_port))
         print(f"Listening for UDP packets on {self.udp_ip}:{self.udp_port}...")
 
         try:
+            self.sock.bind((self.udp_ip, self.udp_port))
             while True:
                 data, addr = self.sock.recvfrom(1024)  # UDPパケットを受信
                 ip_addr, port = addr
@@ -47,6 +47,7 @@ class UdpReceiver:
                         self.message_queue.enqueue(message)
 
         except Exception as e:
+            print(f"Error receiving UDP packets: ip={self.udp_ip}, port={self.udp_port}, error={e}")
             print(f"Error receiving UDP packets: {e}")
         finally:
             self.sock.close()

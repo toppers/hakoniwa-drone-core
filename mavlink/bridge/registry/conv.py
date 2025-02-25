@@ -31,20 +31,22 @@ def setup_converters(comm_config_path: str) -> ConverterRegistry:
     """
 
     initial_pos = None
+    ahrs2_conv = AHRS2ToTwistConvertor()
     with open(comm_config_path, 'r') as f:
         comm_config = json.load(f)
-        initial_pos = comm_config["vehicles"]["Drone"]["initial_position"]
-
-    registry = ConverterRegistry()
+        for vehicle_name, vehicle_info in comm_config["vehicles"].items():
+            initial_pos = comm_config["vehicles"][vehicle_name]["initial_position"]
+            registry = ConverterRegistry()
+            ahrs2_conv.addInitialPosition(
+                robot_name=vehicle_name,
+                ref_lat=initial_pos["latitude"], 
+                ref_lng=initial_pos["longitude"], 
+                ref_alt=initial_pos["altitude"])
 
     # AHRS2 → Twist変換コンバータ
     registry.register(
         MavlinkMessage.get_pdu_msg_type("AHRS2"),
-        AHRS2ToTwistConvertor(
-            ref_lat=initial_pos["latitude"], 
-            ref_lng=initial_pos["longitude"], 
-            ref_alt=initial_pos["altitude"]
-            )
+        ahrs2_conv
     )
 
     # SERVO_OUTPUT_RAW → HakoHilActuatorControls変換コンバータ
