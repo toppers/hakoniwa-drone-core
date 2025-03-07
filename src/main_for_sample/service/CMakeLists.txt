@@ -11,13 +11,9 @@ else()
 endif()
 
 set(TARGETS 
-    aircraft_service
-    drone_service_api
     drone_service_rc
 )
 
-add_executable(aircraft_service main_aircraft_service.cpp)
-add_executable(drone_service_api main_drone_service_api.cpp)
 add_executable(drone_service_rc main_drone_service_rc.cpp)
 
 foreach(TARGET ${TARGETS})
@@ -49,6 +45,7 @@ foreach(TARGET ${TARGETS})
         PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
     )
     target_compile_features(${TARGET} PRIVATE cxx_std_17)
-    target_link_libraries(${TARGET} PRIVATE hako_service)
+    target_link_libraries(${TARGET} PRIVATE drone_physics  hako_aircraft hako_controller hako_logger hako_service  )
+    target_link_directories(${TARGET} PRIVATE ${PROJECT_ROOT_DIR}/lib)
 endforeach()
 

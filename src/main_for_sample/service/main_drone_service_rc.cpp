@@ -147,6 +147,7 @@ int main(int argc, const char* argv[])
     });
     char event_c = 0;
     int delayed_rotation_count = 0;
+    hako::service::ServiceBatteryStatusType battery_status;
     while (true) {
         if (!queue_keyboard.empty()) {
             event_c = queue_keyboard.front();
@@ -188,19 +189,27 @@ int main(int argc, const char* argv[])
             delayed_rotation_count = 1000;
             break;
         case 'i':
-            rc.drone_forward_op(0, -1.0);
+            rc.drone_forward_op(0, -0.8);
             break;
         case 'k':
-            rc.drone_forward_op(0, 1.0);
+            rc.drone_forward_op(0, 0.8);
             break;
         case 'j':
-            rc.drone_horizontal_op(0, -1.0);
+            rc.drone_horizontal_op(0, -0.8);
             break;
         case 'l':
-            rc.drone_horizontal_op(0, 1.0);
+            rc.drone_horizontal_op(0, 0.8);
             break;
         case 'x':
             rc.drone_radio_control_button(0, true);
+            break;
+        case 'b':
+            battery_status = rc.get_battery_status(0);
+            std::cout << "full_voltage: " << battery_status.full_voltage << std::endl;
+            std::cout << "curr_voltage: " << battery_status.curr_voltage << std::endl;
+            std::cout << "curr_temp: " << battery_status.curr_temp << std::endl;
+            std::cout << "status: " << battery_status.status << std::endl;
+            std::cout << "cycles: " << battery_status.cycles << std::endl;
             break;
         case 'p':
             {
@@ -216,6 +225,14 @@ int main(int argc, const char* argv[])
             break;
         case 't':
             std::cout << "simtime usec: " << service_container->getSimulationTimeUsec(0) << std::endl;
+            break;
+        case 'f':
+            std::cout << "flip" << std::endl;
+            for (int i = 0; i < 99; i++) {
+                rc.drone_horizontal_op(0, 0.0);
+                rc.run();
+            }
+            rc.drone_horizontal_op(0, 1.0);
             break;
         case 'c':
             do_collision(rc);
@@ -235,6 +252,7 @@ int main(int argc, const char* argv[])
             std::cout  << " r : get attitude" << std::endl;
             std::cout  << " t : get simtime usec" << std::endl;
             std::cout  << " c : collision" << std::endl;
+            std::cout  << " b : get battery status" << std::endl;
             break;
         }
         rc.run();
