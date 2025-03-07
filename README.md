@@ -110,6 +110,150 @@
       * 3.13以降では動きません。
       * MacOSの場合、homebrewでインストールしたものでは動きません。
 
-# インストール方法
+# 箱庭なしで利用するケース
 
-工事中...
+箱庭なしで利用する場合、箱庭ドローンの物理モデルと制御モデルを独立して実行することが可能です。
+
+補足：箱庭との連携がありませんので、Unityでのビジュアライズはできません。
+
+提供バイナリとしては以下のものがあります。
+
+1. PX4 連携サンプルアプリ(<os名>-aircraft_service_px4)
+2. Ardupilot 連携サンプルアプリ(<os名>-aircraft_service_ardupilot)
+3. 箱庭ドローンのCUIサンプルアプリ(<os名>-drone_servce_rc)
+4. 箱庭ドローンPro Cライブラリ(hako_service_c)
+
+全てクロスプラットフォーム対応しています。リリースページにあるバイナリをダウンロードしてください。
+
+os名は、以下の通りです。
+
+- mac
+- win
+- linux
+
+## PX4 連携サンプルアプリの利用方法
+
+PX4 連携サンプルアプリを使うと箱庭ドローンシミュレータの物理モデルとPX4を連携することが可能です。
+
+実行方法：
+```bash
+<os名>-aircraft_service_px4 <IPアドレス> 4560 ./config/drone/px4 
+```
+
+この際、PX4を起動することで、PX4と連携することが可能です。
+
+参考：https://github.com/toppers/hakoniwa-px4sim?tab=readme-ov-file#terminal-a
+
+あわせて、QGCと連携することで、遠隔操作が可能です。
+
+
+## Ardupilot 連携サンプルアプリの利用方法
+
+Ardupilot 連携サンプルアプリを使うと箱庭ドローンシミュレータの物理モデルとArdupilotを連携することが可能です。
+
+実行方法：
+```bash
+<os名>-aircraft_service_ardupilot <ホストPCのIPアドレス> 9002 9003 ./config/drone/ardupilot 
+```
+
+この際、Ardupilotを起動することで、Ardupilotと連携することが可能です。
+
+```bash
+./Tools/autotest/sim_vehicle.py -v ArduCopter -f airsim-copter -A "--sim-port-in 9002 --sim-port-out 9003" --sim-address=<ホストPCのIPアドレス>
+```
+
+参考：https://github.com/ArduPilot/ardupilot
+
+この際、Mission Plannerと連携することで、遠隔操作が可能です。
+
+## 箱庭ドローンのCUIサンプルアプリの利用方法
+
+箱庭ドローンシミュレータの物理モデルと制御モデルを連携させて、CUIで操作することが可能です。
+
+```bash
+service/drone_service_rc 1 config/drone/rc
+```
+
+```
+ ----- USAGE -----
+ ----- STICK -----
+|  LEFT  | RIGHT  |
+|   w    |   i    |
+| a   d  | j   l  |
+|   s    |   k    |
+ ---- BUTTON ----
+ x : radio control button
+ p : get position
+ r : get attitude
+ t : get simtime usec
+ f : flip
+ b : get battery status
+```
+
+
+実行例：起動直後のログ
+```bash
+BatteryModelCsvFilePath: ./tmp_battery_model.csv
+BatteryModelCsvFilePath does not exist.
+Angle rate control is disabled
+Angle rate control is disabled
+flip_target_time_sec: 0.4
+flip_constant_time_sec: 0.1
+target_angular_rate_rad_sec: 25.1327
+target_angular_rate_delta: 0.167552
+target_angular_inc_time_sec: 0.15
+target_angular_dec_time_sec: 0.25
+INFO: mixer is enabled
+timestep_usec: 1000
+DroneService::startService: 1000
+> Start service
+```
+
+この状態で、アームするには、`x`を入力しエンターキーを押下します。
+
+その後、`w`を入力しエンターキーを押下することで、上昇します。
+
+実行例：アームして上昇
+```bash
+> Start service
+x
+w
+position x=0.0 y=-0.0 z=0.1
+position x=0.0 y=-0.0 z=0.2
+position x=0.0 y=-0.0 z=0.3
+position x=0.0 y=-0.0 z=0.4
+position x=0.0 y=-0.0 z=0.5
+position x=0.0 y=-0.0 z=0.6
+position x=0.0 y=-0.0 z=0.7
+position x=0.0 y=-0.0 z=0.8
+position x=0.0 y=-0.0 z=0.9
+position x=0.0 y=-0.0 z=1.0
+position x=0.0 y=-0.0 z=1.1
+```
+
+実行例：前進
+```bash
+i
+position x=0.1 y=0.0 z=1.2
+position x=0.2 y=0.0 z=1.3
+position x=0.3 y=0.0 z=1.3
+position x=0.4 y=0.0 z=1.3
+position x=0.5 y=0.0 z=1.3
+position x=0.6 y=0.0 z=1.3
+```
+
+## 箱庭ドローンPro Cライブラリの利用方法
+
+箱庭ドローンシミュレータは、Cライブラリ(hako_service_c)としてバイナリ公開しています。
+
+以下のヘッダファイルをインクルードすることで、ビルド＆リンク可能です。
+
+- include/service/service.h
+
+なお、C APIヘッダは以下です。
+
+- include/service/drone/drone_service_rc_api.h
+
+# 箱庭ありで利用するケース
+
+工事中・・
