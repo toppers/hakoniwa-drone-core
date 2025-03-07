@@ -15,5 +15,12 @@ typedef struct {
     int num;
     double duty_rate[DRONE_SERVICE_MAX_ROTOR_NUM];
 } RotorControlType;
+typedef struct {
+        double full_voltage;
+        double curr_voltage;
+        double curr_temp;
+        unsigned int status;
+        unsigned int cycles;
+} ServiceBatteryStatusType;
 
 } // namespace hako::service

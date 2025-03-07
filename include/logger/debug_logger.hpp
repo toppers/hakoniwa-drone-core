@@ -67,8 +67,14 @@ private:
     // Get current time as a string
     std::string getCurrentTime() {
         auto now = std::time(nullptr);
+        struct tm time_info;
+#ifdef _WIN32
+        localtime_s(&time_info, &now);
+#else
+        localtime_r(&now, &time_info);
+#endif
         std::ostringstream oss;
-        oss << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S");
+        oss << std::put_time(&time_info, "%Y-%m-%d %H:%M:%S");
         return oss.str();
     }
 

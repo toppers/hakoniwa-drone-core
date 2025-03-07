@@ -13,6 +13,7 @@ namespace hako::config {
     struct RotorBatteryModelConstants {
         double R;
         double Cq;
+        double Ct; //for rigid body model
         double K;
         double D;
         double J;
@@ -27,5 +28,10 @@ namespace hako::config {
         double VoltageLevelGreen;
         double VoltageLevelYellow;
         double CapacityLevelYellow;
+    };
+    struct MuJoCoParameters {
+        std::string modelName;
+        std::string modelPath;
+        std::vector<std::string> propNames;
     };
 }

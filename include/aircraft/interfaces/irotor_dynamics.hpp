@@ -23,6 +23,11 @@ public:
 
     virtual void run(double control) = 0;
     virtual void run(double control, double vbat) = 0;
+
+    virtual double get_thrust() = 0;
+    virtual double get_torque(double ccw) = 0;
+
+    virtual double get_pwm_duty_rate() = 0;
 };
 
 }

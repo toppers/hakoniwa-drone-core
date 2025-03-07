@@ -21,6 +21,7 @@ protected:
     bool            enable_disturbance = false;
     IDroneDynamics *drone_dynamics = nullptr;
     IRotorDynamics *rotor_dynamics[ROTOR_NUM];
+    RotorConfigType rotor_config[ROTOR_NUM];
     IThrustDynamics *thrust_dynamis = nullptr;
     IBatteryDynamics *battery_dynamics = nullptr;
 
@@ -44,6 +45,12 @@ public:
     void set_delta_time_usec(uint64_t d_time_usec)
     {
         this->delta_time_usec = d_time_usec;
+    }
+    void set_rotor_config(const RotorConfigType _rotor_config[ROTOR_NUM])
+    {
+        for (int i = 0; i < ROTOR_NUM; i++) {
+            this->rotor_config[i] = _rotor_config[i];
+        }
     }
     uint64_t get_simulation_time_usec()
     {
@@ -111,6 +118,15 @@ public:
         }
         else {
             return -1;
+        }
+    }
+    IRotorDynamics *get_rotor_dynamics(int rotor_index)
+    {
+        if (rotor_index < ROTOR_NUM) {
+            return this->rotor_dynamics[rotor_index];
+        }
+        else {
+            return nullptr;
         }
     }
     void set_thrus_dynamics(IThrustDynamics *src)

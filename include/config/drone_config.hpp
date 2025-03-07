@@ -158,6 +158,18 @@ public:
     std::string getCompDroneDynamicsPhysicsEquation() const {
         return configJson["components"]["droneDynamics"]["physicsEquation"].get<std::string>();
     }
+    bool getCompDroneDynamicsMuJoCoParameters(MuJoCoParameters& params) const {
+        if (configJson["components"]["droneDynamics"].contains("mujoco")) {
+            params.modelPath = configJson["components"]["droneDynamics"]["mujoco"]["modelPath"].get<std::string>();
+            params.modelName = configJson["components"]["droneDynamics"]["mujoco"]["modelName"].get<std::string>();
+            params.propNames.clear();
+            for (const auto& item : configJson["components"]["droneDynamics"]["mujoco"]["propNames"]) {
+                params.propNames.push_back(item);
+            }
+            return true;
+        }
+        return false;
+    }
     bool getCompDroneDynamicsUseQuaternion() const {
         if (configJson["components"]["droneDynamics"].contains("useQuaternion")) {
             return configJson["components"]["droneDynamics"]["useQuaternion"].get<bool>();
@@ -257,7 +269,9 @@ public:
                 params.NominalCapacity = configJson["components"]["battery"]["NominalCapacity"].get<double>();
                 params.EODVoltage = configJson["components"]["battery"]["EODVoltage"].get<double>();
                 params.CapacityLevelYellow = configJson["components"]["battery"]["CapacityLevelYellow"].get<double>();
+#ifdef HAKO_DEBUG_LOG
                 std::cout << "Battery model is enabled." << std::endl;
+#endif
                 return params;
             }
             else {
@@ -278,10 +292,19 @@ public:
                 
                 constants.R  = configJson["components"]["rotor"]["dynamics_constants"]["R"].get<double>();
                 constants.Cq = configJson["components"]["rotor"]["dynamics_constants"]["Cq"].get<double>();
+                if (configJson["components"]["rotor"]["dynamics_constants"].contains("Ct")) {
+                    //for rigid body model
+                    constants.Ct = configJson["components"]["rotor"]["dynamics_constants"]["Ct"].get<double>();
+                }
+                else {
+                    constants.Ct = 0.0;
+                }
                 constants.K  = configJson["components"]["rotor"]["dynamics_constants"]["K"].get<double>();
                 constants.D  = configJson["components"]["rotor"]["dynamics_constants"]["D"].get<double>();
                 constants.J  = configJson["components"]["rotor"]["dynamics_constants"]["J"].get<double>();
+#ifdef HAKO_DEBUG_LOG
                 std::cout << "Rotor battery model is enabled." << std::endl;
+#endif
                 return constants;
             }
         } catch (const std::exception& e) {

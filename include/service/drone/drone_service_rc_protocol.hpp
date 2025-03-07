@@ -145,6 +145,33 @@ public:
         }
         return rotor_control;
     }
+    Vector3Type get_body_velocity(int index)
+    {
+        ServicePduDataType local_pdu = {};
+        local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_VELOCITY_BODY;
+        drone_service_container_->peek_pdu(index, local_pdu);
+        return { local_pdu.pdu.velocity_body.linear.x, local_pdu.pdu.velocity_body.linear.y, local_pdu.pdu.velocity_body.linear.z };
+    }
+    Vector3Type get_body_angular_velocity(int index)
+    {
+        ServicePduDataType local_pdu = {};
+        local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_VELOCITY_BODY;
+        drone_service_container_->peek_pdu(index, local_pdu);
+        return { local_pdu.pdu.velocity_body.angular.x, local_pdu.pdu.velocity_body.angular.y, local_pdu.pdu.velocity_body.angular.z };
+    }
+    ServiceBatteryStatusType get_battery_status(int index)
+    {
+        ServicePduDataType local_pdu = {};
+        local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_BATTERY_STATUS;
+        drone_service_container_->peek_pdu(index, local_pdu);
+        ServiceBatteryStatusType battery_status = {};
+        battery_status.full_voltage = local_pdu.pdu.battery_status.full_voltage;
+        battery_status.curr_voltage = local_pdu.pdu.battery_status.curr_voltage;
+        battery_status.curr_temp = local_pdu.pdu.battery_status.curr_temp;
+        battery_status.status = local_pdu.pdu.battery_status.status;
+        battery_status.cycles = local_pdu.pdu.battery_status.cycles;
+        return battery_status;
+    }
     void trigger_collision(int index, Vector3Type& contact_position, double restitution_coefficient)
     {
         ServicePduDataType col_pdu = {};

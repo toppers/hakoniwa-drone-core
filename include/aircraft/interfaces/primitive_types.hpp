@@ -11,6 +11,11 @@ const double GRAVITY = 9.81;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+#define NORMALIZE_ANGLE(angle) \
+do { \
+    if ((angle) > M_PI) { (angle) -= 2 * M_PI; } \
+    else if ((angle) < -M_PI) { (angle) += 2 * M_PI; } \
+} while (0)
 
 /*
  * Coordinate System: Ground Coordinate System (NED)

@@ -29,6 +29,7 @@ typedef enum {
     SERVICE_PDU_DATA_ID_TYPE_BATTERY_STATUS,
     SERVICE_PDU_DATA_ID_TYPE_STATUS_MAGNET,
     SERVICE_PDU_DATA_ID_TYPE_POSITION,
+    SERVICE_PDU_DATA_ID_TYPE_VELOCITY_BODY,
     SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS,
     HAKONIWA_DRONE_PDU_DATA_ID_TYPE_NUM,
 } ServicePduDataIdType;
@@ -47,6 +48,7 @@ typedef struct {
         HakoCpp_HakoBatteryStatus battery_status;
         HakoCpp_HakoStatusMagnetHolder status_magnet;
         HakoCpp_Twist position;
+        HakoCpp_Twist velocity_body;
         HakoCpp_HakoHilActuatorControls actuator_controls;
     } pdu;
 } ServicePduDataType;

@@ -5,6 +5,7 @@
 
 #include "config/drone_config.hpp"
 #include "controller/aircraft_controller_types.h"
+#include "logger.hpp"
 
 namespace hako::controller {
 
@@ -19,12 +20,20 @@ public:
     virtual ~IAircraftMixer() {}
     virtual PwmDuty run(mi_aircraft_control_out_t& in) = 0;
 };
-class IAircraftController {
+class IAircraftController: public logger::ILog {
 private:
     std::shared_ptr<IAircraftMixer> mixer_;
     int index_;
+protected:
+    std::shared_ptr<logger::IHakoLogger> logger;
 public:
-    virtual ~IAircraftController() {}
+    virtual ~IAircraftController() {
+        logger->close();
+    }
+    void set_logger(std::shared_ptr<logger::IHakoLogger> logger)
+    {
+        this->logger = logger;
+    }
     virtual bool is_radio_control() = 0;
     virtual void reset() = 0;
     virtual void set_index(int index) {

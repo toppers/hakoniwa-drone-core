@@ -11,12 +11,14 @@ extern "C" {
 #define EXPORT extern
 #endif
 
-EXPORT int drone_service_rc_init(const char* drone_config_dir_path, const char* debug_logpath);
+EXPORT int drone_service_rc_init(int enable_datalog, const char* drone_config_dir_path, const char* debug_logpath);
 EXPORT int drone_service_rc_init_single(const char* drone_config_text, const char* controller_config_text, int logger_enable, const char* debug_logpath);
 EXPORT int drone_service_set_debuff_on_collision(int index, int debuff_duration_msec);
 EXPORT int drone_service_rc_start();
 EXPORT int drone_service_rc_run();
+EXPORT int drone_service_rc_advance_timesteps_usec(unsigned long long time_usec);
 EXPORT int drone_service_rc_stop();
+EXPORT int drone_service_rc_reset();
 
 /*
  * stick operations
@@ -38,6 +40,17 @@ EXPORT int drone_service_rc_put_home_control_button(int index, int value);
 EXPORT int drone_service_rc_get_position(int index, double* x, double* y, double* z);
 EXPORT int drone_service_rc_get_attitude(int index, double* x, double* y, double* z);
 EXPORT int drone_service_rc_get_controls(int index, double* c1, double* c2, double* c3, double* c4, double* c5, double* c6, double* c7, double* c8);
+
+/*
+ * get body velocity and angular velocity
+ */
+EXPORT int drone_service_rc_get_body_velocity(int index, double* x, double* y, double* z);
+EXPORT int drone_service_rc_get_body_angular_velocity(int index, double* x, double* y, double* z);
+
+/*
+ * Battery
+ */
+EXPORT int drone_service_rc_get_battery_status(int index, double* full_voltage, double* curr_voltage, double* curr_temp, unsigned int* status, unsigned int* cycles);
 
 /*
  * Disturbance

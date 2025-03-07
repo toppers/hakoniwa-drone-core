@@ -8,6 +8,7 @@ public:
     virtual ~IServicePduSyncher() = default;
     virtual bool flush(uint32_t index, ServicePduDataType& pdu) = 0;
     virtual bool load(uint32_t index, ServicePduDataType& pdu) = 0;
+    virtual bool reset_data() = 0;
 };
 } // namespace hako::service
 

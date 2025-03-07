@@ -7,6 +7,23 @@
 
 namespace hako::service {
 
+typedef struct {
+    hako::mavlink::MavlinkMsgType msg_id;
+    uint64_t send_cycle_usec;
+    mavlink::MavLinkServiceDesitinationType destination;
+    bool (*user_custom_encode) (aircraft::IAirCraft& aircraft, hako::mavlink::MavlinkHakoMessage& message, uint64_t time_usec);
+} HakoMavLinkProtocolTxConfigType;
+
+typedef struct {
+    hako::mavlink::MavlinkMsgType msg_id;
+    bool (*user_custom_decode) (int index, const void* data, int detalen, hako::mavlink::MavlinkHakoMessage& message);
+} HakoMavLinkProtocolRxConfigType;
+
+typedef struct {
+    HakoMavLinkProtocolRxConfigType rx;
+    std::vector<HakoMavLinkProtocolTxConfigType> tx;
+} HakoMavLinkProtocolConfigType;
+
 class IAircraftServiceContainer : public IServiceContainer {
 public:
     static std::shared_ptr<IAircraftServiceContainer> create(std::shared_ptr<mavlink::MavLinkServiceContainer> mavlink_service_container, std::shared_ptr<aircraft::IAirCraftContainer> aircraft_container);
@@ -14,12 +31,15 @@ public:
     virtual bool startService(uint64_t deltaTimeUsec) = 0;
     virtual bool startService(bool lockStep, uint64_t deltaTimeUsec) = 0;
     virtual bool setRealTimeStepUsec(uint64_t deltaTimeUsec) = 0;
+    virtual bool setProtocolConfig(const HakoMavLinkProtocolConfigType& config) = 0;
     virtual void advanceTimeStep(uint32_t index) = 0;
     virtual void advanceTimeStep() = 0;
     virtual void stopService() = 0;
     virtual void resetService() = 0;
     virtual uint64_t getSimulationTimeUsec(uint32_t index) = 0;
     virtual uint64_t getSitlTimeUsec(uint32_t index) = 0;
+
+    virtual void enableReceiveEvent(uint32_t index) = 0;
 
     virtual bool write_pdu(uint32_t index, ServicePduDataType& pdu) = 0;
     virtual bool read_pdu(uint32_t index, ServicePduDataType& pdu) = 0;

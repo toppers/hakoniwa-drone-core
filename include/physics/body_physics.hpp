@@ -106,26 +106,26 @@ VelocityType velocity_after_contact_with_wall(
  * 5. Iw' - Iw = impulse x r (= delta angular momentum)
  * 6. w' - w = I^{-1} (impluse x r) (= delta angular velocity)
  **/
-ImpulseType impulse_by_collision(/* coordicates are ALL in one (self body) frame */
-    const VelocityType& self_velocity, /* self velocity in self body frame */
-    const AngularVelocityType& self_angular_velocity, /* self angular velocity in self body frame */
-    const EulerType& self_euler, /* self euler angles */
-    const VelocityType& target_velocity, /* other velocity in self body frame */
-    const AngularVelocityType& target_angular_velocity, /* other angular velocity in self body frame */
-    const EulerType& target_euler, /* other euler angles */
+ImpulseType impulse_by_collision(/* coordicates are ALL in one frame, self body frame recommened */
+    const VelocityType& self_velocity, /* self velocity */
+    const AngularVelocityType& self_angular_velocity, /* self angular velocity */
+    const EulerType& self_euler, /* {0,0,0} if you use self body frame(recommended) */
+    const VelocityType& target_velocity, /* target velocity */
+    const AngularVelocityType& target_angular_velocity, /* target angular velocity */
+    const EulerType& target_euler,
     const VectorType& self_contact, /* self contact vector, from self center to contact = contact_point - center_point in body frame */
-    const VectorType& target_contact, /* vector from other center to contact = contact_point - other_center_point in body frame */
+    const VectorType& target_contact, /* vector from target center to contact = contact_point - other_center_point in body frame */
     double self_mass,
     double target_mass,
-    const InertiaDiagType& self_inertia, /* diagonal elements of the inertia tensor of the self */
-    const InertiaDiagType& target_inertia, /* diagonal elements of the inertia tensor of the other */
+    const InertiaDiagType& self_inertia, /* diagonal elements of the inertia tensor of the self in self body frame(euler) */
+    const InertiaDiagType& target_inertia, /* diagonal elements of the inertia tensor of the target in target body frame(euler) */
     const VectorType& normal, /* normal vector of the contact surface (n and -n give the same result, don't care the +/- direction) */
     double restitution_coefficient /* 0.0-1.0*/);
 
 ImpulseType impulse_by_collision(
     const VelocityType& self_velocity,
     const AngularVelocityType& self_angular_velocity,
-    const EulerType& self_euler,
+    const EulerType& self_euler, /* {0,0,0} if you use self body frame(recommended) */
     const VelocityType& target_velocity, /* other velocity(at contact point including rotation w x r) in self body frame */
     const VectorType& self_contact,
     double self_mass,
