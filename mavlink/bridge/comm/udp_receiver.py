@@ -44,6 +44,7 @@ class UdpReceiver:
                             msg_type=msg.get_type(),
                             msg_data=msg.to_dict(),
                         )
+                        #print(f"msg_type: {msg.get_type()}")
                         self.message_queue.enqueue(message)
 
         except Exception as e:

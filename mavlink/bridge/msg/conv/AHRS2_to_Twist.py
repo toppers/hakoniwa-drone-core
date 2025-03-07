@@ -38,6 +38,7 @@ class AHRS2ToTwistConvertor:
         :return: x, y, z (メートル単位での相対位置)
         """
         # 緯度経度のスケール変換 (基準値も同じスケールで扱う)
+        #print(f"lat: {lat}, lng: {lng}")
         lat = lat / 1E7
         lng = lng / 1E7
         ref_lat = self.map_for_initial_position[robot_name].ref_lat / 1E7
@@ -84,6 +85,7 @@ class AHRS2ToTwistConvertor:
         roll = pdu_message.data.get("roll")
         pitch = pdu_message.data.get("pitch")
         yaw = pdu_message.data.get("yaw")
+        #print(f"roll: {roll}, pitch: {pitch}, yaw: {yaw}")
         altitude = pdu_message.data.get("altitude")
         lat = pdu_message.data.get("lat")
         lng = pdu_message.data.get("lng")
