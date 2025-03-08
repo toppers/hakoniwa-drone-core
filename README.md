@@ -82,7 +82,7 @@
     - UDPでは高速な通信を実現（到達保証なし）
   - 詳細な API 仕様は[サーバー](docs/api/comm/server/api_comm_server.md)、[クライアント](docs/api/comm/client/api_comm_client.md)、[IO](docs/api/comm/io/api_comm_io.md)を参照
 - mavlink (MAVLINK通信) : MAVLINK通信のインタフェース
-- physics (物理モデル) :  [機体の物理モデル](docs/api/physics/README.md)
+- physics (物理モデル) :  [機体の物理モデル](docs/api/physics/README-ja.md)
 - controller (制御モデル) : 機体の制御モデル
 - aircraft (機体モデル) : 物理モデルおよびセンサ/アクチュエータを統合した機体モデル
 - service (サービス)
