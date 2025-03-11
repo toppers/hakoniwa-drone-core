@@ -159,7 +159,7 @@ Ardupilot 連携サンプルアプリを使うと箱庭ドローンシミュレ�
 この際、Ardupilotを起動することで、Ardupilotと連携することが可能です。
 
 ```bash
-./Tools/autotest/sim_vehicle.py -v ArduCopter -f airsim-copter -A "--sim-port-in 9002 --sim-port-out 9003" --sim-address=<ホストPCのIPアドレス>
+./Tools/autotest/sim_vehicle.py -v ArduCopter -f airsim-copter -A "--sim-port-in 9003 --sim-port-out 9002"  --sim-address=<ホストPCのIPアドレス>  --out=udp:<Mission PlannerのIPアドレス>:14550
 ```
 
 参考：https://github.com/ArduPilot/ardupilot
