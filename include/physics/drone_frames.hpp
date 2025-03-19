@@ -100,14 +100,6 @@ inline QuaternionType& operator /= (QuaternionType& q, double s) { q.w /= s; q.x
 inline QuaternionType operator / (const QuaternionType& q, double s) { QuaternionType result = q; return result /= s;}
 inline QuaternionType operator - (const QuaternionType& q) { return {-q.w, -q.x, -q.y, -q.z};}
 inline QuaternionType normalize(const QuaternionType& q) { return q/length(q); }
-// TODO: delete this after morisan confirmation
-// void normalize(QuaternionType& quaternion)
-// {
-//     double norm = length(quaternion);
-//     assert(!is_zero(norm));
-//     quaternion /= norm;
-// }
-
 inline VectorType normalize(const VectorType& v) { return v/length(v);}
 
 #ifdef BP_INCLUDE_IO /* for printint out */
