@@ -2,7 +2,7 @@
     "name": "Drone",
     "simulation": {
         "lockstep": true,
-        "timeStep": 0.003,
+        "timeStep": 0.001,
         "logOutputDirectory": ".",
         "logOutput": {
             "sensors": {
@@ -36,20 +36,20 @@
     "components": {
         "droneDynamics": {
             "physicsEquation": "BodyFrame",
-            "useQuaternion": false,
+            "useQuaternion": true,
             "collision_detection": true,
             "enable_disturbance": false,
             "manual_control": false,
             "airFrictionCoefficient": [
-                0.2,
+                0.5,
                 0.0
             ],
             "inertia": [
-                0.0061,
-                0.00653,
-                0.0116
+                0.01169962,
+                0.01184215,
+                0.02104691
             ],
-            "mass_kg": 0.71,
+            "mass_kg": 0.68240503,
             "body_size": [
                 0.1,
                 0.1,
@@ -67,63 +67,63 @@
             ]
         },
         "battery": {
-          "vendor": "None",
-          "model": "constant",
-          "BatteryModelCsvFilePath": "./tmp_battery_model.csv",
-          "VoltageLevelGreen": 12.1, 
-          "VoltageLevelYellow": 11.1,
-          "CapacityLevelYellow": 3, 
-          "NominalVoltage": 14.8,
-          "NominalCapacity": 4.0,
-          "EODVoltage": 3.0
+            "vendor": "None",
+            "model": "linear",
+            "BatteryModelCsvFilePath": "./tmp_battery_model.csv",
+            "VoltageLevelGreen": 12.1,
+            "VoltageLevelYellow": 11.1,
+            "CapacityLevelYellow": 3,
+            "NominalVoltage": 14.8,
+            "NominalCapacity": 4.0,
+            "EODVoltage": 3.0
         },
         "rotor": {
-          "vendor": "BatteryModel",
-          "dynamics_constants": {
-              "R": 0.12,
-              "Cq": 3.0e-8,
-              "K": 3.28e-3,
-              "D": 0.0,
-              "J": 8.12e-6
-          }
+            "vendor": "BatteryModel",
+            "dynamics_constants": {
+                "R": 0.115,
+                "Cq": 2.64E-06,
+                "K": 0.0103796702,
+                "D": 0.0,
+                "J": 4.00E-04
+            }
         },
         "thruster": {
             "vendor": "None",
             "rotorPositions": [
                 {
                     "position": [
-                        0.05,
-                        0.05,
+                        0.25,
+                        0.25,
                         0
                     ],
                     "rotationDirection": 1.0
                 },
                 {
                     "position": [
-                        -0.05,
-                        -0.05,
+                        -0.25,
+                        -0.25,
                         0
                     ],
                     "rotationDirection": 1.0
                 },
                 {
                     "position": [
-                        0.05,
-                        -0.05,
+                        0.25,
+                        -0.25,
                         0
                     ],
                     "rotationDirection": -1.0
                 },
                 {
                     "position": [
-                        -0.05,
-                        0.05,
+                        -0.25,
+                        0.25,
                         0
                     ],
                     "rotationDirection": -1.0
                 }
             ],
-            "Ct": 8.3E-07
+            "Ct": 1.12E-04
         },
         "sensors": {
             "acc": {
@@ -149,8 +149,10 @@
         }
     },
     "controller": {
-      "moduleDirectory": "../drone_control/cmake-build/workspace/RadioController",
-      "moduleName": "RadioController",
+        "moduleDirectory": "../drone_control/cmake-build/workspace/FlightController",
+        "paramText": "",
+        "paramFilePath": "config/controller/param-api-mixer.txt",
+        "moduleName": "FlightController",
         "direct_rotor_control": false,
         "mixer": {
             "vendor": "None",
@@ -158,4 +160,4 @@
             "enableErrorLog": false
         }
     }
-  }
+}

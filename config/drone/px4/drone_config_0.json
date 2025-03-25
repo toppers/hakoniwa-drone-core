@@ -1,5 +1,5 @@
 {
-  "name": "DroneTransporter",
+  "name": "Drone",
   "simulation": {
       "lockstep": true,
       "timeStep": 0.003,
