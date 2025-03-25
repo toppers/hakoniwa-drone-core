@@ -110,6 +110,34 @@
       * 3.13以降では動きません。
       * MacOSの場合、homebrewでインストールしたものでは動きません。
 
+# ✅ シミュレータ準備チェックリスト
+
+このシミュレータは、以下のように **箱庭あり／なし** の2モードで利用可能です。  
+それぞれに必要な環境やツールが異なるため、事前に以下のチェックリストをご確認ください。
+
+| 項目 | 説明 | 箱庭あり版 | 箱庭なし版 |
+|------|------|------------|------------|
+| OS環境 | Windows / macOS (Arm対応) / Linux / WSL2 | ✅ | ✅ |
+| Python環境 | `Python 3.12.0` を使用 | ✅ | ✅ |
+| Unityエディタ | [hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone) の実行に必要 | ✅ | ❌ |
+| Unityプロジェクト準備 | `Avatar` シーンを開き、`START`ボタンでシミュ開始 | ✅ | ❌ |
+| hakoniwa-core-cpp-client | 箱庭コアとの接続に必須 | ✅ | ❌ |
+| QGroundControl | PX4連携時の操作に使用 | ✅ | ✅ |
+| MissionPlanner | Ardupilot連携時の操作に使用 | ✅ | ✅ |
+| Gameコントローラ | ラジコン操作に使用 (任意) | ✅ | ❌ |
+| Drone用Python API | フライトプラン記述に使用可能 | ✅ | ❌ |
+| Web連携 (任意) | [hakoniwa-webserver](https://github.com/toppers/hakoniwa-webserver) など | ✅ | ❌ |
+| ROS2連携 (任意) | [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu) など | ✅ | ❌ |
+
+📌 **備考**
+- Pythonは **3.12.0** 固定（それ以外は非対応）
+- Mac環境では `homebrew` 経由のPythonでは動作しません
+- Unityエディタは、Unity6.0以降が必要です
+- Gameコントローラを使う場合は `rc/rc_config/` の設定ファイルを確認してください
+
+---
+
+
 # 箱庭なしで利用するケース
 
 箱庭なしで利用する場合、箱庭ドローンの物理モデルと制御モデルを独立して実行することが可能です。
