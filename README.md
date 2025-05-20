@@ -309,6 +309,14 @@ os名は、以下の通りです。
 
 箱庭あり版を利用する場合は、事前に、[hakoniwa-core-cpp-client](https://github.com/toppers/hakoniwa-core-cpp-client)をインストールしてください。
 
+Windowsの場合は、WSL2で、以下のコマンドを実行してください。
+
+```bash
+dd if=/dev/zero of=/mnt/z/mmap/mmap-0x100.bin bs=1M count=5
+```
+
+理由：ramdisk上の mmap ファイルのサイズが足りないため。(5MB以上必要)
+
 ## Unityエディタの準備
 
 箱庭あり版を利用する場合は、事前に、[hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone)のsimulatinプロジェクトをUnityエディタで開く必要があります。
@@ -333,6 +341,11 @@ PX4 連携サンプルアプリを使うと箱庭ドローンシミュレータ�
 ```bash
 <os名>-main_hako_aircraft_service_px4 <IPアドレス> 4560 ./config/drone/px4 <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
 ```
+
+* 補足：
+  * Windowsの場合、IPアドレスは、Power Shellで、ipconfigを実行したときのWSLのIPアドレスを指定してください。
+  * イーサネット アダプター vEthernet (WSL (Hyper-V firewall)):
+
 
 この際、PX4を起動することで、PX4と連携することが可能です。
 
@@ -436,4 +449,111 @@ python rc/sample.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
 2. 箱庭ドローンのサンプルアプリを起動する。
 3. Unityエディタで、STARTボタンを押下する。
 4. フライトプラン操作用のPythonスクリプトを起動する。
+
+# TIPS
+## Windows で 箱庭あり版PX4/Ardupilot連携する場合について
+
+Windowsで PX4/Ardupilot連携する場合、WSLとネイティブアプリ間で高頻度な通信が発生します(3ms毎に通信)。
+
+![image](docs/images/win-px4-arch.png)
+
+そのため、シミュレーション速度が非常に遅くなる場合があります（体感で３−４倍程度遅くなる）。
+
+シミュレーション速度を改善する方法として、シミュレーション構成を以下のようにすることで、改善できます。
+
+![image](docs/images/wsl-px4-arch.png)
+
+
+シミュレーション実行手順：
+
+0. [WSLで、初期セットアップ](#wslで初期セットアップ)
+1. UnityエディタでWebAvatarシーンを開く。
+2. [WSLで、PX4 を起動する。](#wslでpx4-を起動する)
+3. [WSLで、PX4 連携サンプルアプリを起動する。](#wslでpx4-連携サンプルアプリを起動する)
+4. [WSLで、箱庭Webサーバーを起動する。](#wslで箱庭webサーバーを起動する)
+5. [WSLで、箱庭シミュレーションを開始する。](#wslで箱庭シミュレーションを開始する)
+6. UnityエディタのWebAvatarシーンのPlayボタンをクリック。
+7. QGCを起動し、PX4と接続し、遠隔操作を行う。
+
+### WSLで、初期セットアップ
+
+#### 箱庭コマンドのパスを通す。
+
+環境変数 `PATH` に、箱庭コマンドのパスを通す必要があります。
+
+設定例：
+```bash
+export PATH=$PATH:/usr/local/bin/hakoniwa
+```
+
+必要に応じて、`~/.bashrc` や `~/.zshrc` に追記してください。
+
+```bash
+echo 'export PATH=$PATH:/usr/local/bin/hakoniwa' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### WSLのファイルシステムに移動し、空プロジェクトディレクトリを作成する
+
+ここでは、プロジェクト名を `project`としていますが、任意の英字で構いません。
+
+```bash
+cd ~
+mkdir project
+cd project
+```
+
+なお、後述するリポジトリは、すべて project 直下にクローンしてください。
+
+#### hakoniwa-drone-coreのクローン
+
+事前に、hakoniwa-drone-core をクローンしてください。
+
+```bash
+git clone --recursive https://github.com/toppers/hakoniwa-drone-core.git
+```
+
+また、最新のリリースから lnx.zip をダウンロードしhakoniwa-drone-core 直下に解凍してください。
+
+#### hakoniwa-unity-droneのクローン
+
+事前に、hakoniwa-unity-drone をクローンしてください。
+
+```bash
+git clone --recursive https://github.com/hakoniwalab/hakoniwa-unity-drone.git
+```
+
+### WSLで、PX4 を起動する。
+
+```bash
+cd hakoniwa-px4sim/px4/PX4-Autopilot
+```
+
+```bash
+bash ../sim/simstart.bash
+```
+
+
+### WSLで、PX4 連携サンプルアプリを起動する。
+
+```bash
+lnx/linux-main_hako_aircraft_service_px4 127.0.0.1 4560 ./config/drone/px4 <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
+```
+
+### WSLで、箱庭シミュレーションを開始する。
+
+```bash
+hako-cmd start
+```
+
+### WSLで、箱庭Webサーバーを起動する。
+
+```bash
+cd hakoniwa-unity-drone/hakoniwa-webserver
+```
+
+```bash
+python -m server.main --asset_name WebServer --config_path ../simulation/webavatar.json --delta_time_usec 20000
+```
+
 
