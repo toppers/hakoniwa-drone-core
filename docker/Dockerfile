@@ -60,6 +60,7 @@ RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/late
 RUN pip3 install --upgrade pip setuptools wheel \
     numpy
 
+RUN apt-get update && apt-get install iproute2 -y
 
 WORKDIR /root
 
