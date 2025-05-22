@@ -53,10 +53,12 @@ if [ $RUN_MODE = "px4" ]
 then
      setsid bash hakoniwa-drone-core/docker/tools/run-hako-px4.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
      HAKO_DRONE_PID=$!
-     sleep 1
+     sleep 2
 elif [ $RUN_MODE = "ardupilot" ]
 then
-    :
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-ardupilot.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+     HAKO_DRONE_PID=$!
+     sleep 2
 elif [ $RUN_MODE = "drone" ]
 then
     :
@@ -67,7 +69,7 @@ fi
 
 hako-cmd start
 
-sleep 2
+sleep 3
 
 setsid bash hakoniwa-drone-core/docker/tools/run-webserver.bash ${BASE_DIR}/hakoniwa-webserver ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
 HAKO_WEB_PID=$!
