@@ -35,6 +35,7 @@ then
 else
     docker run \
         -v ${HOST_WORKDIR}:${DOCKER_DIR} \
+        -e TZ=Asia/Tokyo \
         -it --rm \
         --net host \
         -w ${DOCKER_DIR} \
