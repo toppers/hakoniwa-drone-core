@@ -58,7 +58,8 @@ RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/late
 
 # Python モジュールのインストール（必要に応じて追加）
 RUN pip3 install --upgrade pip setuptools wheel \
-    numpy
+    numpy \
+    && pip3 install aiohttp>=3.10.0 aiohttp_cors>=0.7.0 websockets==13.1
 
 RUN apt-get update && apt-get install iproute2 -y
 
