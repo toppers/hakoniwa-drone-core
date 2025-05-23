@@ -1,5 +1,15 @@
 このリポジトリでは、[hakoniwa-px4sim](https://github.com/toppers/hakoniwa-px4sim) を発展させ、拡張性と汎用性を高めたドローンシミュレータのコア機能を提供します。PX4やArdupilot、ロボットシステム(ROS)、さらにはスマホ、XR、Webとの連携も視野に入れた柔軟な設計が特徴です。
 
+# 🚨 License Notice / ライセンスについて
+This project is distributed under a custom non-commercial license.
+本プロジェクトはカスタム非商用ライセンスの下で配布されています。
+
+- 📄 License (English): [LICENSE](LICENSE)
+- 📄 ライセンス (日本語): [LICENSE.ja](LICENSE.ja)
+
+⚠️ Commercial use is prohibited | 商用利用は禁止されています
+For commercial licensing inquiries:
+商用ライセンスに関するお問い合わせ: tmori@hakoniwa-lab.net
 
 # コンセプト
 
