@@ -4,7 +4,7 @@
 This project is distributed under a custom non-commercial license.
 本プロジェクトはカスタム非商用ライセンスの下で配布されています。
 
-- 📄 License (English): [LICENSE](LICENSE)
+- 📄 License (English): [LICENSE](LICENSE.md)
 - 📄 ライセンス (日本語): [LICENSE-ja](LICENSE-ja.md)
 
 ⚠️ Commercial use is prohibited | 商用利用は禁止されています
