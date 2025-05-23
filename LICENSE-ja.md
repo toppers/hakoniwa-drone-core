@@ -1,6 +1,6 @@
 # 箱庭ドローンコア - バイナリ配布ライセンス
 
-**SPDX-License-Identifier: LicenseRef-Hakoniwa-NC**
+**SPDX-License-Identifier: LicenseRef-hakoniwalab-NC**
 
 著作権 (c) 2025 箱庭ラボ (https://hakoniwa-lab.net) / 森 崇
 

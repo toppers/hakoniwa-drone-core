@@ -1,6 +1,6 @@
 # Hakoniwa Drone Core - Binary Distribution License
 
-**SPDX-License-Identifier: LicenseRef-Hakoniwa-NC**
+**SPDX-License-Identifier: LicenseRef-hakoniwalab-NC**
 
 Copyright (c) 2025 Hakoniwa Lab (https://hakoniwa-lab.net) / Takashi Mori
 
