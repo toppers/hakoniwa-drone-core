@@ -10,7 +10,7 @@
 - Unityをインストールしておく必要があります。
 - [hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone) のsimulationpプロジェクトを開き、`Scenes/WebAvatar` シーンを開いておく必要があります。
 - PX4 をビルドしておく必要があります。
-- PX4 のビルド方法は、[こちら](https://github.com/toppers/hakoniwa-px4sim/blob/main/px4/README-ja.md)を参照してください。
+- PX4 のビルド方法は、[こちら](px4-setup.md)を参照してください。
 
 
 ### 実行手順

@@ -8,21 +8,6 @@ git clone --recursive https://github.com/ArduPilot/ardupilot.git
 ```
 
 ```
-cd ardupilot
+bash hakoniwa-drone-core/tools/ardupilot/build.bash
 ```
 
-```
-./Tools/environment_install/install-prereqs-ubuntu.sh -y
-```
-
-```
-pip3 install empy==3.3.4 future MAVProxy
-```
-
-```
-./waf configure --board sitl
-```
-
-```
-./waf copter
-```
