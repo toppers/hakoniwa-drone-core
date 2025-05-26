@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]
 then
-    echo "Usage: $0 {px4|ardupilot|drone}"
+    echo "Usage: $0 {px4|ardupilot|rc|api}"
     exit 1
 fi
 
@@ -59,9 +59,11 @@ then
      setsid bash hakoniwa-drone-core/docker/tools/run-hako-ardupilot.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
      HAKO_DRONE_PID=$!
      sleep 2
-elif [ $RUN_MODE = "drone" ]
+elif [ $RUN_MODE = "rc" -o $RUN_MODE = "api" ]
 then
-    :
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json $RUN_MODE &
+     HAKO_DRONE_PID=$!
+     sleep 2
 else
     echo "ERROR: not supported mode: ${RUN_MODE}"
     exit 1
