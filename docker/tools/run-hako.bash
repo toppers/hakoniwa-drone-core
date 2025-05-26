@@ -8,6 +8,7 @@ fi
 
 HAKO_DRONE_PID=
 HAKO_WEB_PID=
+HAKO_REAL_PID=
 kill_children() {
     local pid=$1
     echo "Now killing $pid"
@@ -23,6 +24,9 @@ kill_processes() {
     fi
     if [ -n "$HAKO_WEB_PID" ]; then
         kill_children $HAKO_WEB_PID
+    fi
+    if [ -n "$HAKO_REAL_PID" ]; then
+        kill_children $HAKO_REAL_PID
     fi
     exit 0
 }
@@ -63,6 +67,10 @@ elif [ $RUN_MODE = "rc" -o $RUN_MODE = "api" ]
 then
      setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json $RUN_MODE &
      HAKO_DRONE_PID=$!
+     sleep 2
+
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-real.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+     HAKO_REAL_PID=$!
      sleep 2
 else
     echo "ERROR: not supported mode: ${RUN_MODE}"

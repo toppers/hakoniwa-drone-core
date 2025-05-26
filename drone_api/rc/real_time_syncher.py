@@ -10,33 +10,7 @@ delta_time_usec = 0
 config_path = ''
 
 def my_on_initialize(context):
-    robot_name = 'DroneTransporter'
-    hako_binary_path = os.getenv('HAKO_BINARY_PATH', '/usr/local/lib/hakoniwa/hako_binary/offset')
-    pdu_manager = hako_pdu.HakoPduManager(hako_binary_path, config_path)
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNLE_ID_COLLISION)
-    pdu_data = pdu.get()
-    pdu_data['collision'] = False
-    pdu_data['contact_num'] = 0
-    pdu.write()
 
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_DISTURB)
-    pdu_data = pdu.get()
-    pdu.write()
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_CAMERA_DATA)
-    pdu_data = pdu.get()
-    pdu.write()
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_CAMERA_INFO)
-    pdu_data = pdu.get()
-    pdu.write()
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_LIDAR_DATA)
-    pdu_data = pdu.get()
-    pdu.write()
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_LIDAR_POS)
-    pdu_data = pdu.get()
-    pdu.write()
-    pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_STAT_MAG)
-    pdu_data = pdu.get()
-    pdu.write()
     return 0
 
 def my_on_reset(context):
