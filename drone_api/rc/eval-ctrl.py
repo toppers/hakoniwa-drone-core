@@ -13,7 +13,7 @@ config_path = ''
 
 def my_on_initialize(context):
     global config_path
-    robot_name = 'DroneTransporter'
+    robot_name = 'Drone'
     hako_binary_path = os.getenv('HAKO_BINARY_PATH', '/usr/local/lib/hakoniwa/hako_binary/offset')
     pdu_manager = hako_pdu.HakoPduManager(hako_binary_path, config_path)
     pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNLE_ID_COLLISION)
@@ -324,7 +324,7 @@ def main():
 
     # connect to the HakoSim simulator
     client = hakosim.MultirotorClient(config_path)
-    client.default_drone_name = "DroneTransporter"
+    client.default_drone_name = "Drone"
     client.pdu_manager = hako_pdu.HakoPduManager('/usr/local/lib/hakoniwa/hako_binary/offset', config_path)
     client.enableApiControl(True)
     client.armDisarm(True)

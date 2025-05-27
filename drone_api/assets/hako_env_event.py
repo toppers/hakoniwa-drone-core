@@ -3,8 +3,8 @@ import sys
 import time
 import os
 import hako_pdu
-import hakosim
-import pdu_info
+import libs.hakosim as hakosim
+import libs.pdu_info as pdu_info
 from lib.hako_area_accessor_impl import HakoAreaAccessorImpl
 from lib.hako_area_pro_accessor_impl import HakoAreaPropAccessorImpl
 from lib.hako_aabb_object_space import HakoAABBObjectSpace
@@ -16,7 +16,7 @@ area_config_dir=''
 clinet = None
 
 def my_on_initialize(context):
-    robot_name = 'DroneTransporter'
+    robot_name = 'Drone'
     hako_binary_path = os.getenv('HAKO_BINARY_PATH', '/usr/local/lib/hakoniwa/hako_binary/offset')
     pdu_manager = hako_pdu.HakoPduManager(hako_binary_path, config_path)
     pdu = pdu_manager.get_pdu(robot_name, pdu_info.HAKO_AVATAR_CHANNEL_ID_DISTURB)
@@ -87,7 +87,7 @@ def main():
     delta_time_usec = int(sys.argv[2]) * 1000
     area_config_dir = sys.argv[3]
     client = hakosim.MultirotorClient(config_path)    
-    client.default_drone_name = "DroneTransporter"
+    client.default_drone_name = "Drone"
     hako_binary_path = os.getenv('HAKO_BINARY_PATH', '/usr/local/lib/hakoniwa/hako_binary/offset')
     client.pdu_manager = hako_pdu.HakoPduManager(hako_binary_path, config_path)
     client.enableApiControl(True)

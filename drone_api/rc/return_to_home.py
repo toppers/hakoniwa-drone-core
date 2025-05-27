@@ -19,7 +19,7 @@ class DroneController:
     CLOSE_YAW_RANGE = 10
     CLOSE_RANGE = 30
 
-    def __init__(self, client, default_drone_name="DroneTransporter", height=3.0, power=0.1, yaw_power=0.9):
+    def __init__(self, client, default_drone_name="Drone", height=3.0, power=0.1, yaw_power=0.9):
         self.client = client
         self.client.default_drone_name = default_drone_name
         self.height = height
