@@ -30,6 +30,7 @@ def my_on_reset(context):
 
 def on_manual_timing_control(context):
     global delta_time_usec
+    print("INFO: START Wind control")
     area_accessor = HakoAreaAccessorImpl(os.path.join(area_config_dir, 'area.json'))
     prop_accessor = HakoAreaPropAccessorImpl(os.path.join(area_config_dir, 'area_property.json'))
     drone_size = (0.4, 0.4, 0.1)
@@ -56,12 +57,14 @@ def on_manual_timing_control(context):
                 print(f"{hakopy.simulation_time()} temperature ==> {property_info.get_temperature()}")
                 pdu_data['d_temp']['value'] = temperature
         else:
-            print(f"{hakopy.simulation_time()}: No wind")
+            pass
+            #print(f"{hakopy.simulation_time()}: No wind")
 
         pdu.write()
         ret = hakopy.usleep(delta_time_usec)
         if ret == False:
             break
+        time.sleep(delta_time_usec / 1_000_000.0)
 
     return 0
 
