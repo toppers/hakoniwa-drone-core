@@ -139,6 +139,7 @@ For commercial licensing inquiries:
 | Gameコントローラ | ラジコン操作に使用 (任意) | ✅ | ❌ |
 | Drone用Python API | フライトプラン記述に使用可能 | ✅ | ❌ |
 | [風のシミュレーション](docs/drone_environment/README-ja.md) | 風の影響を受けたドローンの動作を確認 | ✅ | ❌ |
+| 衝突検出 | ドローンの衝突を検出する機能 | ✅ | ❌ |
 | Web連携 (任意) | [hakoniwa-webserver](https://github.com/toppers/hakoniwa-webserver) など | ✅ | ❌ |
 | ROS2連携 (任意) | [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu) など | ✅ | ❌ |
 
@@ -473,4 +474,5 @@ python rc/sample.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
 - [WSL/docker 環境で箱庭&Ardupilot連携方法](docs/tips/wsl/docker-ardupilot.md)
 - [WSL/docker 環境で箱庭&Python API連携方法](docs/tips/wsl/docker-python-api.md)
 - [WSL/docker 環境で箱庭&ゲームパッド操作方法](docs/tips/wsl/docker-gamepad.md)
+- [機体のパラメータ説明](docs/tips/aircraft-config.md)
 
