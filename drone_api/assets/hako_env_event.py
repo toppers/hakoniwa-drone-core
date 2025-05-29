@@ -13,7 +13,7 @@ from lib.hako_aabb_object_space import HakoAABBObjectSpace
 delta_time_usec = 0
 config_path = ''
 area_config_dir=''
-clinet = None
+client = None
 
 def my_on_initialize(context):
     robot_name = 'Drone'
