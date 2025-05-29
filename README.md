@@ -138,6 +138,7 @@ For commercial licensing inquiries:
 | MissionPlanner | Ardupilot連携時の操作に使用 | ✅ | ✅ |
 | Gameコントローラ | ラジコン操作に使用 (任意) | ✅ | ❌ |
 | Drone用Python API | フライトプラン記述に使用可能 | ✅ | ❌ |
+| [風のシミュレーション](docs/drone_environment/README-ja.md) | 風の影響を受けたドローンの動作を確認 | ✅ | ❌ |
 | Web連携 (任意) | [hakoniwa-webserver](https://github.com/toppers/hakoniwa-webserver) など | ✅ | ❌ |
 | ROS2連携 (任意) | [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu) など | ✅ | ❌ |
 

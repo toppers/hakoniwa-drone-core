@@ -148,31 +148,23 @@
 ## 前提条件
 
 - Python 3.12 がインストールされていること
-- Unityアプリケーションがインストールされていること
+- Unityエディタの準備ができており、hakoniwa-unity-drone/simulationプロジェクトを開いてていること
 - `bash`が使用できる環境であること
-- 現時点のサポートOS：MacOS, Ubuntu22.0.4
+- 現時点のサポートOS：MacOS, Ubuntu22.0.4, 24.04
 - 本サンプルは、ラジコン操作で行います
-- 本サンプルを実行するには、4個の端末を用意する必要があります
+- 本サンプルを実行するには、3個の端末を用意する必要があります
 
 ## 概要
 
-本サンプルでは、ラジコンを使って箱庭ドローンシミュレーションを操作します。4つの端末を使い、以下の手順でシステムをセットアップします。
+本サンプルでは、ラジコンを使って箱庭ドローンシミュレーションを操作します。3つの端末を使い、以下の手順でシステムをセットアップします。
 1. 端末A: シミュレーションを起動
 2. 端末B: 環境イベントを管理
-3. 端末C: Unityアプリを起動
-4. 端末D: ラジコン操作
+3. 端末C: ラジコン操作
 
 ## 端末A 
 
-端末 A では、箱庭シミュレーションを起動します。このコマンドにより、ドローンのシミュレーションが準備状態になります。
+端末 A では、箱庭シミュレーションを起動します。
 
-```
-cd hakoniwa-px4sim/hakoniwa
-```
-
-```
-bash drone-app.bash ../../hakoniwa-unity-drone-model/simple-demo config/rc
-```
 
 ## 端末B
 
@@ -180,46 +172,39 @@ bash drone-app.bash ../../hakoniwa-unity-drone-model/simple-demo config/rc
 
 
 ```
-cd hakoniwa-px4sim/drone_api/assets
+cd hakoniwa-drone-core/drone_api/
 ```
 
 この際、PYTHONPATHを追加します。
 
 ```
-export PYTHONPATH=${PYTHONPATH}:`pwd`:`pwd`/lib
+export PYTHONPATH=${PYTHONPATH}:`pwd`
+export PYTHONPATH=${PYTHONPATH}:`pwd`/assets
+export PYTHONPATH=${PYTHONPATH}:`pwd`/assets/lib
 ```
 
 ```
-python hako_env_event.py ../../../hakoniwa-unity-drone-model/DroneAppAppleSilicon/custom.json 3 config
+cd assets
 ```
+
+```
+python3 hako_env_event.py <PDUコンフィグファイルパス> 20 config
+```
+
+## Unity環境
+
+Unityアプリを実行します。
+
 
 ## 端末C
-
-Unityアプリを起動し、`START`ボタンを押下します。
-
-```
-cd hakoniwa-unity-drone-model
-```
-
-```
-bash plugin/activate_app.bash DroneAppAppleSilicon
-```
-
-## 端末D
 
 ラジコン操作アプリを起動します。
 
 ```
-cd hakoniwa-px4sim/drone_api/sample
+cd hakoniwa-drone-core/drone_api/
 ```
 
 ```
-python rc.py ../../../hakoniwa-unity-drone-model/simple-demo/custom.json
+python rc/rc-custom.py <PDUコンフィグファイルパス> rc/rc_config/ps4-control.json 
 ```
-
-# デモ
-
-下記のデモ動画では、風速1m/secの外乱がドローンに適用され、風に流される様子を確認できます。
-
-[デモ動画](https://www.youtube.com/watch?v=KBPrrA1XC4U)
 

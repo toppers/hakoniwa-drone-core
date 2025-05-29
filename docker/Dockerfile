@@ -46,6 +46,13 @@ RUN git clone --recursive https://github.com/toppers/hakoniwa-core-cpp-client.gi
     bash install.bash
 
 
+    # Python モジュールのインストール（必要に応じて追加）
+RUN pip3 install --upgrade pip setuptools wheel \
+    numpy \
+    && pip3 install aiohttp>=3.10.0 aiohttp_cors>=0.7.0 websockets==13.1
+
+RUN apt-get update && apt-get install iproute2 -y
+
 # lnx.zip を取得し、バイナリと.soファイルを適切な場所に配置
 RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/latest/download/lnx.zip \
     && unzip lnx.zip -d lnx \
@@ -56,12 +63,6 @@ RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/late
     && cp lnx/lnx/libhako_service_c.so /usr/local/lib/hakoniwa/ \
     && rm -rf lnx lnx.zip
 
-# Python モジュールのインストール（必要に応じて追加）
-RUN pip3 install --upgrade pip setuptools wheel \
-    numpy \
-    && pip3 install aiohttp>=3.10.0 aiohttp_cors>=0.7.0 websockets==13.1
-
-RUN apt-get update && apt-get install iproute2 -y
 
 WORKDIR /root
 

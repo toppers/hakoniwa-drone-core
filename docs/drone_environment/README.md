@@ -132,82 +132,76 @@ The sample implementation is available here: [Hakoniwa Drone's Environment Asset
 
 Based on this sample implementation, you can set up the environment and try the simulation as needed.
 
-# Sample Execution Method
 
-## Prerequisites
+---
 
-- Python 3.12 must be installed
-- Unity application must be installed
-- `bash` must be available
-- Supported OS: macOS, Ubuntu 22.0.4
-- This sample uses remote control
-- You will need four terminals to run this sample
+# 📘 Sample Execution Guide: Wind Asset + Remote Control (Hakoniwa Drone)
 
-## Overview
+## ✅ Prerequisites
 
-This sample allows you to control the Hakoniwa drone simulation using a remote control. The setup requires four terminals, with the following setup steps:
+* Python 3.12 is installed
+* Unity editor is installed and the `hakoniwa-unity-drone/simulation` project is open
+* `bash` is available (macOS or Ubuntu recommended)
+* Supported OS: **macOS, Ubuntu 22.04, 24.04**
+* This sample demonstrates **remote control operation of the drone**
+* You will need **3 terminals (or terminal tabs)** to run the full system
 
-1. Terminal A: Start the simulation
-2. Terminal B: Manage environment events
-3. Terminal C: Start the Unity application
-4. Terminal D: Operate the remote control
+---
 
-## Terminal A
+## 📋 Overview
 
-Start the Hakoniwa simulation on Terminal A. This command initializes the drone simulation.
+This sample demonstrates how to run the Hakoniwa drone simulator with the following setup:
 
-```bash
-cd hakoniwa-px4sim/hakoniwa
-```
+1. **Terminal A**: Start the drone simulator
+2. **Terminal B**: Launch the wind asset (`HakoEnvEvent`)
+3. **Terminal C**: Operate the drone using a game controller (RC input)
 
-```bash
-bash drone-app.bash ../../hakoniwa-unity-drone-model/simple-demo config/rc
-```
+---
 
-## Terminal B
+## 🖥️ Terminal A: 
 
-Start the HakoEnvEvent asset on Terminal B. This asset generates environment events such as wind and obstacles.
+Start the Drone Simulator
 
-```bash
-cd hakoniwa-px4sim/drone_api/assets
-```
+This command starts the physical simulation backend.
 
-Set the `PYTHONPATH`.
+---
+
+## 🌬️ Terminal B: 
+
+Launch the Wind Asset (HakoEnvEvent)
 
 ```bash
-export PYTHONPATH=${PYTHONPATH}:`pwd`:`pwd`/lib
+cd hakoniwa-drone-core/drone_api
+export PYTHONPATH=${PYTHONPATH}:`pwd`
+export PYTHONPATH=${PYTHONPATH}:`pwd`/assets
+export PYTHONPATH=${PYTHONPATH}:`pwd`/assets/lib
+
+cd assets
+python3 hako_env_event.py <PDU-config-file-path> 20 config
 ```
+
+### 💡 Notes:
+
+* `<PDU-config-file-path>` should be the path to your configuration file (e.g., `../config/custom.json`)
+* `20` represents the event loop period in milliseconds (you may adjust it)
+
+
+## 🖼️ Unity Application: Visualization
+
+Launch the Unity editor and open the `hakoniwa-unity-drone/simulation` project.
+After the scene loads, press the `START` button in the UI to begin simulation.
+
+## 🎮 Terminal C: 
+
+Start the Remote Control (RC) Input
 
 ```bash
-python hako_env_event.py ../../../hakoniwa-unity-drone-model/DroneAppAppleSilicon/custom.json 3 config
+cd hakoniwa-drone-core/drone_api
+python rc/rc-custom.py <PDU-config-file-path> rc/rc_config/ps4-control.json
 ```
 
-## Terminal C
+* Connect a PS4 or PS5 controller via USB or Bluetooth
+* `ps4-control.json` defines the input mapping for the controller
 
-Start the Unity application on Terminal C, then press the `START` button.
+---
 
-```bash
-cd hakoniwa-unity-drone-model
-```
-
-```bash
-bash plugin/activate_app.bash DroneAppAppleSilicon
-```
-
-## Terminal D
-
-Start the remote control application on Terminal D.
-
-```bash
-cd hakoniwa-px4sim/drone_api/sample
-```
-
-```bash
-python rc.py ../../../hakoniwa-unity-drone-model/simple-demo/custom.json
-```
-
-# Demo
-
-The demo video below shows the addition of wind as an environmental model in the Hakoniwa Drone Simulator. The drone is being pushed by a 1 m/sec diagonal wind, causing it to drift.
-
-[Demo Video](https://www.youtube.com/watch?v=KBPrrA1XC4U)
