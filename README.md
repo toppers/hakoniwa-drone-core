@@ -471,4 +471,6 @@ python rc/sample.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
 - [WSL/docker 環境のセットアップ方法](docs/tips/wsl/docker-setup.md)
 - [WSL/docker 環境で箱庭&PX4連携方法](docs/tips/wsl/docker-px4.md)
 - [WSL/docker 環境で箱庭&Ardupilot連携方法](docs/tips/wsl/docker-ardupilot.md)
+- [WSL/docker 環境で箱庭&Python API連携方法](docs/tips/wsl/docker-python-api.md)
+- [WSL/docker 環境で箱庭&ゲームパッド操作方法](docs/tips/wsl/docker-gamepad.md)
 
