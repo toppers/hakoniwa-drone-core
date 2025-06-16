@@ -56,9 +56,8 @@ For commercial licensing inquiries:
 # 特徴
 
 1. C/C++ ベース： 箱庭ドローン・コア機能をCライブラリとして提供し、他の言語での拡張を容易化。
-2. [TOPPERS ライセンス](https://www.toppers.jp/license.html)：オープンソースで、商用利用も可能。
-3. 複数プラットフォーム対応: Windows, Mac, Linux, WSL2 など主要OSをサポート。
-4. 箱庭モードと非箱庭モードのサポート
+2. 複数プラットフォーム対応: Windows, Mac, Linux, WSL2 など主要OSをサポート。
+3. 箱庭モードと非箱庭モードのサポート
    - 箱庭あり：ロボットシステム(ROS)や、スマホやXR、Webと連携したシミュレーションが可能。
    - 箱庭なし：ドローンの物理モデルや制御モデルを独立して実行することが可能。PX4/Ardupilotとの連携も可能。
 
