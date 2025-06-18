@@ -21,8 +21,8 @@ then
             --platform linux/amd64 \
             -v ${HOST_WORKDIR}:${DOCKER_DIR} \
             -it --rm \
+            -p 8765:8765 \
             -w ${DOCKER_DIR} \
-            --net host \
             --name ${IMAGE_NAME} ${DOCKER_IMAGE} 
     else
         docker run \
