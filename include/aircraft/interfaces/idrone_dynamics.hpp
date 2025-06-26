@@ -61,6 +61,7 @@ typedef struct {
     DroneDynamicsCollisionType collision; // Continuous force due to collision
     DroneDynamicsImpulseCollisionType impulse_collision; // Impulse force from instantaneous collision impact
     DroneDynamicsDisturbanceType disturbance; // External disturbances (e.g., wind, sensor noise)
+    double atmospheric_pressure;
 
     DroneThrustType thrust; // Total thrust applied to the entire aircraft (sum of all rotors)
     DroneTorqueType torque; // Total torque applied to the entire aircraft (sum of all rotors)
@@ -92,6 +93,9 @@ public:
     virtual void set_pos(const DronePositionType &pos) = 0;
     virtual void set_vel(const DroneVelocityType &vel) = 0;
     virtual void set_angle(const DroneEulerType &angle) = 0;
+    virtual void set_rotor_radius(double radius) = 0;
+    //body_boundary_disturbance_power
+    virtual void set_body_boundary_disturbance_power(double power) = 0;
 
     virtual DronePositionType get_pos() const = 0;
     virtual DroneVelocityType get_vel() const = 0;

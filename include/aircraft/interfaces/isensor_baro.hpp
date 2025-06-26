@@ -1,8 +1,7 @@
 #pragma once
 
-
-
 #include "isensor.hpp"
+#include "idrone_dynamics.hpp"
 
 namespace hako::aircraft {
 
@@ -19,8 +18,9 @@ public:
         this->ref_lon = lon_data;
         this->ref_alt = alt_data;
     }
-    virtual void run(const DronePositionType& data) = 0;
+    virtual void run(const DronePositionType& data, const AircraftInputType& input) = 0;
     virtual DroneBarometricPressureType sensor_value() = 0;
+    virtual double sensor_value_without_noise_in_atm() = 0;
 };
 
 }

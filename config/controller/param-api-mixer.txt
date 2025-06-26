@@ -17,6 +17,12 @@ PID_ALT_SPD_Kp          10.0
 PID_ALT_SPD_Ki          0.0
 PID_ALT_SPD_Kd          5.0
 
+# out.thrust = ((mass * gravity) / BASE_THRUST_DIVISOR) + (throttle_gain * throttle_power);
+# BASE_THRUST_DIVISOR must be greater than 1.0.
+# A special value of 0.0 disables the mass * gravity term,
+# i.e., out.thrust = (throttle_gain * throttle_power);
+BASE_THRUST_DIVISOR     1.0
+
 # 水平制御
 POS_CONTROL_CYCLE       0.0
 SPD_CONTROL_CYCLE       0.0

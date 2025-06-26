@@ -1,6 +1,7 @@
 #pragma once
 
 #include "primitive_types.hpp"
+#include "isensor_baro.hpp"
 
 namespace hako::aircraft {
 
@@ -17,7 +18,7 @@ public:
     virtual DroneThrustType get_thrust() const = 0;
     virtual DroneTorqueType get_torque() const = 0;
 
-    virtual void run(const DroneRotorSpeedType rotor_speed[ROTOR_NUM]) = 0;
+    virtual void run(const DroneRotorSpeedType rotor_speed[ROTOR_NUM], const AircraftInputType& input) = 0;
     virtual void reset() = 0;
 
 };

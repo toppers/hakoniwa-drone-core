@@ -172,6 +172,17 @@ public:
         battery_status.cycles = local_pdu.pdu.battery_status.cycles;
         return battery_status;
     }
+    void trigger_disturbance(int index, double d_temp, double d_wind_x, double d_wind_y, double d_wind_z)
+    {
+        ServicePduDataType disturbance_pdu = {};
+        disturbance_pdu.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
+        disturbance_pdu.pdu.disturbance.d_temp.value = d_temp;
+        disturbance_pdu.pdu.disturbance.d_wind.value.x = d_wind_x;
+        disturbance_pdu.pdu.disturbance.d_wind.value.y = d_wind_y;
+        disturbance_pdu.pdu.disturbance.d_wind.value.z = d_wind_z;
+        
+        drone_service_container_->write_pdu(index, disturbance_pdu);
+    }
     void trigger_collision(int index, Vector3Type& contact_position, double restitution_coefficient)
     {
         ServicePduDataType col_pdu = {};

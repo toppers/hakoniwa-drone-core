@@ -37,7 +37,8 @@ double rotor_current(  /* current in [A] */
 /* thrust from omega in radian/sec eq.(2.50)*/
 double rotor_thrust( /* thrust in [N] */
     double Ct, /* thrust coeff, in Trust = Ct*(Omega)^2 (referred to as 'A' in Nonami's book ) in [N s^2/rad^2]*/
-    double omega /* in [rad/s] */ );
+    double omega /* in [rad/s] */,
+    double atm_pressure = 1.0 /* atmospheric pressure in [atm] */ );
 
 /* this makes z-axis rotation eq.(2.56) */
 double rotor_anti_torque( /* anti torque(z-axis) in [Nm]*/
@@ -56,7 +57,8 @@ double rotor_anti_torque( /* anti torque(z-axis) in [Nm]*/
 double body_thrust( /* thrust in [N] */
     double Ct, /* thrust coeff, in Trust = Ct*(Omega)^2 (referred to as 'A' in Nonami's book ) in [N s^2/rad^2] */
     unsigned n, /* number of rotors */
-    double omega[] /* in radian/sec */ );
+    double omega[], /* in radian/sec */
+    double atm_pressure = 1.0 /* atmospheric pressure in [atm] */ );
 
 /* the sum of the n torques from the rotors including anti-torque */
 /* eq.(2.60)-(2.62)*/
@@ -68,7 +70,8 @@ TorqueType body_torque( /* torque in [Nm] */
     VectorType position[], /* position of each rotor in [m] */
     double ccw[], /* 1 or -1 */
     double omega[], /* in [rad/s] */
-    double omega_acceleration[] /* in [rad/s^2] */ );
+    double omega_acceleration[], /* in [rad/s^2] */
+    double atm_pressure = 1.0 /* atmospheric pressure in [atm] */  );
 
 
 /**
@@ -82,6 +85,12 @@ TorqueType body_torque_linear(double Ct2, double Cq2, unsigned n,
     VectorType position[], double ccw[], double omega[]);
 double body_thrust_linear(double Ct2, unsigned n, double omega[]);
 
-
+/**
+ * Atmospheric pressure at the altitude.
+ * Returns the atmospheric pressure at the altitude in [atm]. 1 atm is 1013.25 hPa.
+ */
+double atmospheric_pressure(double sea_level_atm, /* atmospheric pressure at sea level in [atm] */
+                            double altitude_from_sea, /* altitude from sea level in [m] */
+                            double ground_temperature); /* ground temperature in [degree celsius] */
 
 } /* namespace hako::drone_physics */

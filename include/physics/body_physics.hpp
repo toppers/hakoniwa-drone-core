@@ -167,4 +167,50 @@ inline TorqueType torque_from_impulse(
     const VectorType& r1,
     double delta_time) { return cross(r1, impulse)/delta_time; }
 
+/**
+ * Physics for boundary disturbance.
+ * Boundaries are;
+ * - ground(lower bottom)
+ * - ceilings(upper bottom)
+ * - walls(any surfaces).
+ * The aboves are treated as infinite planes, and treated uniformly by the
+ * dot product with the normal vector.
+ *
+ * The wind from the rotors reflects on the boundary,
+ * and makes the disturbance force rational to its thrust.
+ * Coordinates should be in the ground.
+ * 
+ * This implementation is based on the mirror reflection of rotors about the boundary.
+ * The thrust*ratio comes from the reflection, ratio is reduced by the distance from the boundary.
+ *
+ * There is a wind disturbance version below from the force calculated here.
+ */
+ForceType boundary_disturbance(
+    const VectorType& position, /* drone position in ground frame */
+    const EulerType&  euler, /* drone euler angle */ 
+    const VectorType& boundary_point, /* one point on the nearest boundary(in ground) */
+    const VectorType& boundary_normal, /* vector of the nearest boundary (from the surface to the drone) (in ground frame)*/
+    double thrust, /* thrust of the drone, always => 0 (-z direction) */
+    double rotor_radius, /* effect of rotor radius on wind disturbance */
+    double exponent = 1.5 /* exponent of the disturbance ratio to thrust, usually 1.5, others for testing */);
+
+VelocityType boundary_disturbance_as_wind(
+    const VectorType& position, const EulerType& euler,
+    const VectorType& boundary_point, const VectorType& boundary_normal, double thrust,
+    double rotor_radius,
+    const VectorType& drag1, // used to convert to force to wind effect
+    double exponent = 1.5);
+
+inline bool boundary_is_near(double distance, double rotor_radius) {
+    // asserting distance, rotor_radius >= 0
+    return distance < 5.0 * rotor_radius; // the drone is near the boundary
+}
+inline bool boundary_is_near(const VectorType& position, const VectorType& boundary_point,
+    const VectorType& boundary_normal, double rotor_radius) {
+    // asserting normal is normalized
+    auto distance = std::abs(dot(position - boundary_point, boundary_normal));
+    return boundary_is_near(distance, rotor_radius);
+}
+
+
 } /* namespace hako::drone_physics */

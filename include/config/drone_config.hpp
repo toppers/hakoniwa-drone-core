@@ -239,7 +239,17 @@ public:
         }
         return std::nullopt;
     }
-
+    //body_boundary_disturbance power
+    double getCompDroneDynamicsBodyBoundaryDisturbancePower() const {
+        if (configJson["components"]["droneDynamics"].contains("body_boundary_disturbance_power")) {
+            std::cout << "body_boundary_disturbance_power is enabled: power = "
+                      << configJson["components"]["droneDynamics"]["body_boundary_disturbance_power"].get<double>() << std::endl;
+            return configJson["components"]["droneDynamics"]["body_boundary_disturbance_power"].get<double>();
+        } else {
+            std::cout << "WARNING: body_boundary_disturbance_power is not defined in the configuration." << std::endl;
+            return 1.0; // Default value
+        }
+    }
 
     std::string getCompRotorVendor() const {
         if (configJson["components"]["rotor"].contains("vendor")) {
@@ -315,6 +325,13 @@ public:
     }
     int getCompRotorRpmMax() const {
         return configJson["components"]["rotor"]["rpmMax"].get<int>();
+    }
+    double getCompRotorRadius() const {
+        if (!configJson["components"]["rotor"].contains("radius")) {
+            std::cerr << "ERROR: Rotor radius is not defined in the configuration." << std::endl;
+            return 0.1;
+        }
+        return configJson["components"]["rotor"]["radius"].get<double>();
     }
 
     /* Thruster parameters */
