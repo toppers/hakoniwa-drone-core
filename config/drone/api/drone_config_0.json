@@ -38,7 +38,7 @@
             "physicsEquation": "BodyFrame",
             "useQuaternion": true,
             "collision_detection": true,
-            "enable_disturbance": false,
+            "enable_disturbance": true,
             "manual_control": false,
             "airFrictionCoefficient": [
                 0.5,
@@ -64,7 +64,8 @@
                 0,
                 0,
                 0
-            ]
+            ],
+            "body_boundary_disturbance_power": 4.0
         },
         "battery": {
             "vendor": "None",
@@ -85,7 +86,8 @@
                 "K": 0.0103796702,
                 "D": 0.0,
                 "J": 4.00E-04
-            }
+            },
+            "radius": 0.03
         },
         "thruster": {
             "vendor": "None",
