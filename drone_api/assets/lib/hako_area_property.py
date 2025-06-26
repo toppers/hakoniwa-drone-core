@@ -1,5 +1,5 @@
 class HakoAreaProperty:
-    def __init__(self, wind_velocity=None, temperature=None):
+    def __init__(self, wind_velocity=None, temperature=None, sea_level_atm=None):
         """
         エリアのプロパティを定義するクラス。
         
@@ -9,6 +9,7 @@ class HakoAreaProperty:
         """
         self.wind_velocity = wind_velocity
         self.temperature = temperature
+        self.sea_level_atm = sea_level_atm
     
     def get_wind_velocity(self):
         """
@@ -30,6 +31,15 @@ class HakoAreaProperty:
         """
         return self.temperature
     
+    def get_sea_level_atm(self):
+        """
+        海面気圧を取得するメソッド。
+        
+        Returns:
+            float: 海面気圧 (Pa)
+        """
+        return self.sea_level_atm
+
     def set_wind_velocity(self, wind_velocity):
         """
         風速を設定するメソッド。
@@ -47,3 +57,12 @@ class HakoAreaProperty:
             temperature (float): 摂氏で表す温度
         """
         self.temperature = temperature
+
+    def set_sea_level_atm(self, sea_level_atm):
+        """
+        海面気圧を設定するメソッド。
+        
+        Args:
+            sea_level_atm (float): 海面気圧 (Pa)
+        """
+        self.sea_level_atm = sea_level_atm

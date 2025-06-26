@@ -54,7 +54,8 @@ class HakoAreaPropAccessorImpl(IHakoAreaPropAccessor):
                 # wind_velocityやtemperatureが存在しない場合はNoneを設定
                 area_properties_cache[area_id] = {
                     "wind_velocity": properties.get('wind_velocity', None),
-                    "temperature": properties.get('temperature', None)
+                    "temperature": properties.get('temperature', None),
+                    "sea_level_atm": properties.get('sea_level_atm', None)
                 }
             except KeyError as e:
                 raise KeyError(f"エリア '{area_id}' のプロパティ定義に問題があります: {e}")
@@ -83,4 +84,6 @@ class HakoAreaPropAccessorImpl(IHakoAreaPropAccessor):
         # 風速と温度のデータを取得し、HakoAreaPropertyオブジェクトに変換
         wind_velocity = area_data.get('wind_velocity', None)
         temperature = area_data.get('temperature', None)
-        return HakoAreaProperty(wind_velocity=wind_velocity, temperature=temperature)
+        sea_level_atm = area_data.get('sea_level_atm', None)
+        print("area_data", area_data)
+        return HakoAreaProperty(wind_velocity=wind_velocity, temperature=temperature, sea_level_atm=sea_level_atm)

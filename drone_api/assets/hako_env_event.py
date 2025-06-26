@@ -8,6 +8,7 @@ import libs.pdu_info as pdu_info
 from lib.hako_area_accessor_impl import HakoAreaAccessorImpl
 from lib.hako_area_pro_accessor_impl import HakoAreaPropAccessorImpl
 from lib.hako_aabb_object_space import HakoAABBObjectSpace
+from lib.hako_boundary import HakoBoundary
 
 # Declare the global variable for delta_time_usec
 delta_time_usec = 0
@@ -33,6 +34,7 @@ def on_manual_timing_control(context):
     print("INFO: START Wind control")
     area_accessor = HakoAreaAccessorImpl(os.path.join(area_config_dir, 'area.json'))
     prop_accessor = HakoAreaPropAccessorImpl(os.path.join(area_config_dir, 'area_property.json'))
+    boundary_accessor = HakoBoundary(os.path.join(area_config_dir, 'boundary.json'))
     drone_size = (0.4, 0.4, 0.1)
     while True:
         pose = client.simGetVehiclePose()
@@ -45,6 +47,8 @@ def on_manual_timing_control(context):
         pdu_data['d_wind']['value']['y'] = 0.0
         pdu_data['d_wind']['value']['z'] = 0.0
         if area_id is not None:
+            #print area_id
+            print(f"{hakopy.simulation_time()} area_id: {area_id}")
             property_info = prop_accessor.get_property(area_id)
             wind = property_info.get_wind_velocity()
             if wind is not None:
@@ -56,10 +60,31 @@ def on_manual_timing_control(context):
             if temperature is not None:
                 print(f"{hakopy.simulation_time()} temperature ==> {property_info.get_temperature()}")
                 pdu_data['d_temp']['value'] = temperature
+            sea_level_atm = property_info.get_sea_level_atm()
+            if sea_level_atm is not None:
+                print(f"{hakopy.simulation_time()} sea_level_atm ==> {property_info.get_sea_level_atm()}")
+                pdu_data['d_atm']['sea_level_atm'] = sea_level_atm
         else:
             pass
             #print(f"{hakopy.simulation_time()}: No wind")
 
+        wall, normal, point, dist = boundary_accessor.find_nearest_wall_with_hitbox(drone_position, local_normal_axis=[0, 0, 1])
+        if wall is not None:
+            print(f"{hakopy.simulation_time()} nearest wall: {wall['name']}, dist: {dist}, normal: {normal}, point: {point}")
+            pdu_data['d_boundary']['boundary_point']['x'] = point[0]
+            pdu_data['d_boundary']['boundary_point']['y'] = point[1]
+            pdu_data['d_boundary']['boundary_point']['z'] = point[2]
+            pdu_data['d_boundary']['boundary_normal']['x'] = normal[0]
+            pdu_data['d_boundary']['boundary_normal']['y'] = normal[1]
+            pdu_data['d_boundary']['boundary_normal']['z'] = normal[2]
+        else:
+            print(f"{hakopy.simulation_time()}: No boundary")
+            pdu_data['d_boundary']['boundary_point']['x'] = 0.0
+            pdu_data['d_boundary']['boundary_point']['y'] = 0.0
+            pdu_data['d_boundary']['boundary_point']['z'] = 0.0
+            pdu_data['d_boundary']['boundary_normal']['x'] = 0.0
+            pdu_data['d_boundary']['boundary_normal']['y'] = 0.0
+            pdu_data['d_boundary']['boundary_normal']['z'] = 0.0
         pdu.write()
         ret = hakopy.usleep(delta_time_usec)
         if ret == False:
