@@ -50,7 +50,7 @@ async def joystick_control(manager: PduManager, robot_name: str, joystick, stick
                                     print("WARNING: DroneController is not implemented in this version")
                     else:
                         print(f'ERROR: not supported button index: {event.button}')
-            manager.flush_pdu_raw_data(robot_name, "hako_cmd_game", manager.pdu_convertor.convert_pdu_to_raw_data(data))
+            manager.flush_pdu_raw_data(robot_name, "hako_cmd_game", manager.pdu_convertor.convert_json_to_binary(data))
     except KeyboardInterrupt:
         pygame.joystick.quit()
         pygame.quit()
