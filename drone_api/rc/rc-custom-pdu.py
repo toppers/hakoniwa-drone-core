@@ -14,46 +14,75 @@ from hakoniwa_pdu.impl.websocket_communication_service import WebSocketCommunica
 # デフォルトのJSONファイルパス
 DEFAULT_CONFIG_PATH = "rc_config/ps4-control.json"
 
+async def send_pdu(manager: PduManager, robot_name: str, data: dict):
+    binary = manager.pdu_convertor.convert_json_to_binary(robot_name, "hako_cmd_game", data)
+    await manager.flush_pdu_raw_data(robot_name, "hako_cmd_game", binary)
+
+def process_joystick_event(event, data, stick_monitor: StickMonitor):
+    if event.type == pygame.JOYAXISMOTION:
+        if event.axis < 6:
+            op_index = stick_monitor.rc_config.get_op_index(event.axis)
+            stick_value = stick_monitor.stick_value(event.axis, event.value)
+            if abs(stick_value) > 0.1:
+                # print(f"stick_index={event.axis}, op_index={op_index}, value={stick_value}")
+                pass
+            data['axis'] = list(data['axis'])
+            data['axis'][op_index] = stick_value
+        else:
+            print(f'ERROR: not supported axis index: {event.axis}')
+    
+    elif event.type in (pygame.JOYBUTTONDOWN, pygame.JOYBUTTONUP):
+        if event.button < 16:
+            data['button'] = list(data['button'])
+            event_op_index = stick_monitor.rc_config.get_event_op_index(event.button)
+            if event_op_index is not None:
+                event_triggered = stick_monitor.switch_event(event.button, event.type == pygame.JOYBUTTONDOWN)
+                print(f"button event: switch_index={event.button} event_op_index={event_op_index} down: {event.type == pygame.JOYBUTTONDOWN} event_triggered={event_triggered}")
+                data['button'][event_op_index] = event_triggered
+
+                if event_triggered:
+                    if event_op_index == stick_monitor.rc_config.SWITCH_CAMERA_SHOT:
+                        print("WARNING: saveCameraImage is not implemented in this version")
+                        time.sleep(0.5)
+                    elif event_op_index == stick_monitor.rc_config.SWITCH_RETURN_HOME:
+                        print("WARNING: DroneController is not implemented in this version")
+        else:
+            print(f'ERROR: not supported button index: {event.button}')
+
+import time
+
 async def joystick_control(manager: PduManager, robot_name: str, joystick, stick_monitor: StickMonitor):
     try:
         if not await manager.declare_pdu_for_write(robot_name, "hako_cmd_game"):
-            print(f"[FAIL] Could not declare PDU for READ: {robot_name}/hako_cmd_game")
-            raise RuntimeError("Failed to declare PDU for write")
+            raise RuntimeError(f"[FAIL] Could not declare PDU for WRITE: {robot_name}/hako_cmd_game")
+
+        data = manager.pdu_convertor.create_empty_pdu_json(robot_name, "hako_cmd_game")
+
+        period = 0.02  # 20ms
+        next_time = time.perf_counter()
 
         while True:
-            data = manager.pdu_convertor.create_empty_pdu_json(robot_name, "hako_cmd_game")
+            start_time = time.perf_counter()
+
             for event in pygame.event.get():
-                if event.type == pygame.JOYAXISMOTION:
-                    if event.axis < 6:
-                        op_index = stick_monitor.rc_config.get_op_index(event.axis)
-                        stick_value = stick_monitor.stick_value(event.axis, event.value)
-                        if (abs(stick_value) > 0.1):
-                            pass
-                            #print(f"stick event: stick_index={event.axis} op_index={op_index} event.value={event.value} stick_value={stick_value}")
-                        data['axis'] = list(data['axis'])
-                        data['axis'][op_index] = stick_value
-                    else:
-                        print(f'ERROR: not supported axis index: {event.axis}')
-                elif event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYBUTTONUP:
-                    if event.button < 16:
-                        data['button'] = list(data['button'])
-                        event_op_index = stick_monitor.rc_config.get_event_op_index(event.button)
-                        if event_op_index is not None:
-                            event_triggered = stick_monitor.switch_event(event.button, (event.type == pygame.JOYBUTTONDOWN))
-                            print(f"button event: switch_index={event.button} event_op_index={event_op_index} down: {(event.type == pygame.JOYBUTTONDOWN)} event_triggered={event_triggered}")
-                            data['button'][event_op_index] = event_triggered
-                            if event_triggered:
-                                if event_op_index == stick_monitor.rc_config.SWITCH_CAMERA_SHOT:
-                                    time.sleep(0.5)
-                                    print("WARNING: saveCameraImage is not implemented in this version")
-                                elif event_op_index == stick_monitor.rc_config.SWITCH_RETURN_HOME:
-                                    print("WARNING: DroneController is not implemented in this version")
-                    else:
-                        print(f'ERROR: not supported button index: {event.button}')
-            await manager.flush_pdu_raw_data(robot_name, "hako_cmd_game", manager.pdu_convertor.convert_json_to_binary(robot_name, "hako_cmd_game", data))
+                process_joystick_event(event, data, stick_monitor)
+
+            await send_pdu(manager, robot_name, data)
+
+            # 次の予定時刻までの残り時間をsleep
+            next_time += period
+            sleep_duration = next_time - time.perf_counter()
+            if sleep_duration > 0:
+                await asyncio.sleep(sleep_duration)
+            else:
+                # 遅れた場合は次の周期まで待たず即時継続
+                next_time = time.perf_counter()
+
     except KeyboardInterrupt:
         pygame.joystick.quit()
         pygame.quit()
+
+
 
 async def main():
     parser = argparse.ArgumentParser(description="Drone RC")
