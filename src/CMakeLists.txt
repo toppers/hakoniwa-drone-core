@@ -45,10 +45,6 @@ message(STATUS "LIB_OUTPUT_DIR: ${LIB_OUTPUT_DIR}")
 set(HAKO_CORE_DIR "${PROJECT_SOURCE_DIR}/../thirdparty/hakoniwa-core-cpp-client")
 
 if (NOT ANDROID_BUILD)
-add_subdirectory(
-    ${HAKO_CORE_DIR}
-    ${CMAKE_BINARY_DIR}/thirdparty/hakoniwa-core-cpp-client
-    )
 
 add_subdirectory(main_for_sample)
 endif()
