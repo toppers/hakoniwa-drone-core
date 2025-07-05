@@ -1,3 +1,6 @@
+---
+template_version: "1.0"
+---
 namespace <test_namespace> {
 
 // SPEC: <spec_path>#<TEST_ID>

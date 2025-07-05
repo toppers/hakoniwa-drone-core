@@ -14,7 +14,7 @@ AI 生成フローの中で人間が用意する成果物と、その管理場�
 
 | 成果物 | 説明 | 保存場所 |
 |--------|------|---------|
-| API・テスト仕様プロンプト | 各 API の仕様書やテスト関連の指示をまとめた AGENTS ファイル | `docs/prompts/*/AGENTS.md` <br>例: [comm I/O 用](prompts/comm/io/AGENTS.md) |
+| API・テスト仕様プロンプト | 各 API の仕様書やテスト関連の指示をまとめた番号付きプロンプトファイル | `docs/prompts/*/01_api-doc.md` など <br>例: [comm I/O 用](prompts/comm/io/01_api-doc.md) |
 | テンプレート類 | 生成物のフォーマット定義 | `docs/prompts` |
 | API ヘッダ | API 定義を記述したヘッダファイル | `include/*.hpp` <br>例: [comm.hpp](../include/comm.hpp) |
 
