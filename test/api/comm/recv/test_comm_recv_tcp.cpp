@@ -148,7 +148,7 @@ TEST_F(CommIOTcpRecvTest, NegativeDataLength)
 }
 
 // SPEC: docs/test/comm/io/test_comm_io_recv.md#TEST004
-TEST_F(CommIOTcpRecvTest, BufferSmallerThanMessage)
+TEST_F(CommIOTcpRecvTest, NullRecvLenPointer)
 {
     constexpr char kHello[] = "Hello Server";
     port_   = nextPort_++;
@@ -164,9 +164,7 @@ TEST_F(CommIOTcpRecvTest, BufferSmallerThanMessage)
     clientIO_->send(kHello, static_cast<int>(strlen(kHello)), &sent);
 
     char buf[10];
-    int  recvLen = 0;
-    ASSERT_TRUE(clientIO_->recv(buf, sizeof(buf), &recvLen));
-    EXPECT_LE(recvLen, static_cast<int>(sizeof(buf)));
+    ASSERT_TRUE(clientIO_->recv(buf, sizeof(buf), nullptr));
 }
 
 } // anonymous namespace
