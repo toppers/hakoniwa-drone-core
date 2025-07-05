@@ -6,4 +6,4 @@ This directory contains reusable templates for generating documentation and test
 - `test-template.md`: outline for test specifications.
 - `test-code-template.cpp`: skeleton used when generating test code.
 
-Use these templates from component-specific prompts under sibling directories.
+Use these templates from component-specific prompts in the component subdirectories.

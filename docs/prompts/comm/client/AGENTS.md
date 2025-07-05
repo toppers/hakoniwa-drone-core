@@ -18,7 +18,7 @@ std::shared_ptr<ICommIO> client_open(ICommEndpointType *src, ICommEndpointType *
 - クラス設計情報
   - [api_comm.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm.md)
 - API仕様書のテンプレート
-  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/common/api-template.md)
+  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/api-template.md)
 - ヘッダ情報
   - [comm.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm.hpp)
 

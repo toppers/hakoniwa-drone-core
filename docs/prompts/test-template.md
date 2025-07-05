@@ -4,7 +4,7 @@
 生成した Markdown ファイルは `docs/test/<カテゴリ>/<API名>/` に
 `test_<API名>.md` という名称で配置してください。
 
-テストコードを作成する際は `docs/prompts/common/test-code-template.cpp` を参照します。
+テストコードを作成する際は `docs/prompts/test-code-template.cpp` を参照します。
 
 ---
 
