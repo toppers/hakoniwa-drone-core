@@ -45,7 +45,7 @@ foreach(TARGET ${TARGETS})
         PRIVATE ${ROS2PDU_SOURCE_DIR}/pdu/types
     )
     target_compile_features(${TARGET} PRIVATE cxx_std_17)
-    target_link_libraries(${TARGET} PRIVATE drone_physics  hako_aircraft hako_controller hako_logger hako_service  )
+    target_link_libraries(${TARGET} PRIVATE hako_aircraft hako_controller hako_logger hako_service drone_physics  )
     target_link_directories(${TARGET} PRIVATE ${PROJECT_ROOT_DIR}/lib)
 endforeach()
 
