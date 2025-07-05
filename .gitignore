@@ -36,3 +36,7 @@ __pycache__/
 
 # Python dist directories
 .DS_store
+
+# Local build artifacts
+lib/
+**/build/
