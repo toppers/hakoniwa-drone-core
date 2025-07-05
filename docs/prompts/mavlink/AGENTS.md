@@ -76,3 +76,92 @@ https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm.
 - コード例をAPI毎に書くと冗長になるので、まとめて書いてください。
 - 出力は、README.md形式でテキストで日本語出力してください。
 
+## Test Spec Prompt (sendMessage API)
+
+1. タスクの説明：
+AIを利用して、API仕様から効率的にテストケースを設計・生成したいと考えています。
+
+オーバービュー：ai-colab-overview.png
+対象API: sendMessage API
+API仕様：README.md
+
+mavlink.hppおよび関連するヘッダファイルを渡します。
+sendMessage APIのAPI仕様書を基に、テスト仕様書を作成してください。
+
+出力は、テキスト形式で日本語で記載してください。README.md形式で構成してください。
+
+テンプレートの書式：../../test-template.md を参照してください。
+
+2. テストの意図：
+- 正常系: 有効なMavlinkHakoMessageを指定して送信に成功すること。
+- 異常系:
+  - MavlinkHakoMessage.typeにUNKNOWNを指定した場合。
+  - startService()を呼び出していない状態で送信した場合。
+  - ネットワークエラーが発生した場合。
+
+3. テストの対象API：
+bool sendMessage(MavlinkHakoMessage& message) = 0;
+
+## Test Spec Prompt (readMessage API)
+
+1. タスクの説明：
+AIを利用して、API仕様から効率的にテストケースを設計・生成したいと考えています。
+
+オーバービュー：ai-colab-overview.png
+対象API: readMessage API
+API仕様：README.md
+
+mavlink.hppおよび関連するヘッダファイルを渡します。
+readMessage APIのAPI仕様書を基に、テスト仕様書を作成してください。
+
+出力は、テキスト形式で日本語で記載してください。README.md形式で構成してください。
+
+テンプレートの書式：../../test-template.md を参照してください。
+
+2. テストの意図：
+- 正常系: 新しいメッセージを受信できること。
+- 異常系:
+  - 受信バッファにメッセージがない場合。
+  - startService()を呼び出していない状態でreadMessage()を実行した場合。
+
+3. テストの対象API：
+bool readMessage(MavlinkHakoMessage& message, bool &is_dirty) = 0;
+
+## Test Code Prompt (sendMessage API)
+
+1. タスクの説明：
+AIを利用して、テスト仕様から効率的にテストコードを生成したいと考えています。
+対象API: sendMessage API
+ヘッダ：mavlink.hppおよび関連するヘッダファイルを渡します。
+テスト仕様：README.md形式で渡します。
+
+以下のテンプレートに従って、テストコードを生成してください。
+
+2. テンプレートの書式：../../test-code-template.cpp を参照してください。
+
+3. テスト条件：
+
+- MavLinkServiceContainerおよびIMavLinkServiceの初期化を事前に行なってください。
+- sendMessageをテストする際は、startService()を呼び出して通信を開始してください。
+- ネットワークI/Oは別スレッドで処理し、テスト終了後にサービスを停止してリソースを解放してください。
+- Google Testを利用してください。
+
+## Test Code Prompt (readMessage API)
+
+1. タスクの説明：
+AIを利用して、テスト仕様から効率的にテストコードを生成したいと考えています。
+対象API: readMessage API
+ヘッダ：mavlink.hppおよび関連するヘッダファイルを渡します。
+テスト仕様：README.md形式で渡します。
+
+以下のテンプレートに従って、テストコードを生成してください。
+
+2. テンプレートの書式：../../test-code-template.cpp を参照してください。
+
+3. テスト条件：
+
+- MavLinkServiceContainerおよびIMavLinkServiceの初期化を事前に行なってください。
+- readMessageをテストする際は、startService()を呼び出して通信を開始してください。
+- ネットワークI/Oは別スレッドで処理し、テスト終了後にサービスを停止してリソースを解放してください。
+- Google Testを利用してください。
+
