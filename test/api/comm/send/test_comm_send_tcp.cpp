@@ -1,3 +1,7 @@
+// CommIOTcpTest_refactored.cpp
+// Refactored version of the original CommIOTcp test
+// Focus: eliminate globals, RAII for cleanup, clearer intent, less duplication
+
 #include <gtest/gtest.h>
 #include <thread>
 #include <memory>
@@ -5,174 +9,199 @@
 #include <condition_variable>
 #include "comm.hpp"
 
-static std::unique_ptr<hako::comm::ICommServer> server;
-static std::shared_ptr<hako::comm::ICommIO> serverCommIO;
-static std::unique_ptr<hako::comm::ICommClient> client;
-static std::shared_ptr<hako::comm::ICommIO> clientCommIO;
+namespace {
 
-std::atomic<bool> serverReady(false);
-std::condition_variable cv;
-std::mutex cv_m;
-
-// サーバースレッド
-void runServer(int portno, int expectedDataLength = 0) {
-    hako::comm::ICommEndpointType endpoint;
-    endpoint.ipaddr = "127.0.0.1";
-    endpoint.portno = portno;
-
-    std::cout << "[TCP] Server starting..." << std::endl;
+/**
+ * @brief Minimal RAII wrapper that runs a TCP echo‑like server in a background thread for each test.
+ *        ‑ Listens on 127.0.0.1:port, waits for exactly @p expectedDataLength bytes, then replies
+ *        with the hard‑coded string "Response from TCP Server".
+ */
+class TcpTestServer {
+public:
+    TcpTestServer(int port, int expectedDataLength)
+        : port_{port}, expectedDataLength_{expectedDataLength}
     {
-        std::lock_guard<std::mutex> lk(cv_m);
-        serverReady = true;
-        cv.notify_all();
+        server_ = hako::comm::ICommServer::create(hako::comm::CommIoType::TCP);
+        if (!server_) {
+            throw std::runtime_error("Failed to create server");
+        }
+        // Launch server loop
+        thread_ = std::thread(&TcpTestServer::run, this);
+
+        // Wait until the listening socket is up
+        std::unique_lock<std::mutex> lk(m_);
+        cv_.wait(lk, [this] { return ready_.load(); });
     }
-    //print endpoint info
-    std::cout << "[TCP] Server endpoint: " << endpoint.ipaddr << ":" << endpoint.portno << std::endl;
-    serverCommIO = server->server_open(&endpoint);
-    ASSERT_NE(serverCommIO, nullptr) << "Server failed to open.";
-    std::cout << "[TCP] Server opened." << std::endl;
 
-    if (expectedDataLength > 0) {
-        char buffer[256];
-        int totalReceivedLen = 0;
+    // Non‑copyable / non‑movable (keeps life‑time simple)
+    TcpTestServer(const TcpTestServer&)            = delete;
+    TcpTestServer& operator=(const TcpTestServer&) = delete;
 
-        std::cout << "[TCP] Server waiting for data..." << std::endl;
-        ASSERT_TRUE(serverCommIO->recv(buffer, expectedDataLength, &totalReceivedLen));
-        std::cout << "[TCP] Server received data. totalReceivedLen = " << totalReceivedLen << std::endl;
-        
-        const char* response = "Response from TCP Server";
-        int responseLen = strlen(response);
-        std::cout << "[TCP] Server preparing response. responselen = " << responseLen << std::endl;
+    ~TcpTestServer()
+    {
+        if (serverCommIO_) {
+            serverCommIO_->close();
+        }
+        if (thread_.joinable()) {
+            thread_.join();
+        }
+    }
+
+private:
+    void run()
+    {
+        hako::comm::ICommEndpointType ep{"127.0.0.1", port_};
+
+        {
+            std::lock_guard<std::mutex> lk(m_);
+            ready_ = true;
+            cv_.notify_all();
+        }
+
+        serverCommIO_ = server_->server_open(&ep);
+        ASSERT_NE(serverCommIO_, nullptr) << "Server failed to open.";
+
+        if (expectedDataLength_ <= 0) {
+            return; // nothing more to do for tests that don't send payload
+        }
+
+        char buffer[256]{};
+        int recvLen = 0;
+        ASSERT_TRUE(serverCommIO_->recv(buffer, expectedDataLength_, &recvLen));
+
+        constexpr char kResponse[] = "Response from TCP Server";
         int sentLen = 0;
-        serverCommIO->send(response, responseLen, &sentLen);
-        std::cout << "[TCP] Server sent response." << std::endl;
-
-    }
-}
-
-bool initializeCommunication(int portno, int expectedDataLength = 0) {
-    if (hako::comm::comm_init() != 0) {
-        return false;
+        serverCommIO_->send(kResponse, static_cast<int>(strlen(kResponse)), &sentLen);
     }
 
-    server = hako::comm::ICommServer::create(hako::comm::CommIoType::TCP);
-    if (!server) return false;
+    const int port_;
+    const int expectedDataLength_;
 
-    std::thread serverThread(runServer, portno, expectedDataLength);
-    serverThread.detach();
+    std::unique_ptr<hako::comm::ICommServer> server_;
+    std::shared_ptr<hako::comm::ICommIO>     serverCommIO_;
 
-    std::unique_lock<std::mutex> lk(cv_m);
-    cv.wait(lk, [] { return serverReady.load(); });
+    std::thread          thread_;
+    std::atomic<bool>    ready_{false};
+    std::condition_variable cv_;
+    std::mutex           m_;
+};
 
-    client = hako::comm::ICommClient::create(hako::comm::CommIoType::TCP);
-    if (!client) return false;
-
-    hako::comm::ICommEndpointType serverEndpoint{"127.0.0.1", portno};
-    //hako::comm::ICommEndpointType clientEndpoint{"127.0.0.1", portno + 1000};
-
-    clientCommIO = client->client_open(nullptr, &serverEndpoint);
-    EXPECT_NE(clientCommIO, nullptr);
-    std::cout << "[TCP] Client opened." << std::endl;
-    return true;
-}
-
-void cleanup() {
-    if (clientCommIO) {
-        std::cout << "Closing client communication IO." << std::endl;
-        clientCommIO->close();
+/**
+ * @brief Helper that opens a TCP client connection to the given IP & port.
+ */
+std::shared_ptr<hako::comm::ICommIO> createClientIO(const char* ip, int port)
+{
+    auto client = hako::comm::ICommClient::create(hako::comm::CommIoType::TCP);
+    if (!client) {
+        throw std::runtime_error("Failed to create client");
     }
-    if (serverCommIO) {
-        std::cout << "Closing server communication IO." << std::endl;
-        serverCommIO->close();
+    hako::comm::ICommEndpointType serverEp{ip, port};
+    auto io = client->client_open(nullptr, &serverEp);
+    if (!io) {
+        throw std::runtime_error("Failed to open client IO");
     }
+    return io;
 }
 
 class CommIOTcpTest : public ::testing::Test {
 protected:
-    static inline int basePort = 54001;
-    int portno = 0;
-    void SetUp() override {
-        portno = basePort;
+    static inline int nextPort_ = 54001; // simple port pool per process run
+
+    int                                 port_      = 0;
+    std::unique_ptr<TcpTestServer>      server_;
+    std::shared_ptr<hako::comm::ICommIO> clientIO_;
+
+    static void SetUpTestSuite()
+    {
+        ASSERT_EQ(hako::comm::comm_init(), 0) << "Failed to init comm library";
     }
-    void TearDown() override {
-        cleanup();
-        serverReady = false;
+
+    void TearDown() override
+    {
+        if (clientIO_) {
+            clientIO_->close();
+            clientIO_.reset();
+        }
+        server_.reset(); // joins underlying thread & closes server IO
     }
 };
+
+// ────────────────────────────────────────────────────────────────────────────────
+// TEST001: 正常なデータ送受信
 // SPEC: docs/test/comm/io/test_comm_io_send.md#TEST001
-TEST_F(CommIOTcpTest, TEST001_ValidData) {
-    std::cout << "[TEST001] Starting test with port: " << portno << std::endl;
-    const char* data = "Hello TCP Server";
-    int datalen = strlen(data);
-    ASSERT_TRUE(initializeCommunication(portno, datalen));
+TEST_F(CommIOTcpTest, ValidData)
+{
+    constexpr char kPayload[]   = "Hello TCP Server";
+    constexpr char kResponse[]  = "Response from TCP Server";
+    const int datalen           = static_cast<int>(strlen(kPayload));
 
+    port_   = nextPort_++;
+    server_ = std::make_unique<TcpTestServer>(port_, datalen);
+    clientIO_ = createClientIO("127.0.0.1", port_);
 
-    std::cout << "[TEST001] Client initialized, sending data." << std::endl;
     int sentLen = 0;
-    ASSERT_TRUE(clientCommIO->send(data, datalen, &sentLen));
+    ASSERT_TRUE(clientIO_->send(kPayload, datalen, &sentLen));
     EXPECT_EQ(sentLen, datalen);
 
-    int expected_response_len = strlen("Response from TCP Server");
-    char response[256];
-    int responseLen = 0;
-    std::cout << "[TEST001] Client waiting for response." << std::endl;
-    ASSERT_TRUE(clientCommIO->recv(response, expected_response_len, &responseLen));
-    EXPECT_GT(responseLen, 0);
-    response[responseLen] = '\0'; // Null-terminate the response
-    std::cout << "[TEST001] Client received response: " << response << std::endl;
+    char response[256]{};
+    int  recvLen = 0;
+    ASSERT_TRUE(clientIO_->recv(response, static_cast<int>(strlen(kResponse)), &recvLen));
+    response[recvLen] = '\0';
+
+    EXPECT_STREQ(response, kResponse);
 }
 
-#if 0
-
+// TEST002: data == nullptr
 // SPEC: docs/test/comm/io/test_comm_io_send.md#TEST002
-TEST_F(CommIOTcpTest, TEST002_NullDataPointer) {
-    ASSERT_TRUE(initializeCommunication(portno, 0));
+TEST_F(CommIOTcpTest, NullDataPointer)
+{
+    port_   = nextPort_++;
+    server_ = std::make_unique<TcpTestServer>(port_, 0);
+    clientIO_ = createClientIO("127.0.0.1", port_);
 
-    const char* data = nullptr;
-    int datalen = 10;
-    int sentLen = 0;
+    const char* data    = nullptr;
+    int         datalen = 10;
+    int         sentLen = 0;
 
-    EXPECT_FALSE(clientCommIO->send(data, datalen, &sentLen));
+    EXPECT_FALSE(clientIO_->send(data, datalen, &sentLen));
     EXPECT_EQ(sentLen, 0);
 }
 
+// TEST003: 負の長さ
 // SPEC: docs/test/comm/io/test_comm_io_send.md#TEST003
-TEST_F(CommIOTcpTest, TEST003_NegativeDataLength) {
-    ASSERT_TRUE(initializeCommunication(portno, 0));
+TEST_F(CommIOTcpTest, NegativeDataLength)
+{
+    port_   = nextPort_++;
+    server_ = std::make_unique<TcpTestServer>(port_, 0);
+    clientIO_ = createClientIO("127.0.0.1", port_);
 
-    const char* data = "Invalid";
-    int datalen = -1;
-    int sentLen = 0;
+    const char* data    = "Invalid";
+    int         datalen = -1;
+    int         sentLen = 0;
 
-    EXPECT_FALSE(clientCommIO->send(data, datalen, &sentLen));
+    EXPECT_FALSE(clientIO_->send(data, datalen, &sentLen));
     EXPECT_EQ(sentLen, 0);
 }
-
-
 
 // SPEC: docs/test/comm/io/test_comm_io_send.md#TEST004
-TEST_F(CommIOTcpTest, TEST004_NullSendDataLenPointer) {
-    std::cout << "[TEST001] Starting test with port: " << portno << std::endl;
-    const char* data = "Hello TCP Server";
-    int datalen = strlen(data);
-    ASSERT_TRUE(initializeCommunication(portno, datalen));
+TEST_F(CommIOTcpTest, TEST004_NullSendDataLenPointer)
+{
+    constexpr char kPayload[]   = "Hello TCP Server";
+    constexpr char kResponse[]  = "Response from TCP Server";
+    const int datalen = static_cast<int>(strlen(kPayload));
 
-    //sleep 0.1sec
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    port_   = nextPort_++;
+    server_ = std::make_unique<TcpTestServer>(port_, datalen);
+    clientIO_ = createClientIO("127.0.0.1", port_);
 
-    std::cout << "[TEST001] Client initialized, sending data." << std::endl;
-    int sentLen = 0;
-    ASSERT_TRUE(clientCommIO->send(data, datalen, &sentLen));
-    EXPECT_EQ(sentLen, datalen);
+    ASSERT_TRUE(clientIO_->send(kPayload, datalen, nullptr));
 
-    int expected_response_len = strlen("Response from TCP Server");
-    char response[256];
-    int responseLen = 0;
-    std::cout << "[TEST001] Client waiting for response." << std::endl;
-    ASSERT_TRUE(clientCommIO->recv(response, expected_response_len, &responseLen));
-    EXPECT_GT(responseLen, 0);
-    response[responseLen] = '\0'; // Null-terminate the response
-    std::cout << "[TEST001] Client received response: " << response << std::endl;    
+    char response[256]{};
+    int  recvLen = 0;
+    ASSERT_TRUE(clientIO_->recv(response, static_cast<int>(strlen(kResponse)), &recvLen));
+    response[recvLen] = '\0';
+
+    EXPECT_STREQ(response, kResponse);
 }
 
-#endif
+} // namespace
