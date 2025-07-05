@@ -28,7 +28,7 @@
 - クラス設計情報
   - [api_comm.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm.md)
 - API仕様書のテンプレート
-  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/common/api-template.md)
+  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/api-template.md)
 - ヘッダ情報
   - [comm.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm.hpp)
 
@@ -54,7 +54,7 @@ send APIのAPI仕様書を基に、テスト仕様書を作成してください
 
 出力は、テキスト形式で日本語で記載してください。README.md形式で構成してください。
 
-テンプレートの書式：../../common/test-template.md を参照してください。
+テンプレートの書式：../../test-template.md を参照してください。
 
 2. テストの意図：
 - 正常系: 有効な引数を与えた場合に成功すること。
@@ -81,7 +81,7 @@ recv APIのAPI仕様書を基に、テスト仕様書を作成してください
 
 出力は、テキスト形式で日本語で記載してください。README.md形式で構成してください。
 
-テンプレートの書式：../../common/test-template.md を参照してください。
+テンプレートの書式：../../test-template.md を参照してください。
 
 2. テストの意図：
 - 正常系: 有効な引数を与えた場合に成功すること。
@@ -103,7 +103,7 @@ AIを利用して、テスト仕様から効率的にテストコードを生成
 
 以下のテンプレートに従って、テストコードを生成してください。
 
-2. テンプレートの書式：../../common/test-code-template.cpp を参照してください。
+2. テンプレートの書式：../../test-code-template.cpp を参照してください。
 
 3. テスト条件：
 

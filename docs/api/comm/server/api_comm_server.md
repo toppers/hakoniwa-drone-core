@@ -159,7 +159,7 @@ int main() {
 - 詳細については、[api_comm.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm.md) を参照してください。
 
 ### テンプレート
-- 本仕様書は [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/common/api-template.md) に基づいて作成されています。
+ - 本仕様書は [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/api-template.md) に基づいて作成されています。
 
 ### 関連ヘッダ
 - [comm.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/comm.hpp)

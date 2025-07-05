@@ -65,7 +65,7 @@ https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/comm/api_comm.
 - クラス設計情報
   - [api_mavlink.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/api/mavlink/api_mavlink.md)
 - API仕様書のテンプレート
-  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/common/api-template.md)
+  - [api-template.md](https://github.com/toppers/hakoniwa-drone-core/blob/main/docs/prompts/api-template.md)
 - ヘッダ情報
   - [mavlink.hpp](https://github.com/toppers/hakoniwa-drone-core/blob/main/include/mavlink.hpp)
 
