@@ -117,7 +117,7 @@ void cleanup() {
 
 class CommIOTest : public ::testing::Test {
 protected:
-    static inline int basePort = 8080;
+    static inline int basePort = 18080;
     int portno;
     void SetUp() override {
         portno = basePort++;

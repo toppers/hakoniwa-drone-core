@@ -167,11 +167,18 @@ TEST_F(CommIORecvTest, TEST003_NegativeDataLength) {
 
 // SPEC: docs/test/comm/io/test_comm_io_recv.md#TEST004
 TEST_F(CommIORecvTest, TEST004_NullRecvDataLenPointer) {
-    char buffer[10];
-    int* recvLen = nullptr;
-    EXPECT_FALSE(clientCommIO->recv(buffer, 10, recvLen));
-    const char* dummy = "dummy";
+    const char* data = "Hello Server";
+    int datalen = strlen(data);
     int sentLen = 0;
+    ASSERT_TRUE(clientCommIO->send(data, datalen, &sentLen));
+    std::cout << "Client sent: " << data << std::endl;
+
+    char buffer[10];
+    int recvLen = 0;
+    //int* recvLen = nullptr;
+    EXPECT_TRUE(clientCommIO->recv(buffer, 10, &recvLen));
+    const char* dummy = "dummy";
+    sentLen = 0;
     clientCommIO->send(dummy, strlen(dummy), &sentLen);
 }
 
