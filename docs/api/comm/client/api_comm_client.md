@@ -92,6 +92,9 @@ std::shared_ptr<ICommIO> client_open(ICommEndpointType *src, ICommEndpointType *
 
 - 送信元および送信先のエンドポイントが無効である場合、本関数は `nullptr` を返します。
 - 戻り値が `nullptr` の場合は適切なエラーハンドリングを実装してください。
+- **通信方式によるブロック動作の違い**
+  - **TCP**: `client_open()` はサーバとの接続が確立するまでブロックします。
+  - **UDP**: ソケット初期化後ただちに復帰します。
 
 ---
 

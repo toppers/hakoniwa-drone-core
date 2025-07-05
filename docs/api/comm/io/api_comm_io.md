@@ -98,6 +98,9 @@ bool recv(char* data, int datalen, int* recv_datalen) = 0;
 - UDP の場合、データ到達保証はありません。
 - 受信データが `datalen` を超える場合、超過分は破棄されます。
 - `recv_datalen` を `NULL` にした場合、受信は行われますが受信バイト数は返されません。
+- **ブロック動作の違い**
+  - **TCP**: `recv()` は指定された `datalen` バイトを受信するまでブロックします。
+  - **UDP**: 1 データグラム受信時点で復帰し、`datalen` より小さい長さで返る場合があります。
 
 ---
 

@@ -91,6 +91,9 @@ std::shared_ptr<ICommIO> server_open(ICommEndpointType *endpoint) = 0;
 
 - エンドポイントが無効である場合、本関数は `nullptr` を返します。
 - 戻り値が `nullptr` の場合は適切なエラーハンドリングを実装してください。
+- **通信方式によるブロック動作の違い**
+  - **TCP**: `server_open()` はクライアントからの接続が確立するまでブロックします。
+  - **UDP**: `server_open()` はソケットを準備したあと即座に復帰します。最初のパケット待ち合わせは `recv()` で行います。
 
 ---
 
