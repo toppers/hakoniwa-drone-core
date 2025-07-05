@@ -82,9 +82,9 @@ classDiagram
     }
     class CommIoType {
         <<enumeration>>
-        +COMM_IO_TYPE_TCP
-        +COMM_IO_TYPE_UDP
-        +COMM_IO_TYPE_NUM
+        +TCP
+        +UDP
+        +NUM
     }
 
     ICommServer ..> ICommIO
