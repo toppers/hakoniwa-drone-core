@@ -28,5 +28,6 @@ AI 生成フローの中で人間が用意する成果物と、その管理場�
 - [mavlink](api/mavlink/api_mavlink.md)
 
 # テスト仕様
-- [comm](test/comm)
+ - [comm](test/comm)
+ - [mavlink](test/mavlink)
 
