@@ -53,7 +53,7 @@ bool send(const char* data, int datalen, int* send_datalen) = 0;
 |------------------|-----------------|------|
 | `data`           | `const char*`  | 送信するデータのバッファへのポインタ。 |
 | `datalen`        | `int`          | 送信するデータの長さ（バイト単位）。 |
-| `send_datalen`   | `int*`         | 実際に送信されたデータ長（バイト単位）。 |
+| `send_datalen`   | `int*`         | 実際に送信されたデータ長（バイト単位）。NULLを指定した場合は長さを取得しません。 |
 
 #### 戻り値
 
@@ -65,6 +65,7 @@ bool send(const char* data, int datalen, int* send_datalen) = 0;
 
 - TCP の場合、データの到達保証がありますが、一時的な通信エラーが発生した場合にはリトライを行い、`datalen` 分のデータ送信を試みます。
 - UDP の場合、データ到達保証はありません。
+- `send_datalen` を `NULL` にした場合、送信は行われますが送信バイト数は返されません。
 
 ---
 
@@ -83,7 +84,7 @@ bool recv(char* data, int datalen, int* recv_datalen) = 0;
 |------------------|-----------------|------|
 | `data`           | `char*`        | 受信データを格納するバッファへのポインタ。 |
 | `datalen`        | `int`          | バッファのサイズ（バイト単位）。 |
-| `recv_datalen`   | `int*`         | 実際に受信されたデータ長（バイト単位）。 |
+| `recv_datalen`   | `int*`         | 実際に受信されたデータ長（バイト単位）。NULLを指定した場合は長さを取得しません。 |
 
 #### 戻り値
 
@@ -96,6 +97,7 @@ bool recv(char* data, int datalen, int* recv_datalen) = 0;
 - TCP の場合、複数回の呼び出しで完全なデータを受信する必要がある場合があります。一時的な通信エラーが発生した場合にはリトライを行い、`datalen` 分のデータ受信を試みます。
 - UDP の場合、データ到達保証はありません。
 - 受信データが `datalen` を超える場合、超過分は破棄されます。
+- `recv_datalen` を `NULL` にした場合、受信は行われますが受信バイト数は返されません。
 
 ---
 
