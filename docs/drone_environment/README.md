@@ -35,6 +35,33 @@ This architecture diagram shows the overall flow of environmental simulation in 
 3. **Retrieving and Transmitting Drone Position Information**  
    The simulation results, including the drone’s position and orientation data, are written to the Hakoniwa PDU data. This data is then visualized in the game engine (Unity or Unreal Engine), where the environmental disturbances are automatically reflected.
 
+# PDU Output Information
+
+The `hako_env_event` asset writes the calculated environmental information as a PDU (Protocol Data Unit).
+The drone simulator (`hakoniwa-drone-core`) reads this PDU to reflect the disturbances in the simulation.
+
+- **PDU Channel Name**: `Disturbance`
+- **PDU Message Type**: `hako_msgs/Disturbance`
+
+#### Message Structure
+
+```
+hako_msgs/DisturbanceTemperature d_temp
+hako_msgs/DisturbanceWind        d_wind
+hako_msgs/DisturbanceAtm         d_atm
+hako_msgs/DisturbanceBoundary    d_boundary
+```
+
+- **`d_temp` (`DisturbanceTemperature`)**:
+  - `value`: (float64) Temperature (in degrees Celsius)
+- **`d_wind` (`DisturbanceWind`)**:
+  - `value`: (Vector3) Wind velocity vector [x, y, z] (in m/s)
+- **`d_atm` (`DisturbanceAtm`)**:
+  - `sea_level_atm`: (float64) Sea-level atmospheric pressure (in atm)
+- **`d_boundary` (`DisturbanceBoundary`)**:
+  - `boundary_point`: (Point) The closest point on a boundary to the drone
+  - `boundary_normal`: (Vector3) The normal vector at that point
+
 # Data Structure Definition for Spatial Information
 
 - **Coordinate System**: ROS coordinate system is used.

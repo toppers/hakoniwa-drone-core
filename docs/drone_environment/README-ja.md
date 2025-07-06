@@ -39,6 +39,33 @@
 3. **ドローンの位置情報の取得と伝達**  
    外乱によるシミュレーション結果は、ドローンの位置・姿勢情報として箱庭PDUデータに書き込みされます。そして、このデータは、ゲームエンジン（UnityまたはUnreal Engine）側でビジュアライズする仕組みになっていますので、外乱イベントが自動的にビジュアライズされます。
 
+# PDU出力情報
+
+`hako_env_event`アセットは、計算した環境情報をPDU（Protocol Data Unit）として書き出します。
+ドローンシミュレータ（`hakoniwa-drone-core`）は、このPDUを読み込むことで、シミュレーションに外乱を反映させます。
+
+- **PDUチャンネル名**: `Disturbance`
+- **PDUメッセージ型**: `hako_msgs/Disturbance`
+
+#### メッセージ構造
+
+```
+hako_msgs/DisturbanceTemperature d_temp
+hako_msgs/DisturbanceWind        d_wind
+hako_msgs/DisturbanceAtm         d_atm
+hako_msgs/DisturbanceBoundary    d_boundary
+```
+
+- **`d_temp` (`DisturbanceTemperature`)**:
+  - `value`: (float64) 気温 (℃)
+- **`d_wind` (`DisturbanceWind`)**:
+  - `value`: (Vector3) 風速ベクトル [x, y, z] (m/s)
+- **`d_atm` (`DisturbanceAtm`)**:
+  - `sea_level_atm`: (float64) 海面気圧 (atm)
+- **`d_boundary` (`DisturbanceBoundary`)**:
+  - `boundary_point`: (Point) ドローンに最も近い境界上の点
+  - `boundary_normal`: (Vector3) その点の法線ベクトル
+
 # 空間情報のデータ構造定義
 
 - **座標系**は、ROS座標系とします。
