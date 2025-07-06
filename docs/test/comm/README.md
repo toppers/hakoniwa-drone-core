@@ -1,5 +1,6 @@
 # comm テスト概要
 
+通信テストは基本的に **Docker Compose** を利用してサーバーとクライアントを分離した状態で実行することを推奨しています。
 `docker-compose.yml` を用いた通信テストでは、サーバーとクライアントを別コンテナで起動して `ICommIO` API の動作を確認します。サーバープログラムは `test/comm/compose` ディレクトリにある `comm_server_tcp` または `comm_server_udp` を使用します。
 
 ## 実行方法

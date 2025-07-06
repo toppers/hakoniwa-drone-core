@@ -119,7 +119,7 @@ For commercial licensing inquiries:
   * pyenv
     * python: version 3.12.0
       * 3.13以降では動きません。
-      * MacOSの場合、homebrewでインストールしたものでは動きません。
+* MacOSの場合、homebrewでインストールしたものでは動きません。
 
 # ✅ シミュレータ準備チェックリスト
 
