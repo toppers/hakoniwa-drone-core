@@ -7,7 +7,7 @@ ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
     PYTHONPATH="/usr/local/lib/hakoniwa/py:${PYTHONPATH}" \
     HAKO_BINARY_PATH="/usr/local/lib/hakoniwa/hako_binary/offset"
 
-RUN apt-get update && apt-get install -y \
+    RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
     vim \
@@ -20,21 +20,13 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     gcc g++ make cmake \
     git jq libgtest-dev \
-    python3-dev \
+    python3 python3-pip python3-dev \
     unzip \
     libffi-dev libbz2-dev libncurses5-dev libsqlite3-dev \
     liblzma-dev tk-dev xz-utils \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget https://www.python.org/ftp/python/3.12.3/Python-3.12.3.tgz \
-    && tar -xzf Python-3.12.3.tgz && cd Python-3.12.3 \
-    && ./configure --enable-optimizations --enable-shared  \
-    && make -j$(nproc) && make altinstall \
-    && echo "/usr/local/lib" > /etc/ld.so.conf.d/python3.12.conf \
-    && ldconfig \
-	&& ln -sf /usr/local/bin/python3.12 /usr/bin/python3 \
-	&& ln -sf /usr/local/bin/pip3.12 /usr/bin/pip3 \
-    && cd .. && rm -rf Python-3.12.3*
+    iproute2 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 
 
@@ -46,11 +38,10 @@ RUN git clone --recursive https://github.com/toppers/hakoniwa-core-cpp-client.gi
     bash install.bash
 
 
-    # Python モジュールのインストール（必要に応じて追加）
-RUN pip3 install --upgrade pip setuptools wheel \
-    numpy \
-    scipy \
-    && pip3 install aiohttp>=3.10.0 aiohttp_cors>=0.7.0 websockets==13.1
+# Python モジュールのインストール（必要に応じて追加）
+RUN pip3 install --break-system-packages numpy scipy \
+ && pip3 install --break-system-packages aiohttp>=3.10.0 aiohttp_cors>=0.7.0 websockets==13.1
+
 
 RUN apt-get update && apt-get install iproute2 -y
 

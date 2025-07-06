@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   server:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -14,6 +15,7 @@ services:
       - PROTO=${PROTO:-tcp}
 
   client:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: docker/Dockerfile
