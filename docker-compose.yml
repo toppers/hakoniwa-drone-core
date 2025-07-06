@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/root/workspace
+    working_dir: /root/workspace
+    command: bash -c "./tools/fetch_libs.sh && mkdir -p test/build && cd test/build && cmake .. && make && ./comm/compose/comm_server_${PROTO:-tcp}"
+    ports:
+      - '60000:60000'
+    environment:
+      - PROTO=${PROTO:-tcp}
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - .:/root/workspace
+    working_dir: /root/workspace
+    command: bash -c "./tools/fetch_libs.sh && mkdir -p test/build && cd test/build && cmake .. && make && ./comm/compose/test_comm_${PROTO:-tcp}_compose"
+    environment:
+      - SERVER_HOST=server
+      - PROTO=${PROTO:-tcp}
+    depends_on:
+      - server

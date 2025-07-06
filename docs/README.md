@@ -32,6 +32,18 @@ AI 生成フローの中で人間が用意する成果物と、その管理場�
  - [mavlink](test/mavlink)
 
 # テストコード
- - [comm](../test/api/comm)
+ - [comm](../test/comm)
  - テストのビルドと実行は `tools/build_and_test.sh` で行えます
+
+## Docker Compose を用いた通信テスト
+
+`docker-compose.yml` を利用すると、通信サーバーとクライアントを別コンテナで起動して `test/comm/compose` のテストを実行できます。サーバー側では `comm_server_tcp` または `comm_server_udp` が起動し、クライアント側で `test_comm_tcp_compose` もしくは `test_comm_udp_compose` を実行します。
+
+### 実行方法
+1. Docker および Docker Compose が利用可能な環境を用意します。
+2. リポジトリのルートで `PROTO=tcp docker compose up --build` を実行します。
+   - `PROTO=udp` を指定すると UDP モードで動作します。
+3. テスト完了後は `docker compose down` を実行してコンテナを終了します。
+
+詳細なテスト仕様は [`docs/test/comm/compose/test_comm_compose.md`](test/comm/compose/test_comm_compose.md) を参照してください。
 
