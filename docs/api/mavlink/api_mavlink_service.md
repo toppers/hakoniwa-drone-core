@@ -2,7 +2,15 @@
 
 ## 概要
 
-本APIは、MAVLinkプロトコルを使用した通信サービスを提供します。サービスの作成、メッセージの送受信、およびサービスの制御機能を提供します。
+本APIは、MAVLinkプロトコルを使用した通信サービスを提供します。本サービスは基本的にサーバーとして動作し、接続が確立されてからメッセージの送受信が可能になります。サービスの作成、メッセージの送受信、およびサービスの制御機能を提供します。
+
+### MAVPROXYへの自発的送信
+
+通常、本サービスはサーバーとして動作するため、接続確立前にメッセージを送信することはできません。しかし、MAVPROXYのような特定のクライアントに対しては、自発的にメッセージを送信する機能が提供されています。この場合、`HakoMavLinkProtocolConfigType` の設定は不要です。
+
+この機能を利用するには、`MavLinkServiceContainer::addService` メソッドを使用するか、`sendMessage` メソッドの引数で `MAVPROXY` を指定します。これにより、サービスは接続確立を待たずにMAVPROXYへメッセージを送信できます。
+
+**注意点**: この自発的送信機能は、MAVPROXYへの送信のみをサポートしており、MAVPROXYからのメッセージ受信はサポートしていません。
 
 ## 前提条件
 
@@ -48,15 +56,17 @@ MAVLinkサービスのインスタンスを生成します。
 ##### sendMessage
 
 ```cpp
-bool sendMessage(MavlinkHakoMessage& message);
+bool sendMessage(MavlinkHakoMessage& message, const std::string& destination = "");
 ```
 
 **説明**  
-- MavlinkHakoMessageのtypeを必ず指定してください。
+- `MavlinkHakoMessage`のtypeを必ず指定してください。
 - 指定されたMAVLinkメッセージデータを送信します。
+- `destination`パラメータに`"MAVPROXY"`を指定することで、MAVPROXYへの自発的なメッセージ送信が可能です。この場合、受信はサポートされません。
 
 **パラメータ**
 - `message`: 送信するMAVLinkメッセージ
+- `destination`: (オプション) メッセージの送信先。`"MAVPROXY"`を指定するとMAVPROXYへ送信されます。
 
 **戻り値**
 - `true`: 送信成功
@@ -177,9 +187,89 @@ ret = service.readMessage(actuator_message, is_dirty);
 
 // サービスの停止
 service->stopService();
+
+// MAVPROXYへの自発的送信を含む使用例
+// main_aircraft_service_ardupilot.cpp からの抜粋
+#define HAKO_MAVLINK_BRIDGE_PORTNO 54001
+
+// ... (省略: サービスの初期化と設定) ...
+
+    auto mavlink_service_container = std::make_shared<MavLinkServiceContainer>();
+    for (int i = 0; i < aircraft_num; i++) {
+        std::cout << "INFO: aircraft_num=" << i << std::endl;
+        IMavlinkCommEndpointType server_endpoint = {server_ip, server_port + i};
+        IMavlinkCommEndpointType client_endpoint = {server_ip, client_port + i};
+        auto mavlink_service = IMavLinkService::create(i, MavlinkServiceIoType::UDP, &server_endpoint, &client_endpoint);
+        // MAVPROXYクライアントの追加
+        mavlink_service->addMavProxyClient(MavlinkServiceIoType::UDP, {server_ip, HAKO_MAVLINK_BRIDGE_PORTNO});
+        mavlink_service_container->addService(mavlink_service);
+    }
+
+    // ... (省略: aircraft_serviceの初期化) ...
+
+    HakoMavLinkProtocolConfigType protocol_config = {};
+    protocol_config.rx.msg_id = MavlinkMsgType::HIL_ACTUATOR_CONTROLS;
+    protocol_config.rx.user_custom_decode = user_custom_decode;
+    protocol_config.tx.push_back({MavlinkMsgType::USER_CUSTOM, 3000, MavLinkServiceDesitinationType::SITL, user_custom_encode});
+    // MAVPROXYへのメッセージ送信設定
+    protocol_config.tx.push_back({MavlinkMsgType::SERVO_OUTPUT_RAW, 100000, MavLinkServiceDesitinationType::MAVPROXY, nullptr});
+    protocol_config.tx.push_back({MavlinkMsgType::AHRS2, 20000, MavLinkServiceDesitinationType::MAVPROXY, nullptr});
+    if (!aircraft_service->setProtocolConfig(protocol_config)) {
+        std::cerr << "[ERROR] Failed to set MAVLink protocol config." << std::endl;
+    }
+// ... (省略: サービスの開始とループ) ...
 ```
 
-## エラー処理
+## HakoMavLinkProtocolConfigType
+
+MAVLinkプロトコルの送受信設定を定義する構造体です。`IAircraftServiceContainer::setProtocolConfig` メソッドで使用されます。
+
+```cpp
+typedef struct {
+    HakoMavLinkProtocolRxConfigType rx;
+    std::vector<HakoMavLinkProtocolTxConfigType> tx;
+} HakoMavLinkProtocolConfigType;
+```
+
+**メンバー**
+- `rx`: 受信メッセージの設定 (`HakoMavLinkProtocolRxConfigType`)
+- `tx`: 送信メッセージの設定のリスト (`std::vector<HakoMavLinkProtocolTxConfigType>`)
+
+### HakoMavLinkProtocolRxConfigType
+
+受信メッセージの設定を定義する構造体です。主に、受信したパケットが標準のMAVLinkパケット形式に合致しない場合に、カスタムデコーダを定義するために使用されます。
+
+```cpp
+typedef struct {
+    hako::mavlink::MavlinkMsgType msg_id;
+    bool (*user_custom_decode) (int index, const void* data, int detalen, hako::mavlink::MavlinkHakoMessage& message);
+} HakoMavLinkProtocolRxConfigType;
+```
+
+**メンバー**
+- `msg_id`: 受信するMAVLinkメッセージのタイプ。
+- `user_custom_decode`: ユーザー定義のデコード関数へのポインタ。受信した生データを `MavlinkHakoMessage` に変換するために使用されます。
+
+### HakoMavLinkProtocolTxConfigType
+
+送信メッセージの設定を定義する構造体です。主に、MAVPROXYへの定期的なメッセージ送信設定に使用されます。
+
+```cpp
+typedef struct {
+    hako::mavlink::MavlinkMsgType msg_id;
+    uint64_t send_cycle_usec;
+    mavlink::MavLinkServiceDesitinationType destination;
+    bool (*user_custom_encode) (aircraft::IAirCraft& aircraft, hako::mavlink::MavlinkHakoMessage& message, uint64_t time_usec);
+} HakoMavLinkProtocolTxConfigType;
+```
+
+**メンバー**
+- `msg_id`: 送信するMAVLinkメッセージのタイプ。
+- `send_cycle_usec`: メッセージを送信する周期（マイクロ秒単位）。
+- `destination`: メッセージの送信先 (`MavLinkServiceDesitinationType::SITL` または `MavLinkServiceDesitinationType::MAVPROXY`)。
+- `user_custom_encode`: ユーザー定義のエンコード関数へのポインタ。`IAirCraft` のデータから `MavlinkHakoMessage` を生成するために使用されます。
+
+
 
 各メソッドは、操作が失敗した場合にfalseを返します。エラーの詳細は、実装依存のログ機能を通じて提供されます。
 
