@@ -17,6 +17,19 @@
 - C++11以上の開発環境
 - `mavlink.hpp`をインクルードすること
 
+### 型
+
+#### **MavLinkServiceDesitinationType**
+メッセージ送信先を表す列挙体です。`sendMessage()` 等で利用します。
+
+- `SITL` : シミュレータ(PX4/Ardupilot)への送信
+- `MAVPROXY` : MAVProxyクライアントへの送信
+
+#### **MavLinkUserCustomDecoderType**
+ユーザー定義デコード処理を登録するための構造体です。
+- `type` : 対象となるMAVLinkメッセージタイプ
+- `user_custom_decode` : 生データを `MavlinkHakoMessage` に変換する関数ポインタ
+
 ## クラス
 
 ### IMavLinkService
@@ -48,25 +61,61 @@ MAVLinkサービスのインスタンスを生成します。
 **戻り値**  
 生成されたMAVLinkサービスインスタンス
 
-**備考**  
+**備考**
 指定された`io_type`に応じて、以下の通信オブジェクトが生成されます：
 - `TCP`: TCPベースの通信
 - `UDP`: UDPベースの通信
 
+##### addMavProxyClient
+
+```cpp
+bool addMavProxyClient(MavlinkServiceIoType io_type,
+                       const IMavlinkCommEndpointType& mavproxy_endpoint);
+```
+
+**説明**
+MAVProxyクライアントへの送信先を追加登録します。
+
+**パラメータ**
+- `io_type`: MAVProxyとの通信方式 (TCP/UDP)
+- `mavproxy_endpoint`: MAVProxy側のエンドポイント情報
+
+**戻り値**
+- `true`: 登録成功
+- `false`: 登録失敗
+
+##### setReceiverCallback
+
+```cpp
+bool setReceiverCallback(IMavLinkServiceCallback& callback);
+```
+
+**説明**
+メッセージ受信時に呼び出されるコールバックを設定します。
+
+**パラメータ**
+- `callback`: 受信通知を受け取るコールバックオブジェクト
+
+**戻り値**
+- `true`: 設定成功
+- `false`: 設定失敗
+
 ##### sendMessage
 
 ```cpp
-bool sendMessage(MavlinkHakoMessage& message, const std::string& destination = "");
+bool sendMessage(MavLinkServiceDesitinationType destination,
+                 MavlinkHakoMessage& message);
+bool sendMessage(MavlinkHakoMessage& message);
 ```
 
-**説明**  
-- `MavlinkHakoMessage`のtypeを必ず指定してください。
-- 指定されたMAVLinkメッセージデータを送信します。
-- `destination`パラメータに`"MAVPROXY"`を指定することで、MAVPROXYへの自発的なメッセージ送信が可能です。この場合、受信はサポートされません。
+**説明**
+- `MavlinkHakoMessage` の `type` を必ず指定してください。
+- 送信先を明示したい場合は第一引数に `destination` を指定します。
+- 引数を 1 つだけ指定した場合は `SITL` 宛てに送信されます。
 
 **パラメータ**
+- `destination`: 送信先種別 (`SITL` または `MAVPROXY`)
 - `message`: 送信するMAVLinkメッセージ
-- `destination`: (オプション) メッセージの送信先。`"MAVPROXY"`を指定するとMAVPROXYへ送信されます。
 
 **戻り値**
 - `true`: 送信成功
@@ -109,8 +158,24 @@ MAVLinkサービスを開始します。
 void stopService();
 ```
 
-**説明**  
+**説明**
 MAVLinkサービスを停止します。
+
+##### setUserCustomDecoder
+
+```cpp
+bool setUserCustomDecoder(MavLinkUserCustomDecoderType decoder);
+```
+
+**説明**
+ユーザー定義のデコード処理を登録します。標準フォーマットに当てはまらない受信データを解析したい場合に使用します。
+
+**パラメータ**
+- `decoder`: デコード設定を格納した構造体
+
+**戻り値**
+- `true`: 設定成功
+- `false`: 設定失敗
 
 ### MavLinkServiceContainer
 
