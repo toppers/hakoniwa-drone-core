@@ -26,8 +26,11 @@ set(LIBS
     hako_service
     hako_comm
     drone_physics
-    pthread
 )
+
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    list(APPEND LIBS pthread)
+endif()
 
 target_link_libraries(test_comm_send_udp PRIVATE gtest_main ${LIBS})
 target_link_libraries(test_comm_send_tcp PRIVATE gtest_main ${LIBS})

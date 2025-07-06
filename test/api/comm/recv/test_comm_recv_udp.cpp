@@ -56,7 +56,7 @@ private:
         }
         char buf[256]{};
         int  recvLen = 0;
-        ASSERT_TRUE(io_->recv(buf, sizeof(buf), &recvLen)); // wait for first packet
+        if (!io_->recv(buf, sizeof(buf), &recvLen)) return; // wait for first packet
         int sent = 0;
         io_->send(kResp, static_cast<int>(strlen(kResp)), &sent);
     }

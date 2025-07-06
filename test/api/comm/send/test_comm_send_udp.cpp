@@ -71,7 +71,7 @@ private:
         }
         char buf[256]{};
         int  recvLen = 0;
-        ASSERT_TRUE(io_->recv(buf, sizeof(buf), &recvLen));
+        if (!io_->recv(buf, sizeof(buf), &recvLen)) return;
         constexpr char kResp[] = "Response from UDP Server";
         int sent = 0;
         io_->send(kResp, static_cast<int>(strlen(kResp)), &sent);

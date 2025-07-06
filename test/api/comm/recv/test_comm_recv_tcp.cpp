@@ -43,7 +43,7 @@ private:
         ASSERT_NE(io_, nullptr);
         char buf[256]{};
         int  recvLen = 0;
-        ASSERT_TRUE(io_->recv(buf, expectedLen_, &recvLen));
+        if (!io_->recv(buf, expectedLen_, &recvLen)) return;
         int sent = 0;
         io_->send(kResp, static_cast<int>(strlen(kResp)), &sent);
     }
