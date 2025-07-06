@@ -6,4 +6,4 @@ include(${PROJECT_ROOT_DIR}/src/cmake-options/linux-cmake-options.cmake)
 
 enable_testing()
 
-add_subdirectory(api)
+add_subdirectory(comm)
