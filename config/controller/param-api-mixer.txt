@@ -1,13 +1,13 @@
 # 基本パラメータ
 SIMULATION_DELTA_TIME   0.001
-MASS                    0.68240503
+MASS                    1.68240503
 GRAVITY                 9.81
 
 # 高度制御
 PID_ALT_CONTROL_CYCLE   0.0
 PID_ALT_MAX_POWER       9.81
 PID_ALT_THROTTLE_GAIN   1.0
-PID_ALT_MAX_SPD         5.5
+PID_ALT_MAX_SPD         10.0
 
 ## 高度制御のPIDパラメータ
 PID_ALT_Kp              10.0
@@ -21,7 +21,7 @@ PID_ALT_SPD_Kd          5.0
 # BASE_THRUST_DIVISOR must be greater than 1.0.
 # A special value of 0.0 disables the mass * gravity term,
 # i.e., out.thrust = (throttle_gain * throttle_power);
-BASE_THRUST_DIVISOR     4.0
+BASE_THRUST_DIVISOR     1.0
 
 # 水平制御
 POS_CONTROL_CYCLE       0.0
@@ -85,7 +85,7 @@ PID_YAW_RATE_Kd 0.0
 
 # ラジオコントロール
 YAW_DELTA_VALUE_DEG     0.07
-ALT_DELTA_VALUE_M       0.001
+ALT_DELTA_VALUE_M       0.0005
 ANGLE_CONTROL_ENABLE        0
 
 
