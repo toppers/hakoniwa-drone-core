@@ -85,5 +85,5 @@ class HakoAreaPropAccessorImpl(IHakoAreaPropAccessor):
         wind_velocity = area_data.get('wind_velocity', None)
         temperature = area_data.get('temperature', None)
         sea_level_atm = area_data.get('sea_level_atm', None)
-        print("area_data", area_data)
+        #print("area_data", area_data)
         return HakoAreaProperty(wind_velocity=wind_velocity, temperature=temperature, sea_level_atm=sea_level_atm)

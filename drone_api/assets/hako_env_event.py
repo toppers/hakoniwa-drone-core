@@ -48,21 +48,21 @@ def on_manual_timing_control(context):
         pdu_data['d_wind']['value']['z'] = 0.0
         if area_id is not None:
             #print area_id
-            print(f"{hakopy.simulation_time()} area_id: {area_id}")
+            #print(f"{hakopy.simulation_time()} area_id: {area_id}")
             property_info = prop_accessor.get_property(area_id)
             wind = property_info.get_wind_velocity()
             if wind is not None:
-                print(f"{hakopy.simulation_time()} wind ==> {property_info.get_wind_velocity()}")
+                #print(f"{hakopy.simulation_time()} wind ==> {property_info.get_wind_velocity()}")
                 pdu_data['d_wind']['value']['x'] = wind[0]
                 pdu_data['d_wind']['value']['y'] = wind[1]
                 pdu_data['d_wind']['value']['z'] = wind[2]
             temperature = property_info.get_temperature()
             if temperature is not None:
-                print(f"{hakopy.simulation_time()} temperature ==> {property_info.get_temperature()}")
+                #print(f"{hakopy.simulation_time()} temperature ==> {property_info.get_temperature()}")
                 pdu_data['d_temp']['value'] = temperature
             sea_level_atm = property_info.get_sea_level_atm()
             if sea_level_atm is not None:
-                print(f"{hakopy.simulation_time()} sea_level_atm ==> {property_info.get_sea_level_atm()}")
+                #print(f"{hakopy.simulation_time()} sea_level_atm ==> {property_info.get_sea_level_atm()}")
                 pdu_data['d_atm']['sea_level_atm'] = sea_level_atm
         else:
             pass
@@ -70,7 +70,7 @@ def on_manual_timing_control(context):
 
         wall, normal, point, dist = boundary_accessor.find_nearest_wall_with_hitbox(drone_position, local_normal_axis=[0, 0, 1])
         if wall is not None:
-            print(f"{hakopy.simulation_time()} nearest wall: {wall['name']}, dist: {dist}, normal: {normal}, point: {point}")
+            #print(f"{hakopy.simulation_time()} nearest wall: {wall['name']}, dist: {dist}, normal: {normal}, point: {point}")
             pdu_data['d_boundary']['boundary_point']['x'] = point[0]
             pdu_data['d_boundary']['boundary_point']['y'] = point[1]
             pdu_data['d_boundary']['boundary_point']['z'] = point[2]
@@ -78,7 +78,7 @@ def on_manual_timing_control(context):
             pdu_data['d_boundary']['boundary_normal']['y'] = normal[1]
             pdu_data['d_boundary']['boundary_normal']['z'] = normal[2]
         else:
-            print(f"{hakopy.simulation_time()}: No boundary")
+            #print(f"{hakopy.simulation_time()}: No boundary")
             pdu_data['d_boundary']['boundary_point']['x'] = 0.0
             pdu_data['d_boundary']['boundary_point']['y'] = 0.0
             pdu_data['d_boundary']['boundary_point']['z'] = 0.0

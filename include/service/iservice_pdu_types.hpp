@@ -12,6 +12,7 @@
 #include "hako_msgs/pdu_cpptype_Disturbance.hpp"
 #include "hako_msgs/pdu_cpptype_HakoBatteryStatus.hpp"
 #include "hako_msgs/pdu_cpptype_HakoStatusMagnetHolder.hpp"
+#include "hako_msgs/pdu_cpptype_DroneStatus.hpp"
 #include "hako_mavlink_msgs/pdu_cpptype_HakoHilActuatorControls.hpp"
 #include "geometry_msgs/pdu_cpptype_Twist.hpp"
 
@@ -31,6 +32,7 @@ typedef enum {
     SERVICE_PDU_DATA_ID_TYPE_POSITION,
     SERVICE_PDU_DATA_ID_TYPE_VELOCITY_BODY,
     SERVICE_PDU_DATA_ID_TYPE_ACTUATOR_CONTROLS,
+    SERVICE_PDU_DATA_ID_TYPE_DRONE_STATUS,
     HAKONIWA_DRONE_PDU_DATA_ID_TYPE_NUM,
 } ServicePduDataIdType;
 
@@ -50,6 +52,7 @@ typedef struct {
         HakoCpp_Twist position;
         HakoCpp_Twist velocity_body;
         HakoCpp_HakoHilActuatorControls actuator_controls;
+        HakoCpp_DroneStatus drone_status;
     } pdu;
 } ServicePduDataType;
 

@@ -9,6 +9,11 @@
 
 namespace hako::controller {
 
+enum class AircraftControlMode {
+    ATTI,
+    GPS
+};
+
 
 struct PwmDuty {
     double d[HAKO_AIRCRAFT_MAX_ROTOR_NUM];
@@ -46,6 +51,16 @@ public:
         return mixer_;
     }
     virtual mi_aircraft_control_out_t run(mi_aircraft_control_in_t& in) = 0;
+
+    virtual void set_mode(AircraftControlMode mode) = 0;
+
+    virtual void set_flip_control(bool enabled) = 0;
+
+    virtual AircraftControlMode get_mode() = 0;
+
+    virtual int get_internal_state() = 0;
+
+    virtual bool is_flip_control_enabled() = 0;
 };
 
 class IAircraftControllerContainer {

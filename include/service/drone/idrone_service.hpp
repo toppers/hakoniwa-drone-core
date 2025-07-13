@@ -82,6 +82,15 @@ public:
      */
     virtual DroneServiceExtendedOptions getExtendedOptions() const = 0;
 
+    /*
+     * Get flight mode for the drone service
+     */
+    virtual int get_flight_mode() const = 0;
+
+    /*
+     * Get internal state for the drone service
+     */
+    virtual int get_internal_state() const = 0;
 };
 
 }

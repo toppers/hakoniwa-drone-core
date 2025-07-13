@@ -5,7 +5,7 @@
         "properties": {
           "wind_velocity": [0.0, 0.0, 0.0],
           "temperature": 10.5,
-          "sea_level_atm": 1.5
+          "sea_level_atm": 0.98
         }
       },
       {

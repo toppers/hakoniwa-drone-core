@@ -101,6 +101,8 @@ public:
     virtual DroneVelocityType get_vel() const = 0;
     virtual DroneEulerType get_angle() const = 0;
 
+    virtual DroneVelocityType get_propeller_wind() const = 0;
+
     virtual DroneVelocityBodyFrameType get_vel_body_frame() const = 0;
     virtual DroneAngularVelocityBodyFrameType get_angular_vel_body_frame() const = 0;
     virtual DroneAccelerationBodyFrameType get_acc_body_frame() const = 0;

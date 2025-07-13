@@ -6,6 +6,7 @@ typedef struct {
     double pitch;
 } mi_aircraft_control_in_attitude_t;
 typedef struct {
+    // NOTE: For radio control, a negative value indicates upward movement.
     double power;
 } mi_aircraft_control_in_throttle_t;
 typedef struct {

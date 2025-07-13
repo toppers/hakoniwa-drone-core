@@ -4,12 +4,14 @@
 #include "service/drone/drone_service_protocol.hpp"
 #include <array>
 #include <iostream>
+#include <map>
 
 namespace hako::service {
 
 #define GAME_CTRL_BUTTON_NUM    4
 #define GAME_CTRL_AXIS_NUM      4
 #define GAME_CTRL_BUTTON_ALIVE_TIME_USEC 100000
+
 class DroneServiceRcProtocol {
 private:
     const uint32_t GAME_CTRL_AXIS_LR_RR = 0;
@@ -19,7 +21,9 @@ private:
     const uint32_t GAME_CTRL_BUTTON_RADIO_CONTROL = 0;
     const uint32_t GAME_CTRL_BUTTON_MAGNET_CONTROL = 1;
     const uint32_t GAME_CTRL_BUTTON_CAMERA_CONTROL = 2;
-    const uint32_t GAME_CTRL_BUTTON_HOME_CONTROL = 3;
+    const uint32_t GAME_CTRL_BUTTON_HOME_CONTROL = 3;//not used
+    // Add new button for mode change
+    const uint32_t GAME_CTRL_BUTTON_ATTI_GPS_MODE_CHANGE = 3;
     const double stick_value_auto_decrease_value_ = 0.001;
     std::array<uint64_t, GAME_CTRL_BUTTON_NUM> button_alive_timeout_usec_ = { 0, 0, 0, 0 };
     ServicePduDataType pdu = {};
@@ -119,6 +123,24 @@ public:
     {
         button_op(index, GAME_CTRL_BUTTON_HOME_CONTROL, value);
     }
+    /*
+     * Add new method for mode change button
+     */
+    void drone_mode_change_button(uint32_t index, bool value)
+    {
+        button_op(index, GAME_CTRL_BUTTON_ATTI_GPS_MODE_CHANGE, value);
+    }
+    /*
+     * Add new method to get flight mode
+     */
+    int get_flight_mode(int index)
+    {
+        return drone_service_container_->get_flight_mode(index);
+    }
+    int get_internal_state(int index)
+    {
+        return drone_service_container_->get_internal_state(index);
+    }
     Vector3Type get_position(int index)
     {
         ServicePduDataType local_pdu = {};
@@ -159,6 +181,13 @@ public:
         drone_service_container_->peek_pdu(index, local_pdu);
         return { local_pdu.pdu.velocity_body.angular.x, local_pdu.pdu.velocity_body.angular.y, local_pdu.pdu.velocity_body.angular.z };
     }
+    Vector3Type get_propeller_wind(int index)
+    {
+        ServicePduDataType local_pdu = {};
+        local_pdu.id = SERVICE_PDU_DATA_ID_TYPE_DRONE_STATUS;
+        drone_service_container_->peek_pdu(index, local_pdu);
+        return { local_pdu.pdu.drone_status.propeller_wind.x, local_pdu.pdu.drone_status.propeller_wind.y, local_pdu.pdu.drone_status.propeller_wind.z };
+    }
     ServiceBatteryStatusType get_battery_status(int index)
     {
         ServicePduDataType local_pdu = {};
@@ -174,14 +203,33 @@ public:
     }
     void trigger_disturbance(int index, double d_temp, double d_wind_x, double d_wind_y, double d_wind_z)
     {
-        ServicePduDataType disturbance_pdu = {};
-        disturbance_pdu.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
-        disturbance_pdu.pdu.disturbance.d_temp.value = d_temp;
-        disturbance_pdu.pdu.disturbance.d_wind.value.x = d_wind_x;
-        disturbance_pdu.pdu.disturbance.d_wind.value.y = d_wind_y;
-        disturbance_pdu.pdu.disturbance.d_wind.value.z = d_wind_z;
+        ServicePduDataType pdu = {};
+        pdu.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
+        drone_service_container_->read_pdu(index, pdu);
+
+        pdu.pdu.disturbance.d_temp.value = d_temp;
+        pdu.pdu.disturbance.d_wind.value.x = d_wind_x;
+        pdu.pdu.disturbance.d_wind.value.y = d_wind_y;
+        pdu.pdu.disturbance.d_wind.value.z = d_wind_z;
         
-        drone_service_container_->write_pdu(index, disturbance_pdu);
+        drone_service_container_->write_pdu(index, pdu);
+    }
+    void put_disturbance_boundary(int index, 
+                             double b_point_x, double b_point_y, double b_point_z,
+                             double b_normal_x, double b_normal_y, double b_normal_z)
+    {
+        ServicePduDataType pdu = {};
+        pdu.id = SERVICE_PDU_DATA_ID_TYPE_DISTURBANCE;
+        drone_service_container_->read_pdu(index, pdu);
+
+        pdu.pdu.disturbance.d_boundary.boundary_point.x = b_point_x;
+        pdu.pdu.disturbance.d_boundary.boundary_point.y = b_point_y;
+        pdu.pdu.disturbance.d_boundary.boundary_point.z = b_point_z;
+        pdu.pdu.disturbance.d_boundary.boundary_normal.x = b_normal_x;
+        pdu.pdu.disturbance.d_boundary.boundary_normal.y = b_normal_y;
+        pdu.pdu.disturbance.d_boundary.boundary_normal.z = b_normal_z;
+        
+        drone_service_container_->write_pdu(index, pdu);
     }
     void trigger_collision(int index, Vector3Type& contact_position, double restitution_coefficient)
     {

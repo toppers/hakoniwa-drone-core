@@ -57,7 +57,7 @@ double rotor_anti_torque( /* anti torque(z-axis) in [Nm]*/
 double body_thrust( /* thrust in [N] */
     double Ct, /* thrust coeff, in Trust = Ct*(Omega)^2 (referred to as 'A' in Nonami's book ) in [N s^2/rad^2] */
     unsigned n, /* number of rotors */
-    double omega[], /* in radian/sec */
+    const double omega[], /* in radian/sec */
     double atm_pressure = 1.0 /* atmospheric pressure in [atm] */ );
 
 /* the sum of the n torques from the rotors including anti-torque */
@@ -67,10 +67,10 @@ TorqueType body_torque( /* torque in [Nm] */
     double Cq, /* torque coefficient (referred to as B in nonami's book in [N m s^2/rad^2] */
     double Jr, /* torque coefficient for 2nd order rotation */
     unsigned n, /* number of rotors */
-    VectorType position[], /* position of each rotor in [m] */
-    double ccw[], /* 1 or -1 */
-    double omega[], /* in [rad/s] */
-    double omega_acceleration[], /* in [rad/s^2] */
+    const VectorType position[], /* position of each rotor in [m] */
+    const double ccw[], /* 1 or -1 */
+    const double omega[], /* in [rad/s] */
+    const double omega_acceleration[], /* in [rad/s^2] */
     double atm_pressure = 1.0 /* atmospheric pressure in [atm] */  );
 
 
@@ -82,8 +82,8 @@ TorqueType body_torque( /* torque in [Nm] */
 double rotor_thrust_linear(double Ct2, double omega);
 double rotor_anti_torque_linear(double Cq2, double omega, double ccw);
 TorqueType body_torque_linear(double Ct2, double Cq2, unsigned n,
-    VectorType position[], double ccw[], double omega[]);
-double body_thrust_linear(double Ct2, unsigned n, double omega[]);
+    const VectorType position[], const double ccw[], const double omega[]);
+double body_thrust_linear(double Ct2, unsigned n, const double omega[]);
 
 /**
  * Atmospheric pressure at the altitude.

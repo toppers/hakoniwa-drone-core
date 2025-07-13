@@ -83,6 +83,12 @@
             "type": "switch",
             "off": "up",
             "on": "down"
+        },
+        "ControlModeChange": {
+            "index": 2,
+            "type": "switch",
+            "off": "up",
+            "on": "down"
         }
     }
 }

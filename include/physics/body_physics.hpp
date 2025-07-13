@@ -194,6 +194,16 @@ ForceType boundary_disturbance(
     double rotor_radius, /* effect of rotor radius on wind disturbance */
     double exponent = 1.5 /* exponent of the disturbance ratio to thrust, usually 1.5, others for testing */);
 
+/* exaggerated version for testing and demo */
+ForceType boundary_disturbance_exaggerated(
+    const VectorType& position,
+    const EulerType& euler,
+    const VectorType& boundary_point,
+    const VectorType& boundary_normal,
+    double thrust,
+    double rotor_radius,
+    double exponent);
+
 VelocityType boundary_disturbance_as_wind(
     const VectorType& position, const EulerType& euler,
     const VectorType& boundary_point, const VectorType& boundary_normal, double thrust,

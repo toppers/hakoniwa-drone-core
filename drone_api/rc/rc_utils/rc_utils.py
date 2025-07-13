@@ -15,6 +15,7 @@ class RcConfig:
     SWITCH_RADIO_CONTROL_ENABLE = 0
     SWITCH_GRAB_BAGGAGE =1
     SWITCH_CAMERA_SHOT = 2
+    SWITCH_CTRL_MODE_CHANGE = 3
     SWITCH_CAMERA_MOVE_UP = 11
     SWITCH_CAMERA_MOVE_DOWN = 12
     SWITCH_RETURN_HOME = 13
@@ -49,7 +50,9 @@ class RcConfig:
             self.config['Event']['Camera']['index']: self.SWITCH_CAMERA_SHOT,
             self.config['Event']['CameraMoveUp']['index']: self.SWITCH_CAMERA_MOVE_UP,
             self.config['Event']['CameraMoveDown']['index']: self.SWITCH_CAMERA_MOVE_DOWN,
-            self.config['Event']['ReturnHome']['index']: self.SWITCH_RETURN_HOME
+            #not supported now...
+            #self.config['Event']['ReturnHome']['index']: self.SWITCH_RETURN_HOME,
+            self.config['Event']['ControlModeChange']['index']: self.SWITCH_CTRL_MODE_CHANGE
         }
         return event_op_map.get(switch_index, None)
 
@@ -65,7 +68,8 @@ class RcConfig:
             self.config['Event']['GrabBaggage']['index']: self.config['Event']['GrabBaggage'],
             self.config['Event']['CameraMoveUp']['index']: self.config['Event']['CameraMoveUp'],
             self.config['Event']['CameraMoveDown']['index']: self.config['Event']['CameraMoveDown'],
-            self.config['Event']['ReturnHome']['index']: self.config['Event']['ReturnHome']
+            self.config['Event']['ReturnHome']['index']: self.config['Event']['ReturnHome'],
+            self.config['Event']['ControlModeChange']['index']: self.config['Event']['ControlModeChange']
         }
         feature = feature_map.get(switch_index, None)
         if feature:

@@ -203,6 +203,20 @@ int main(int argc, const char* argv[])
         case 'x':
             rc.drone_radio_control_button(0, true);
             break;
+        case 'm':
+            rc.drone_mode_change_button(0, true);
+            break;
+        case 'g':
+            {
+                int mode = rc.get_flight_mode(0);
+                if (mode == 0) {
+                    std::cout << "Flight mode: ATTI" << std::endl;
+                }
+                else {
+                    std::cout << "Flight mode: GPS" << std::endl;
+                }
+            }
+            break;
         case 'b':
             battery_status = rc.get_battery_status(0);
             std::cout << "full_voltage: " << battery_status.full_voltage << std::endl;
@@ -248,6 +262,8 @@ int main(int argc, const char* argv[])
             std:: cout << "|   s    |   k    |" << std::endl;
             std::cout  << " ---- BUTTON ----" << std::endl;
             std::cout  << " x : radio control button" << std::endl;
+            std::cout  << " m : mode change button" << std::endl;
+            std::cout  << " g : get flight mode" << std::endl;
             std::cout  << " p : get position" << std::endl;
             std::cout  << " r : get attitude" << std::endl;
             std::cout  << " t : get simtime usec" << std::endl;
