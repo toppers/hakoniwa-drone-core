@@ -166,6 +166,15 @@
                     "pdu_size": 72,
                     "write_cycle": 1,
                     "method_type": "SHM"
+                },
+                {
+                    "type": "hako_msgs/DroneStatus",
+                    "org_name": "status",
+                    "name": "Drone_status",
+                    "channel_id": 18,
+                    "pdu_size": 56,
+                    "write_cycle": 1,
+                    "method_type": "SHM"
                 }
             ],
             "shm_pdu_writers": [
@@ -328,6 +337,15 @@
                     "name": "Drone_hako_cmd_magnet_holder",
                     "channel_id": 14,
                     "pdu_size": 40,
+                    "write_cycle": 1,
+                    "method_type": "SHM"
+                },
+                {
+                    "type": "hako_msgs/DroneStatus",
+                    "org_name": "status",
+                    "name": "Drone_status",
+                    "channel_id": 18,
+                    "pdu_size": 56,
                     "write_cycle": 1,
                     "method_type": "SHM"
                 }
