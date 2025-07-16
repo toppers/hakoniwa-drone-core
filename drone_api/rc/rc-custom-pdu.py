@@ -7,6 +7,7 @@ import pygame
 import time
 import os
 import argparse
+import base64
 from rc_utils.rc_utils import RcConfig, StickMonitor
 from hakoniwa_pdu.pdu_manager import PduManager
 from hakoniwa_pdu.impl.websocket_communication_service import WebSocketCommunicationService
@@ -24,6 +25,10 @@ async def read_pdu_on_demand(manager: PduManager, robot_name: str, pdu_name: str
     if binary_data is None:
         print(f"[ERROR] Failed to read PDU data for {robot_name}/{pdu_name}")
         return None
+    #dump binary data for debugging on the temp file
+    with open(f"temp_{robot_name}_{pdu_name}.bin", "wb") as f:
+        f.write(binary_data)
+    print(f"[INFO] Read PDU data for {robot_name}/{pdu_name}, size={len(binary_data)} bytes")
     return manager.pdu_convertor.convert_binary_to_json(robot_name, pdu_name, binary_data)
 
 def process_joystick_event(event, data, stick_monitor: StickMonitor):
@@ -64,7 +69,26 @@ import time
 async def delayed_read_pdu(manager, robot_name, pdu_name, delay):
     await asyncio.sleep(delay)
     print(f"INFO: Reading PDU {pdu_name} for {robot_name} after {delay} seconds delay")
-    await read_pdu_on_demand(manager, robot_name, pdu_name)
+    result = await read_pdu_on_demand(manager, robot_name, pdu_name)
+    print(f"INFO: Completed delayed read for {robot_name}/{pdu_name}")
+    return result
+
+def save_pdu_to_file(task: asyncio.Task):
+    import base64
+    import time
+    pdu_data = task.result()
+    if pdu_data is None:
+        print("[WARN] No data to save.")
+        return
+
+    raw_data = pdu_data['image']['data__raw']
+
+    filename = f"camera_data.png"
+    with open(filename, 'wb') as f:
+        f.write(raw_data)
+
+    print(f"[INFO] PDU data saved to {filename}")
+
 
 async def joystick_control(manager: PduManager, robot_name: str, joystick, stick_monitor: StickMonitor):
     try:
@@ -85,7 +109,8 @@ async def joystick_control(manager: PduManager, robot_name: str, joystick, stick
                     camera_shot_triggered = True
 
             if camera_shot_triggered:
-                asyncio.create_task(delayed_read_pdu(manager, robot_name, "hako_camera_data", 0.5))
+                task = asyncio.create_task(delayed_read_pdu(manager, robot_name, "hako_camera_data", 2.0))
+                task.add_done_callback(save_pdu_to_file)
 
             await send_pdu(manager, robot_name, data)
 
