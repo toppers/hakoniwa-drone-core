@@ -18,7 +18,16 @@ async def send_pdu(manager: PduManager, robot_name: str, data: dict):
     binary = manager.pdu_convertor.convert_json_to_binary(robot_name, "hako_cmd_game", data)
     await manager.flush_pdu_raw_data(robot_name, "hako_cmd_game", binary)
 
+
+async def read_pdu_on_demand(manager: PduManager, robot_name: str, pdu_name: str) -> dict:
+    binary_data = await manager.request_pdu_read(robot_name, pdu_name)
+    if binary_data is None:
+        print(f"[ERROR] Failed to read PDU data for {robot_name}/{pdu_name}")
+        return None
+    return manager.pdu_convertor.convert_binary_to_json(robot_name, pdu_name, binary_data)
+
 def process_joystick_event(event, data, stick_monitor: StickMonitor):
+    camera_shot_triggered = False
     if event.type == pygame.JOYAXISMOTION:
         if event.axis < 6:
             op_index = stick_monitor.rc_config.get_op_index(event.axis)
@@ -42,14 +51,20 @@ def process_joystick_event(event, data, stick_monitor: StickMonitor):
 
                 if event_triggered:
                     if event_op_index == stick_monitor.rc_config.SWITCH_CAMERA_SHOT:
-                        print("WARNING: saveCameraImage is not implemented in this version")
-                        time.sleep(0.5)
+                        print("INFO: SWITCH_CAMERA_SHOT triggered")
+                        camera_shot_triggered = True
                     elif event_op_index == stick_monitor.rc_config.SWITCH_RETURN_HOME:
                         print("WARNING: DroneController is not implemented in this version")
         else:
             print(f'ERROR: not supported button index: {event.button}')
+    return camera_shot_triggered
 
 import time
+
+async def delayed_read_pdu(manager, robot_name, pdu_name, delay):
+    await asyncio.sleep(delay)
+    print(f"INFO: Reading PDU {pdu_name} for {robot_name} after {delay} seconds delay")
+    await read_pdu_on_demand(manager, robot_name, pdu_name)
 
 async def joystick_control(manager: PduManager, robot_name: str, joystick, stick_monitor: StickMonitor):
     try:
@@ -64,8 +79,13 @@ async def joystick_control(manager: PduManager, robot_name: str, joystick, stick
         while True:
             start_time = time.perf_counter()
 
+            camera_shot_triggered = False
             for event in pygame.event.get():
-                process_joystick_event(event, data, stick_monitor)
+                if process_joystick_event(event, data, stick_monitor):
+                    camera_shot_triggered = True
+
+            if camera_shot_triggered:
+                asyncio.create_task(delayed_read_pdu(manager, robot_name, "hako_camera_data", 0.5))
 
             await send_pdu(manager, robot_name, data)
 
