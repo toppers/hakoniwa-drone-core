@@ -272,7 +272,8 @@ class MultirotorClient:
             command = self.pdu_manager.get_pdu(vehicle.name, pdu_info.HAKO_AVATAR_CHANNEL_ID_CAMERA_DATA)
             pdu_data = command.read()
             if pdu_data['request_id'] == vehicle.camera_cmd_request_id:
-                return pdu_data['image']['data']
+                #print("request_id", pdu_data['request_id'])
+                return pdu_data['image']['data__raw']
             #time.sleep(0.5)
 
     def _get_camera_info(self, vehicle):
