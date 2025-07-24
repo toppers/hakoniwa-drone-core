@@ -1,3 +1,7 @@
+# 全体アーキテクチャ
+
+[architecture](architecture.md) 
+
 # Aircraft API ドキュメント
 
 ## 概要
