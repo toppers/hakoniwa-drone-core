@@ -4,7 +4,7 @@
 この構成では、UnityやUnreal Engine、ROS2、Webなどと**Bridgeを介して連携**することが可能です。
 
 
-📘 [コンテナパターン全体の概要と構成イメージを見る](docs/architecture/container-overview.md) 
+📘 [コンテナパターン全体の概要と構成イメージを見る](/docs/architecture/overview.md) 
 
 ---
 
@@ -40,4 +40,5 @@
 - [WSL/docker 環境で箱庭&Ardupilot連携方法](/docs/tips/wsl/docker-ardupilot.md)
 - [WSL/docker 環境で箱庭&Python API連携方法](/docs/tips/wsl/docker-python-api.md)
 - [WSL/docker 環境で箱庭&ゲームパッド操作方法](/docs/tips/wsl/docker-gamepad.md)
+- [WSL2でのポート転送設定方法](/docs/tips/wsl/wsl-portforward.md)
 
