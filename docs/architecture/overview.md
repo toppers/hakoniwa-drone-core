@@ -94,7 +94,7 @@ ROS IDL（Interface Definition Language）で定義されたデータ構造を�
 
 ---
 
-### シングルパターン
+### 箱庭なし版：シングルパターン
 
 ![image](/docs/images/architecture-service.png)
 
@@ -110,7 +110,7 @@ ROS IDL（Interface Definition Language）で定義されたデータ構造を�
 
 ---
 
-### 共有メモリパターン
+### 箱庭あり版：共有メモリパターン
 
 ![image](/docs/images/architecture-hakoniwa-drone-1.png)
 
@@ -126,7 +126,7 @@ ROS IDL（Interface Definition Language）で定義されたデータ構造を�
 
 ---
 
-### コンテナパターン
+### 箱庭あり版：コンテナパターン
 
 ![image](/docs/images/architecture-hakoniwa-drone-2.png)
 

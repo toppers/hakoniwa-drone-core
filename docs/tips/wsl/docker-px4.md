@@ -1,6 +1,6 @@
 # TIPS
 
-## WSL/docker 環境で箱庭&Ardupilot連携方法
+## WSL/docker 環境で箱庭&PX4連携方法
 
 ### 事前準備
 
@@ -26,14 +26,12 @@
 以下を実行してください。
 
 ```bash
-bash ../sim/simstart.bash
+bash hakoniwa-drone-core/tools/px4/run.bash
 ```
 
 例：
 ```bash
-tmori@WinHako:~/project/hakoniwa-px4sim/px4/PX4-Autopilot$ bash ../sim/simstart.bash 
-Linux WinHako 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
-INFO: SINGLE INSTANCE MODE
+tmori@WinHako:~/qiita$ bash hakoniwa-drone-core/tools/px4/run.bash
 [0/1] launching px4 none_iris (SYS_AUTOSTART=10016)
 
 ______  __   __    ___
@@ -49,9 +47,9 @@ INFO  [px4] startup script: /bin/sh etc/init.d-posix/rcS 0
 env SYS_AUTOSTART: 10016
 INFO  [param] selected parameter default file parameters.bson
 INFO  [param] importing from 'parameters.bson'
-INFO  [parameters] BSON document size 411 bytes, decoded 411 bytes (INT32:13, FLOAT:7)
+INFO  [parameters] BSON document size 350 bytes, decoded 350 bytes (INT32:15, FLOAT:3)
 INFO  [param] selected parameter backup file parameters_backup.bson
-INFO  [dataman] data manager file './dataman' size is 7868392 bytes
+INFO  [dataman] data manager file './dataman' size is 1208528 bytes
 INFO  [init] PX4_SIM_HOSTNAME: 127.0.0.1
 INFO  [simulator_mavlink] using TCP on remote host 127.0.0.1 port 4560
 WARN  [simulator_mavlink] Please ensure port 4560 is not blocked by a firewall.
