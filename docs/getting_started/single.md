@@ -200,5 +200,5 @@ cmake --build . --config Release
 
 ## 🚀 参考情報
 
-* PX4連携リポジトリ: [hakoniwa-px4sim](https://github.com/toppers/hakoniwa-px4sim)
+* PX4連携リポジトリ: [PX4/PX4-Autopilot](https://github.com/PX4/PX4-Autopilot)
 * Ardupilot連携: [ArduPilot/ardupilot](https://github.com/ArduPilot/ardupilot)
