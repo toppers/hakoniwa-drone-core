@@ -81,8 +81,11 @@ else
     exit 1
 fi
 
-setsid bash hakoniwa-drone-core/drone_api/assets/run-wind.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+curr_dir=$(pwd)
+cd ${BASE_DIR}/hakoniwa-drone-core
+setsid bash drone_api/assets/run-wind.bash  ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
 HAKO_WIND_PID=$!
+cd ${curr_dir}
 sleep 2
 
 
