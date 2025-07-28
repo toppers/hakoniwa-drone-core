@@ -3,6 +3,7 @@
 
 import sys
 import libs.hakosim as hakosim
+from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_pytype_GameControllerOperation import GameControllerOperation
 import pygame
 import time
 import os
@@ -22,7 +23,10 @@ def saveCameraImage(client):
 def joystick_control(client: hakosim.MultirotorClient, joystick, stick_monitor: StickMonitor):
     try:
         while True:
-            data = client.getGameJoystickData()
+            client.run_nowait()
+            data : GameControllerOperation = client.getGameJoystickData()
+            data.axis = list(data.axis)
+            data.button = list(data.button)
             for event in pygame.event.get():
                 if event.type == pygame.JOYAXISMOTION:
                     if event.axis < 6:
@@ -31,18 +35,16 @@ def joystick_control(client: hakosim.MultirotorClient, joystick, stick_monitor: 
                         if (abs(stick_value) > 0.1):
                             pass
                             #print(f"stick event: stick_index={event.axis} op_index={op_index} event.value={event.value} stick_value={stick_value}")
-                        data['axis'] = list(data['axis'])
-                        data['axis'][op_index] = stick_value
+                        data.axis[op_index] = stick_value
                     else:
                         print(f'ERROR: not supported axis index: {event.axis}')
                 elif event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYBUTTONUP:
                     if event.button < 16:
-                        data['button'] = list(data['button'])
                         event_op_index = stick_monitor.rc_config.get_event_op_index(event.button)
                         if event_op_index is not None:
                             event_triggered = stick_monitor.switch_event(event.button, (event.type == pygame.JOYBUTTONDOWN))
                             print(f"button event: switch_index={event.button} event_op_index={event_op_index} down: {(event.type == pygame.JOYBUTTONDOWN)} event_triggered={event_triggered}")
-                            data['button'][event_op_index] = event_triggered
+                            data.button[event_op_index] = event_triggered
                             if event_triggered:
                                 if event_op_index == stick_monitor.rc_config.SWITCH_CAMERA_SHOT:
                                     time.sleep(0.5)

@@ -7,11 +7,11 @@
 
 箱庭API(`hakosim`)は、基本的に、[AirSim](https://microsoft.github.io/AirSim/)のAPIのシグネチャを踏襲しています。
 
-箱庭の Python API 概要は、[こちら](https://github.com/toppers/hakoniwa-px4sim/tree/main/drone_api/libs)を参照ください。
+箱庭の Python API 概要は、[こちら](/drone_api/libs/README.md)を参照ください。
 
 # サンプルプログラム
 
-Python API の利用方法を理解するための[サンプルプログラム](https://github.com/toppers/hakoniwa-px4sim/blob/main/drone_api/sample/sample.py)を用意しています。
+Python API の利用方法を理解するための[API コール用サンプルプログラム](/drone_api/rc/api_control_sample.py)を用意しています。
 
 サンプルプログラムでは、以下の機能を実行しています。
 
@@ -23,90 +23,48 @@ Python API の利用方法を理解するための[サンプルプログラム](
 * 3DLiDARデータの取得とデバッグ表示
 * ドローンの着陸
 
+また、[ラジコン操作用のサンプルプログラム](drone_api/rc/rc-custom.py)で、ゲームコントローラ(PS4/5)や、プロポ等でドローン操縦するためのサンプルプログラムも用意しています。
 
-# デモ
-
-https://www.youtube.com/watch?v=ZaJunG7pxi8
 
 # インストール方法
 
 以下のコマンドを実行してください。
 
-## Windows の場合
-
 ```
-cd drone_api
-mkdir install_dir
-<path/to>/install.bat 
+pip install hakoniwa-pdu
 ```
 
-## Windows 以外の場合
-
-```bash
-cd drone_control
-bash build.bash
-cd ..
-```
+補足：バージョンアップ方法
 
 ```
-bash drone_api/install.bash
-```
-
-また、環境変数PYTHONPATHに以下を追加してください。
-
-```
-export PYTHONPATH=/usr/local/lib/hakoniwa/py:${PYTHONPATH}
-```
-
-# Unityの設定
-
-Scenes/ApiDemo を利用してください。
-
-シーン選択後、`Generate` してください。
-
-# シミュレーション実行方法
-
-シミュレーション実行方法は以下のとおりです。
-
-```
-cd hakoniwa
-```
-
-## Windows の場合
-
-```
-./drone-app.bat ../../hakoniwa-unity-drone-model ./config/win/api_sample
-```
-
-## Windows 以外の場合
-
-```
-bash drone-app.bash ../../hakoniwa-unity-drone-model ./config/api_sample
+pip install --upgrade hakoniwa-pdu
 ```
 
 # Pythonプログラムの実行方法
 
-シミュレーション実行完了後であれば、任意のタイミングで、Pythonプログラムを実行して、箱庭APIを呼び出すことができます。
+drone_api/rc ディレクトリに移動して、以下のコマンドを実行してください。
 
 ```bash
-cd drone_api/sample
+cd drone_api/rc
 ```
 
-## Windows の場合
+シミュレーション実行完了後であれば、任意のタイミングで、Pythonプログラムを実行して、箱庭APIを呼び出すことができます。
 
-```
-python sample.py ../../../hakoniwa-unity-drone-model/custom.json
+API コール用サンプルプログラムを実行する場合は、以下のコマンドを実行してください。
+```bash
+python3 -m api_control_sample ../../config/pdudef/webavatar.json
 ```
 
-## Windows 以外の場合
+ラジコン操作用のサンプルプログラムを実行する場合は、以下のコマンドを実行してください。
+```bash
+python3 -m rc-custom ../../config/pdudef/webavatar.json rc_config/ps4-control.json
+```
 
-```
-python3.12 sample.py ../../../hakoniwa-unity-drone-model/custom.json
-```
+第三引数は、PS4コントローラの設定ファイルです。他のゲームコントローラやプロポを利用する場合は、適宜設定ファイルを変更してください。
 
 # 箱庭ドローンのコンフィグファイル
 
-Unity上で実現された箱庭ドローンにはさまざまなセンサ/アクチュエータがあります。これらの機能はパラメータを持っており、hakoniwa-unity-drone-model/plugin/plugin-srcs 直下にパラメータ定義ファイル(drone_config.json)を配置することで、パラメータ反映させることができます。
+Unity上で実現された箱庭ドローンにはさまざまなセンサ/アクチュエータがあります。これらの機能はパラメータを持っており、[hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone)/simulation 直下にパラメータ定義ファイル(drone_config.json)を配置することで、パラメータ反映させることができます。
 
 
 設定例：

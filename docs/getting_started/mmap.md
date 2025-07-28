@@ -127,11 +127,9 @@ Ardupilot 連携サンプルアプリを使うと箱庭ドローンシミュレ�
 
 この際、ラジコン操作用のPythonスクリプトを利用することで、箱庭ドローンを操作できます。
 
-```bash
-python rc/rc-custom.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json rc/rc_config/ps4-control.json
-```
+ラジコン操作方法は、[こちら](/drone_api/README-ja.md)を参照ください。
 
-最後の引数(ps4-control.json)は、お使いのゲームコントローラに合わせて変更してください。
+
 
 シミュレーション実行手順：
 
@@ -146,7 +144,6 @@ python rc/rc-custom.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.js
 
 箱庭ドローンの [Python API](/drone_api/libs/README.md) を利用して、フライトプランを実行することが可能です。
 
-フライトプラン操作のサンプルアプリ：[sample.py](/drone_api/rc/sample.py)
 
 実行方法：
 ```bash
@@ -155,9 +152,7 @@ python rc/rc-custom.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.js
 
 この際、フライトプラン操作用のPythonスクリプトを利用することで、箱庭ドローンを操作できます。
 
-```bash
-python rc/sample.py <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
-```
+Pythonスクリプトの実行方法は、[こちら](/drone_api/README-ja.md)を参照ください。
 
 シミュレーション実行手順：
 
