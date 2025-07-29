@@ -1,5 +1,5 @@
 
-[English](README.md) ｜ 日本語
+English ｜ 日本語
 
 # これは何？
 

@@ -1,127 +1,148 @@
 # MAVLINK API ドキュメント
 
-## 1. 概要
 
 `mavlink` コンポーネントは、MAVLinkプロトコルを用いた通信機能を提供します。ドローンシミュレーションにおいて、フライトコントローラー（PX4 SITLなど）やMAVProxyとのデータ送受信を抽象化し、シミュレーション環境と外部システム間の連携を可能にします。
 
 名前空間: `hako::mavlink`
 
-## 2. 主要なクラス、構造体、列挙型
 
--   **`IMavLinkService`**: MAVLink通信サービスを管理するための主要なインターフェースです。サービスの開始・停止、メッセージの送受信、コールバックの設定などを行います。
--   **`IMavLinkServiceCallback`**: MAVLinkメッセージ受信時に呼び出されるコールバックインターフェースです。
--   **`MavLinkServiceContainer`**: 複数の `IMavLinkService` インスタンスを管理するためのコンテナクラスです。
--   **`MavlinkServiceIoType`**: MAVLinkサービスのI/Oタイプ（TCPまたはUDP）を定義する列挙型です。
--   **`MavLinkServiceDesitinationType`**: MAVLinkメッセージの送信先タイプ（SITLまたはMAVPROXY）を定義する列挙型です。
--   **`MavlinkMsgType`**: サポートされるMAVLinkメッセージのタイプを定義する列挙型です。
--   **`MavlinkHakoMessage`**: 各種MAVLinkメッセージのデータを保持するための共用体を含む構造体です。`HakoHilSensor`, `HakoHilActuatorControls` などのPDUタイプが含まれます。
--   **`IMavlinkCommEndpointType`**: 通信エンドポイント（IPアドレスとポート番号）を定義する構造体です。
--   **`MavLinkUserCustomDecoderType`**: ユーザー定義のカスタムMAVLinkメッセージをデコードするための構造体です。
+## クラス概要
 
-## 3. クラス図
+### MavlinkServiceIoType
+MavlinkServiceIoTypeは、Mavlink通信におけるデータ送受信の通信方式を定義する列挙型クラスです。TCPまたはUDPとしての動作を指定します。
+
+- TCP: TCP/IPプロトコルを使用した通信方式
+- UDP: UDP/IPプロトコルを使用した通信方式
+
+### MavlinkMsgType
+MavlinkMsgTypeは、Mavlinkプロトコルで使用されるメッセージタイプを定義します。このクラスは、Mavlinkメッセージの種類や識別に使用されます。
+
+メッセージタイプ：
+
+- HEARTBEAT
+- LONG
+- COMMAND_ACK
+- HIL_SENSOR
+- HIL_STATE_QUATERNION
+- SYSTEM_TIME
+- HIL_GPS
+- HIL_ACTUATOR_CONTROLS
+
+### MavlinkHakoMessage
+MavlinkHakoMessageは、Mavlinkメッセージをラップするクラスです。このクラスは、メッセージのデータ構造を提供し、Mavlinkプロトコルにおける通信処理を簡素化します。
+
+サポートしているメッセージ：
+
+- Hako_HakoHilSensor
+- Hako_HakoHilActuatorControls
+- Hako_HakoHilStateQuaternion
+- Hako_HakoHilGps
+
+Hako_xxx は、箱庭プロジェクトで使用されるMavlinkメッセージの名前空間です。
+ヘッダファイル一式は、以下で一般公開されています。
+
+https://github.com/toppers/hakoniwa-ros2pdu/tree/main/pdu/types/hako_mavlink_msgs
+
+
+### IMavlinkCommEndpointType
+IMavlinkCommEndpointTypeは、Mavlink通信のエンドポイントを抽象化したインターフェースクラスです。TCP/UDPのサーバーやクライアントエンドポイントを実装する際の基盤となります。
+
+### IMavLinkService
+IMavLinkServiceは、Mavlink通信サービスのインターフェースを提供する抽象クラスです。このインターフェースを実装することで、異なる通信方式やプロトコルの処理を統一的に扱うことができます。
+
+### MavLinkServiceContainer
+MavLinkServiceContainerは、Mavlink通信サービスの管理を行うクラスです。このクラスは、IMavLinkServiceインスタンスの生成、登録、管理を提供します。
+
+## クラス図
 
 ```mermaid
 classDiagram
-    direction LR
+    class MavLinkServiceContainer {
+        +addService(service: std::shared_ptr<IMavLinkService>) : void
+    }
 
     class IMavLinkService {
         <<interface>>
-        +static create(int index, MavlinkServiceIoType io_type, const IMavlinkCommEndpointType* server_endpoint, const IMavlinkCommEndpointType* client_endpoint): shared_ptr<IMavLinkService>
-        +addMavProxyClient(MavlinkServiceIoType io_type, const IMavlinkCommEndpointType& mavproxy_endpoint): bool
-        +setReceiverCallback(IMavLinkServiceCallback& callback): bool
-        +sendMessage(MavLinkServiceDesitinationType destination, MavlinkHakoMessage& message): bool
-        +sendMessage(MavlinkHakoMessage& message): bool
-        +readMessage(MavlinkHakoMessage& message, bool &is_dirty): bool
-        +startService(): bool
-        +stopService(): void
-        +setUserCustomDecoder(MavLinkUserCustomDecoderType decoder): bool
-    }
-
-    class IMavLinkServiceCallback {
-        <<interface>>
-        +onReceiveMessage(int index): void
-    }
-
-    class MavLinkServiceContainer {
-        +addService(shared_ptr<IMavLinkService> service): void
-        +getServices(): vector<shared_ptr<IMavLinkService>>&
-    }
-
-    IMavLinkService --|> IMavLinkServiceCallback : uses
-    MavLinkServiceContainer o-- IMavLinkService : contains
-
-    enum MavlinkServiceIoType {
-        TCP,
-        UDP,
-        NUM
-    }
-
-    enum MavLinkServiceDesitinationType {
-        SITL,
-        MAVPROXY
-    }
-
-    enum MavlinkMsgType {
-        UNKNOWN,
-        HEARTBEAT,
-        ...
-    }
-
-    class MavlinkHakoMessage {
-        +MavlinkMsgType type
-        +union data
+        +create() : std::shared_ptr<IMavLinkService>
+        +sendMessage(msg: MavlinkHakoMessage) : void
+        +readMessage() : MavlinkHakoMessage
     }
 
     class IMavlinkCommEndpointType {
-        +const char* ipaddr
-        +int portno
+        <<interface>>
     }
 
-    class MavLinkUserCustomDecoderType {
-        +MavlinkMsgType type
-        +bool (*user_custom_decode)(int index, const void* data, int detalen, hako::mavlink::MavlinkHakoMessage& message)
+    class MavlinkHakoMessage {
+        +type : MavlinkMsgType
     }
 
-    MavlinkHakoMessage -- MavlinkMsgType
-    IMavLinkService -- MavlinkServiceIoType
-    IMavLinkService -- IMavlinkCommEndpointType
-    IMavLinkService -- MavLinkServiceDesitinationType
-    IMavLinkService -- MavlinkHakoMessage
-    IMavLinkService -- MavLinkUserCustomDecoderType
+    class MavlinkMsgType {
+        +type_name : string
+    }
 
+    class MavlinkServiceIoType {
+        <<enumeration>>
+        TCP
+        UDP
+    }
+
+    MavLinkServiceContainer --> IMavLinkService
+    IMavLinkService --> IMavlinkCommEndpointType
+    IMavLinkService --> MavlinkHakoMessage
+    MavlinkHakoMessage --> MavlinkMsgType
 ```
 
-## 4. シーケンス図
+## シーケンス図
+
+IMavLinkServiceのインスタンス生成、エンドポイントの設定、データ送受信のシーケンス図を示します(MavLinkServiceContainerを利用することもできますが、ここでは省略します)。
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
+    participant User as User
     participant Service as IMavLinkService
-    participant Callback as IMavLinkServiceCallback
+    participant IoThread
+    participant ReceiveBuffers
+    participant Target
 
-    App->>Service: create(index, io_type, server_endpoint, client_endpoint)
+    User ->> Service: create()
     activate Service
-    Service-->>App: shared_ptr<IMavLinkService>
 
-    App->>Service: setReceiverCallback(callback)
-    App->>Service: startService()
+    User ->> Service: startService()
+    Service ->> IoThread: Start thread
+    activate IoThread
+    IoThread ->> ReceiveBuffers: Create receive buffers
+    activate ReceiveBuffers
+    IoThread -->> IoThread: listen port and receive data
 
-    loop Simulation Loop
-        App->>Service: sendMessage(destination, message)
-        Service-->>App: true/false
+    Target ->> IoThread: Connect to server
+    IoThread ->> Target: OK
+    
 
-        Service->>Callback: onReceiveMessage(index)
-        Callback-->>Service: 
+    User ->> Service: send(MavlinkHakoMessage)
+    Service -->> Target: Transmit data
 
-        App->>Service: readMessage(message, is_dirty)
-        Service-->>App: true/false
-    end
+    Target -->> IoThread: Send data
+    IoThread ->> ReceiveBuffers: Put data
+    ReceiveBuffers ->> ReceiveBuffers: Buffering data
+    ReceiveBuffers ->> IoThread: OK
 
-    App->>Service: stopService()
+    User ->> Service: readMessage()
+    Service ->> ReceiveBuffers: Receive data
+    ReceiveBuffers ->> Service: Get data
+    Service ->> User: MavlinkHakoMessage
+
+    User ->> Service: stopService()
+    Service ->> IoThread: Stop thread
+    deactivate IoThread
+    deactivate ReceiveBuffers
     deactivate Service
+    Service ->> User: OK
 ```
 
-## 5. APIリファレンス
+## API リファレンスへの参照
+以下のクラスについてのAPIリファレンスを参照してください：
 
-- [MAVLink API](/docs/architecture/mavlink/api_mavlink.md)
-- [MAVLink Service API](/docs/architecture/mavlink/api_mavlink_service.md)
+- [service](api_mavlink_service.md)
+
+
+
