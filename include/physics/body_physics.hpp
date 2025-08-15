@@ -211,6 +211,18 @@ VelocityType boundary_disturbance_as_wind(
     const VectorType& drag1, // used to convert to force to wind effect
     double exponent = 1.5);
 
+inline VelocityType wind_from_drone(
+    const VectorType& position, const EulerType& euler,
+    const VectorType& boundary_point, const VectorType& boundary_normal, double thrust,
+    double rotor_radius,
+    const VectorType& drag1, // used to convert to force to wind effect
+    double exponent = 1.5)
+{
+    return -boundary_disturbance_as_wind(position, euler, boundary_point, boundary_normal,
+        thrust, rotor_radius, drag1, exponent);
+}
+
+
 inline bool boundary_is_near(double distance, double rotor_radius) {
     // asserting distance, rotor_radius >= 0
     return distance < 5.0 * rotor_radius; // the drone is near the boundary

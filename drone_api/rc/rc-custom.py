@@ -9,7 +9,7 @@ import time
 import os
 import argparse
 from rc_utils.rc_utils import RcConfig, StickMonitor
-from return_to_home import DroneController
+#from return_to_home import DroneController
 
 # デフォルトのJSONファイルパス
 DEFAULT_CONFIG_PATH = "rc_config/ps4-control.json"
