@@ -3,11 +3,9 @@ FROM ubuntu:24.04 as hakoniwa-drone-core
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
-    LD_LIBRARY_PATH="/usr/local/lib/hakoniwa:${LD_LIBRARY_PATH}" \
-    PYTHONPATH="/usr/local/lib/hakoniwa/py:${PYTHONPATH}" \
-    HAKO_BINARY_PATH="/usr/local/lib/hakoniwa/hako_binary/offset"
+    HAKO_BINARY_PATH="/usr/share/hakoniwa/offset"
 
-    RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
     vim \
@@ -28,15 +26,12 @@ ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
-
-
-# hakoniwa-core-cpp-client のインストール
+# hakoniwa-core-pro のインストール
 WORKDIR /root
-RUN git clone --recursive https://github.com/toppers/hakoniwa-core-cpp-client.git && \
-    cd hakoniwa-core-cpp-client && \
-    bash build.bash &&  \
-    bash install.bash
-
+RUN echo "deb [trusted=yes] https://hakoniwalab.github.io/apt stable main" \
+ | tee /etc/apt/sources.list.d/hakoniwa.list
+RUN apt-get update && apt-get install -y hakoniwa-core-full \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Python モジュールのインストール（必要に応じて追加）
 RUN pip3 install --break-system-packages numpy scipy \
