@@ -1,58 +1,58 @@
-[English](hakoniwa-wsl.en.md) | 日本語
+English | [日本語](hakoniwa-wsl.md)
 
 # TIPS
-## Windows で 箱庭あり版PX4/Ardupilot連携する場合について
+## About integrating with Hakoniwa-enabled PX4/Ardupilot on Windows
 
-Windowsで PX4/Ardupilot連携する場合、WSLとネイティブアプリ間で高頻度な通信が発生します(3ms毎に通信)。
+When integrating with PX4/Ardupilot on Windows, high-frequency communication occurs between WSL and native applications (communication every 3ms).
 
 ![image](/docs/images/win-px4-arch.png)
 
-そのため、シミュレーション速度が非常に遅くなる場合があります（体感で３−４倍程度遅くなる）。
+Therefore, the simulation speed may become very slow (about 3-4 times slower in experience).
 
-シミュレーション速度を改善する方法として、シミュレーション構成を以下のようにすることで、改善できます。
+As a way to improve the simulation speed, you can improve it by changing the simulation configuration as follows.
 
 ![image](/docs/images/wsl-px4-arch.png)
 
 
-シミュレーション実行手順：
+Simulation execution procedure:
 
-1. [UnityエディタでWebAvatarシーンを開く。](#UnityエディタでWebAvatarシーンを開く)
-2. [WSLで、初期セットアップ](#wslで初期セットアップ)
-3. [WSLで、PX4 を起動する。](#wslでpx4-を起動する)
-4. [WSLで、PX4 連携サンプルアプリを起動する。](#wslでpx4-連携サンプルアプリを起動する)
-5. [WSLで、箱庭Webサーバーを起動する。](#wslで箱庭webサーバーを起動する)
-6. [WSLで、箱庭シミュレーションを開始する。](#wslで箱庭シミュレーションを開始する)
-7. UnityエディタのWebAvatarシーンのPlayボタンをクリック。
-8. QGCを起動し、PX4と接続し、遠隔操作を行う。
+1.  [Open the WebAvatar scene in the Unity Editor.](#open-the-webavatar-scene-in-the-unity-editor)
+2.  [Initial setup in WSL.](#initial-setup-in-wsl)
+3.  [Start PX4 in WSL.](#start-px4-in-wsl)
+4.  [Start the PX4 integration sample app in WSL.](#start-the-px4-integration-sample-app-in-wsl)
+5.  [Start the Hakoniwa Web server in WSL.](#start-the-hakoniwa-web-server-in-wsl)
+6.  [Start the Hakoniwa simulation in WSL.](#start-the-hakoniwa-simulation-in-wsl)
+7.  Click the Play button of the WebAvatar scene in the Unity Editor.
+8.  Start QGC, connect to PX4, and perform remote operation.
 
-### UnityエディタでWebAvatarシーンを開く。
+### Open the WebAvatar scene in the Unity Editor.
 
-ヒエラルキービューの`HakoniwaWeb` をクリックし、インスペクタビューの`Server Uri` のIPアドレスをWSLのIPアドレスとしてください。
+Click `HakoniwaWeb` in the hierarchy view and set the IP address of `Server Uri` in the inspector view to the IP address of WSL.
 
 ![image](https://github.com/user-attachments/assets/b7c14be1-0342-40e5-be07-77a0574adea2)
 
 
-### WSLで、初期セットアップ
+### Initial setup in WSL
 
-#### 箱庭コマンドのパスを通す。
+#### Add the path of the Hakoniwa command.
 
-環境変数 `PATH` に、箱庭コマンドのパスを通す必要があります。
+You need to add the path of the Hakoniwa command to the environment variable `PATH`.
 
-設定例：
+Configuration example:
 ```bash
 export PATH=$PATH:/usr/local/bin/hakoniwa
 ```
 
-必要に応じて、`~/.bashrc` や `~/.zshrc` に追記してください。
+If necessary, please add it to `~/.bashrc` or `~/.zshrc`.
 
 ```bash
 echo 'export PATH=$PATH:/usr/local/bin/hakoniwa' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-#### WSLのファイルシステムに移動し、空プロジェクトディレクトリを作成する
+#### Move to the file system of WSL and create an empty project directory
 
-ここでは、プロジェクト名を `project`としていますが、任意の英字で構いません。
+Here, the project name is `project`, but any alphabetic characters are acceptable.
 
 ```bash
 cd ~
@@ -60,27 +60,27 @@ mkdir project
 cd project
 ```
 
-なお、後述するリポジトリは、すべて project 直下にクローンしてください。
+In addition, please clone all the repositories described later directly under `project`.
 
-#### hakoniwa-drone-coreのクローン
+#### Clone hakoniwa-drone-core
 
-事前に、hakoniwa-drone-core をクローンしてください。
+Please clone hakoniwa-drone-core in advance.
 
 ```bash
 git clone --recursive https://github.com/toppers/hakoniwa-drone-core.git
 ```
 
-また、最新のリリースから lnx.zip をダウンロードしhakoniwa-drone-core 直下に解凍してください。
+Also, please download lnx.zip from the latest release and extract it directly under hakoniwa-drone-core.
 
-#### hakoniwa-unity-droneのクローン
+#### Clone hakoniwa-unity-drone
 
-事前に、hakoniwa-unity-drone をクローンしてください。
+Please clone hakoniwa-unity-drone in advance.
 
 ```bash
 git clone --recursive https://github.com/hakoniwalab/hakoniwa-unity-drone.git
 ```
 
-### WSLで、PX4 を起動する。
+### Start PX4 in WSL.
 
 ```bash
 cd hakoniwa-px4sim/px4/PX4-Autopilot
@@ -90,7 +90,7 @@ cd hakoniwa-px4sim/px4/PX4-Autopilot
 bash ../sim/simstart.bash
 ```
 
-成功するとこうなります。
+If successful, it will look like this.
 
 ```
 tmori@WinHako:~/project/hakoniwa-px4sim/px4/PX4-Autopilot$ bash ../sim/simstart.bash
@@ -121,13 +121,13 @@ INFO  [simulator_mavlink] Resolved host '127.0.0.1' to address: 127.0.0.1
 INFO  [simulator_mavlink] Waiting for simulator to accept connection on TCP port 4560
 ```
 
-### WSLで、PX4 連携サンプルアプリを起動する。
+### Start the PX4 integration sample app in WSL.
 
 ```bash
 lnx/linux-main_hako_aircraft_service_px4 127.0.0.1 4560 ./config/drone/px4 <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
 ```
 
-成功するとこうなります。
+If successful, it will look like this.
 
 ```
 tmori@WinHako:~/project/hakoniwa-drone-core$ ./lnx/linux-main_hako_aircraft_service_px4 127.0.01 4560 config/drone/px4 ../hakoniwa-unity-drone/simulation/webavatar.json
@@ -246,13 +246,13 @@ INFO: AircraftService started
 WAIT START
 ```
 
-### WSLで、箱庭シミュレーションを開始する。
+### Start the Hakoniwa simulation in WSL.
 
 ```bash
 hako-cmd start
 ```
 
-成功すると、PX4のログが以下のようになります。
+If successful, the PX4 log will look like this.
 
 ```
 :
@@ -281,7 +281,7 @@ INFO  [mavlink] partner IP: 172.31.0.1
 INFO  [commander] Ready for takeoff!
 ```
 
-### WSLで、箱庭Webサーバーを起動する。
+### Start the Hakoniwa Web server in WSL.
 
 ```bash
 cd hakoniwa-unity-drone/hakoniwa-webserver
@@ -291,7 +291,7 @@ cd hakoniwa-unity-drone/hakoniwa-webserver
 python -m server.main --asset_name WebServer --config_path ../simulation/webavatar.json --delta_time_usec 20000
 ```
 
-成功すると、こうなります。
+If successful, it will look like this.
 
 ```
 (venv) tmori@WinHako:~/project/hakoniwa-unity-drone/hakoniwa-webserver$ python -m server.main --asset_name WebServer --config_path ../simulation/webavatar.json --delta_time_usec 20000

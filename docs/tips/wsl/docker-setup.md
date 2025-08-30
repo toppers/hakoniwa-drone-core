@@ -1,3 +1,5 @@
+[English](docker-setup.en.md) | 日本語
+
 # TIPS
 
 ## WSL/docker 環境のセットアップ方法

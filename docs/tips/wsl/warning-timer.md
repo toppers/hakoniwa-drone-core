@@ -1,3 +1,5 @@
+[English](warning-timer.en.md) | 日本語
+
 # TIPS
 ## WSL で、Ardupilot を起動すると Warning, time moved backwards. Restarting timer.が出た時の対処方法
 

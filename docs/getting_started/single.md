@@ -1,3 +1,5 @@
+[English](single.en.md) | 日本語
+
 # Getting Started: シングルパターン（箱庭なし）
 
 箱庭ドローンシミュレータを **箱庭なし構成（シングルパターン）** で利用する場合、物理モデルおよび制御モデルを**スタンドアロンで直接実行**できます。
@@ -38,7 +40,7 @@ ZIPを展開したディレクトリ内に各バイナリが含まれていま�
 
 ---
 
-## 1. PX4連携：aircraft\_service\_px4
+## 1. PX4連携：aircraft_service_px4
 
 ```bash
 <os名>-aircraft_service_px4 <IPアドレス> 4560 ./config/drone/px4
@@ -51,7 +53,7 @@ ZIPを展開したディレクトリ内に各バイナリが含まれていま�
 
 ---
 
-## 2. Ardupilot連携：aircraft\_service\_ardupilot
+## 2. Ardupilot連携：aircraft_service_ardupilot
 
 ```bash
 <os名>-aircraft_service_ardupilot <ホストPCのIPアドレス> 9002 9003 ./config/drone/ardupilot
@@ -76,7 +78,7 @@ Ardupilot起動例：
 
 ---
 
-## 3. CUI操作：drone\_service\_rc
+## 3. CUI操作：drone_service_rc
 
 箱庭ドローンシミュレータの物理モデルと制御モデルを連携させて、CUIで操作することが可能です。
 
@@ -85,13 +87,13 @@ drone_service_rc 1 config/drone/rc
 ```
 
 ```
- ----- USAGE -----
- ----- STICK -----
+ ----- USAGE ----- 
+ ----- STICK ----- 
 |  LEFT  | RIGHT  |
 |   w    |   i    |
 | a   d  | j   l  |
 |   s    |   k    |
- ---- BUTTON ----
+ ---- BUTTON ---- 
  x : radio control button
  p : get position
  r : get attitude
@@ -157,7 +159,7 @@ position x=0.6 y=0.0 z=1.3
 
 ---
 
-## 4. Cライブラリ連携：hako\_service\_c
+## 4. Cライブラリ連携：hako_service_c
 
 ライブラリとして組み込みたい場合：
 

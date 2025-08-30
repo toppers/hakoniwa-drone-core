@@ -1,9 +1,9 @@
-[English](px4-setup.en.md) | 日本語
+English | [日本語](px4-setup.md)
 
 # TIPS
 
 
-## PX4 SITL のセットアップ方法
+## How to set up PX4 SITL
 
 ```
 git clone --recursive https://github.com/PX4/PX4-Autopilot.git

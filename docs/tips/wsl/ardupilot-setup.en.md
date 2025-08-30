@@ -1,9 +1,9 @@
-[English](ardupilot-setup.en.md) | 日本語
+English | [日本語](ardupilot-setup.md)
 
 # TIPS
 
 
-## Ardupilot SITL のセットアップ方法
+## How to set up Ardupilot SITL
 
 ```
 git clone --recursive https://github.com/ArduPilot/ardupilot.git

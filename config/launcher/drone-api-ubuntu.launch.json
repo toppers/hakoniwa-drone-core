@@ -1,0 +1,57 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": [
+          "/usr/lib/x86_64-linux-gnu"
+        ],
+        "PATH": ["/usr/bin"] 
+      }
+    },    
+    "start_grace_sec": 1,
+    "delay_sec": 3
+  },
+  "assets": [
+    {
+      "name": "drone",
+      "activation_timing": "before_start",
+      "command": "src/cmake-build/main_for_sample/hakoniwa/hako_drone_service",
+      "args": [
+        "config/drone/api",
+        "config/pdudef/webavatar.json"
+      ],
+      "cwd": "/home/tmori/qiita/hakoniwa-drone-pro"
+    },
+    {
+      "name": "webserver",
+      "activation_timing": "after_start",
+      "command": "/home/tmori/venv-ardupilot/bin/python",
+      "args": [
+        "-m",
+        "server.main",
+        "--asset_name", "WebServer",
+        "--config_path", "../hakoniwa-drone-core/config/pdudef/webavatar.json",
+        "--delta_time_usec", "20000"
+      ],
+      "cwd": "/home/tmori/qiita/hakoniwa-webserver",
+      "depends_on": ["drone"]
+    },
+    {
+      "name": "Unity",
+      "activation_timing": "after_start",
+      "command": "simulation.exe",
+      "args": [],
+      "cwd": "/mnt/c/project/hakoniwa-unity-drone/WebAvatar",
+      "depends_on": ["webserver"]
+    }
+  ],
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": ["${asset}", "asset_exit", "${timestamp}"]
+  }
+}

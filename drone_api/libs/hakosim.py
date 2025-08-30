@@ -230,7 +230,7 @@ class MultirotorClient:
 
     def takeoff(self, height, vehicle_name=None):
         if self.get_vehicle_name(vehicle_name) != None:
-            print("INFO: takeoff")
+            print(f"INFO: takeoff: height={height}")
             pdu_cmd: HakoDroneCmdTakeoff = HakoDroneCmdTakeoff()
             self._initialize_header(pdu_cmd.header)
             pdu_cmd.height = height
@@ -356,6 +356,7 @@ class MultirotorClient:
                 pdu_data = pdu_to_py_HakoCameraData(raw_data)
                 if pdu_data.request_id == vehicle.camera_cmd_request_id:
                 #print("request_id", pdu_data['request_id'])
+                    print(f"INFO: get camera data len={len(pdu_data.image.data)}")
                     return pdu_data.image.data
                 else:
                     pass
@@ -449,7 +450,7 @@ class MultirotorClient:
             return None
 
 
-    def getLidarData(self, vehicle_name=None):
+    def getLidarData(self, return_point_cloud=False, vehicle_name=None):
         vehicle_name = self.get_vehicle_name(vehicle_name)
         if vehicle_name != None:
             vehicle = self.vehicles[vehicle_name]
@@ -472,6 +473,8 @@ class MultirotorClient:
             position = hakosim_types.Vector3r(lidar_pos_pdu_data.linear.x, lidar_pos_pdu_data.linear.y, lidar_pos_pdu_data.linear.z)
             orientation = hakosim_types.Quaternionr.euler_to_quaternion(lidar_pos_pdu_data.angular.x, lidar_pos_pdu_data.angular.y, lidar_pos_pdu_data.angular.z)
             pose = hakosim_types.Pose(position, orientation)
+            if return_point_cloud:
+                return lidar_pdu_data, pose
             return hakosim_lidar.LidarData(point_cloud, time_stamp, pose)
         else:
             return None

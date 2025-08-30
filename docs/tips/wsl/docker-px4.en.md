@@ -1,37 +1,37 @@
-[English](docker-px4.en.md) | 日本語
+English | [日本語](docker-px4.md)
 
 # TIPS
 
-## WSL/docker 環境で箱庭&PX4連携方法
+## How to integrate Hakoniwa & PX4 in a WSL/docker environment
 
-### 事前準備
+### Prerequisites
 
-- WSL2/Ubuntu環境にdockerをインストールしておく必要があります。
-- dockerのインストール方法は、[こちら](docker-setup.md)を参照してください。
-- QGC をインストールしておく必要があります。
-- Unityをインストールしておく必要があります。
-- [hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone) のsimulationpプロジェクトを開き、`Scenes/WebAvatar` シーンを開いておく必要があります。
-- PX4 をビルドしておく必要があります。
-- PX4 のビルド方法は、[こちら](px4-setup.md)を参照してください。
+- You need to have docker installed in your WSL2/Ubuntu environment.
+- For how to install docker, please refer to [here](docker-setup.md).
+- You need to have QGC installed.
+- You need to have Unity installed.
+- You need to open the `simulation` project of [hakoniwa-unity-drone](https://github.com/hakoniwalab/hakoniwa-unity-drone) and have the `Scenes/WebAvatar` scene open.
+- You need to have PX4 built.
+- For how to build PX4, please refer to [here](px4-setup.md).
 
 
-### 実行手順
+### Execution Procedure
 
-1. QGC を起動します。
-2. Unityを起動します。
-3. [PX4 を起動します。](#PX4の起動)
-4. [箱庭ドローンシミュレータを起動します。](#箱庭ドローンシミュレータの起動)
-5. Unityのシーンを再生します。
+1.  Start QGC.
+2.  Start Unity.
+3.  [Start PX4.](#starting-px4)
+4.  [Start the Hakoniwa Drone Simulator.](#starting-the-hakoniwa-drone-simulator)
+5.  Play the Unity scene.
 
-#### PX4の起動
+#### Starting PX4
 
-以下を実行してください。
+Please execute the following.
 
 ```bash
 bash hakoniwa-drone-core/tools/px4/run.bash
 ```
 
-例：
+Example:
 ```bash
 tmori@WinHako:~/qiita$ bash hakoniwa-drone-core/tools/px4/run.bash
 [0/1] launching px4 none_iris (SYS_AUTOSTART=10016)
@@ -59,9 +59,9 @@ INFO  [simulator_mavlink] Resolved host '127.0.0.1' to address: 127.0.0.1
 INFO  [simulator_mavlink] Waiting for simulator to accept connection on TCP port 4560
 ```
 
-#### 箱庭ドローンシミュレータの起動
+#### Starting the Hakoniwa Drone Simulator
 
-以下を実行してください。
+Please execute the following.
 
 ```bash
 bash hakoniwa-drone-core/docker/run.bash
@@ -71,4 +71,4 @@ bash hakoniwa-drone-core/docker/run.bash
 bash hakoniwa-drone-core/docker/tools/run-hako.bash px4
 ```
 
-成功すると、QGC が反応します。
+If successful, QGC will respond.

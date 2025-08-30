@@ -1,3 +1,5 @@
+[English](docker-gamepad.en.md) | 日本語
+
 # TIPS
 
 ## WSL/docker 環境で箱庭&ゲームパッド操作方法

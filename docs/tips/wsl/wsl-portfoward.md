@@ -1,3 +1,5 @@
+[English](wsl-portfoward.en.md) | 日本語
+
 # 🌐 外部PCからWSL2のシミュレータに接続する方法
 
 Hakoniwa Drone Simulator を **WSL2 上で実行**し、外部PC（同一ネットワーク内）から接続したい場合は、以下の手順を参考にしてください。
