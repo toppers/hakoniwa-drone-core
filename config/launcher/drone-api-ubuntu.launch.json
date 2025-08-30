@@ -19,12 +19,33 @@
     {
       "name": "drone",
       "activation_timing": "before_start",
-      "command": "src/cmake-build/main_for_sample/hakoniwa/hako_drone_service",
+      "command": "lnx/linux-main_hako_drone_service",
       "args": [
         "config/drone/api",
         "config/pdudef/webavatar.json"
       ],
-      "cwd": "/home/tmori/qiita/hakoniwa-drone-pro"
+      "cwd": "/home/tmori/qiita/hakoniwa-drone-core"
+    },
+    {
+      "name": "environment",
+      "activation_timing": "before_start",
+      "command": "/home/tmori/venv-ardupilot/bin/python",
+      "args": [
+        "-m",
+        "hako_env_event",
+        "../config/pdudef/webavatar.json",
+        "20", "assets/config"
+      ],
+      "cwd": "/home/tmori/qiita/hakoniwa-drone-core/drone_api",
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/home/tmori/qiita/hakoniwa-drone-core/drone_api",
+            "/home/tmori/qiita/hakoniwa-drone-core/drone_api/assets",
+            "/home/tmori/qiita/hakoniwa-drone-core/drone_api/assets/lib"
+          ]
+        }
+      }
     },
     {
       "name": "webserver",
