@@ -1,0 +1,64 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": [
+          "/usr/local/hakoniwa/lib"
+        ],
+        "PATH": ["/usr/local/hakoniwa/bin"] 
+      }
+    },    
+    "start_grace_sec": 1,
+    "delay_sec": 3
+  },
+  "assets": [
+    {
+      "name": "drone",
+      "activation_timing": "before_start",
+      "command": "mac/mac-main_hako_drone_service",
+      "args": [
+        "config/drone/api",
+        "config/pdudef/webavatar.json"
+      ],
+      "cwd": "/Users/tmori/project/oss/hakoniwa-drone-core"
+    },
+    {
+      "name": "environment",
+      "activation_timing": "before_start",
+      "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
+      "args": [
+        "-m",
+        "hako_env_event",
+        "../config/pdudef/webavatar.json",
+        "20", "assets/config"
+      ],
+      "cwd": "/Users/tmori/project/oss/hakoniwa-drone-core/drone_api",
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/Users/tmori/project/oss/hakoniwa-drone-core/drone_api",
+            "/Users/tmori/project/oss/hakoniwa-drone-core/drone_api/assets",
+            "/Users/tmori/project/oss/hakoniwa-drone-core/drone_api/assets/lib"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unity",
+      "activation_timing": "before_start",
+      "command": "avatar-demo/avatar.app/Contents/MacOS/simulation",
+      "args": [],
+      "cwd": "/Users/tmori/project/oss/hakoniwa-unity-drone",
+      "depends_on": ["drone"]
+    }
+  ],
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": ["${asset}", "asset_exit", "${timestamp}"]
+  }
+}
