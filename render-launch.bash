@@ -22,9 +22,12 @@ print(next(iter(cands),""))
 PY
 )"
 
+PYTHON_EXEC=$(which python)
+
 # 2) レンダリング（mo に環境変数で渡す）
-export REPO_ROOT SYS_DIST PYENV_SITE
+export REPO_ROOT SYS_DIST PYENV_SITE PYTHON_EXEC
 scripts/mo config/launcher/drone-api-ubuntu.launch_json.mo > config/launcher/drone-api-ubuntu.launch.json
+scripts/mo config/launcher/gemini-mcpserver_json.mo > config/launcher/gemini-mcpserver.json
 
 # 任意：JSON 検証
 command -v jq >/dev/null 2>&1 && jq . config/launcher/drone-api.launch.json >/dev/null
