@@ -48,7 +48,6 @@ end
 # ===== Phase 2: Remove Hakoniwa bits (optional) =====
 if [ "$REMOVE_HAKONIWA" = "1" ]; then
   begin "Remove hakoniwa-core-full (apt) and unpacked artifacts"
-  # apt package
   if dpkg -s hakoniwa-core-full >/dev/null 2>&1; then
     sudo apt-get purge -y hakoniwa-core-full || warn "Failed to purge hakoniwa-core-full"
     sudo apt-get autoremove -y || true
@@ -57,14 +56,12 @@ if [ "$REMOVE_HAKONIWA" = "1" ]; then
     warn "hakoniwa-core-full not installed; skipping"
   fi
 
-  # unpacked lnx/ from lnx.zip
   if [ -d "./lnx" ]; then
     rm -rf ./lnx && ok "Removed ./lnx directory"
   else
     warn "./lnx not found; skipping"
   fi
 
-  # unpacked WebAvatar (support common names)
   if [ -d "./WebAvatar" ]; then
     rm -rf ./WebAvatar && ok "Removed ./WebAvatar directory"
   elif [ -d "./webavatar" ]; then
@@ -73,35 +70,40 @@ if [ "$REMOVE_HAKONIWA" = "1" ]; then
     warn "WebAvatar directory not found; skipping"
   fi
 
-  # leftover archives (best-effort)
   rm -f ./lnx.zip ./WebAvatar.zip 2>/dev/null || true
-
   end
 
+  # ===== Phase 2b: Uninstall hakoniwa-pdu from pyenv-managed Pythons (safe) =====
   begin "Uninstall hakoniwa-pdu from pyenv-managed Pythons (best-effort)"
   if [ -d "$PYENV_DIR/versions" ]; then
-    found=0
-    # search all pyenv python binaries, try to uninstall
+    removed_any=0
+    # 1) pyenv-installed interpreters (e.g., 3.12.3)
     while IFS= read -r -d '' pybin; do
-      pipbin="$(dirname "$pybin")/pip"
-      if [ -x "$pipbin" ]; then
-        "$pipbin" uninstall -y hakoniwa-pdu >/dev/null 2>&1 && found=1 || true
+      if "$pybin" -m pip show hakoniwa-pdu >/dev/null 2>&1; then
+        "$pybin" -m pip uninstall -y hakoniwa-pdu >/dev/null 2>&1 && removed_any=1 || true
+        ok "Removed hakoniwa-pdu from $(dirname "$pybin")"
       fi
     done < <(find "$PYENV_DIR/versions" -maxdepth 2 -type f -name python -print0 2>/dev/null || true)
-    if [ "$found" = "1" ]; then ok "hakoniwa-pdu removed from pyenv environments"; else warn "No hakoniwa-pdu found under pyenv"; fi
+
+    # 2) pyenv-virtualenv environments
+    while IFS= read -r -d '' vpy; do
+      if "$vpy" -m pip show hakoniwa-pdu >/dev/null 2>&1; then
+        "$vpy" -m pip uninstall -y hakoniwa-pdu >/dev/null 2>&1 && removed_any=1 || true
+        ok "Removed hakoniwa-pdu from virtualenv $(dirname "$vpy")"
+      fi
+    done < <(find "$PYENV_DIR/versions" -type f -path "*/envs/*/bin/python" -print0 2>/dev/null || true)
+
+    [ "$removed_any" = "1" ] || warn "No hakoniwa-pdu found under pyenv"
   else
     warn "pyenv directory not found; skipping hakoniwa-pdu removal"
   fi
   end
-else
-  warn "Hakoniwa removal skipped (REMOVE_HAKONIWA=0)"
-fi
+fi  # ← Phase 2/2b をここで閉じる
 
 # ===== Phase 3: Remove Hakoniwa APT repo (optional) =====
 if [ "$REMOVE_HAKO_APT" = "1" ]; then
   begin "Remove Hakoniwa APT source list & update"
   if [ -f "$HAKO_APT_FILE" ]; then
-    # If file contains only the expected line, remove; otherwise strip the line
     if [ "$(wc -l < "$HAKO_APT_FILE")" -eq 1 ] && grep -Fqx "$HAKO_APT_LINE" "$HAKO_APT_FILE"; then
       sudo rm -f "$HAKO_APT_FILE"
       ok "Deleted $HAKO_APT_FILE"
@@ -158,5 +160,13 @@ else
 fi
 
 printf "\n${C_G}All clean!${C_0} System Python remains untouched.\n"
-echo "Tip: open a new shell so ${PROFILE_FILE} changes (if any) take effect."
-echo "Flags: REMOVE_HAKONI_
+
+cat <<EOF
+Flags:
+  REMOVE_HAKONIWA=${REMOVE_HAKONIWA}
+  REMOVE_HAKO_APT=${REMOVE_HAKO_APT}
+  REMOVE_PYENV_LINES=${REMOVE_PYENV_LINES}
+  REMOVE_PYENV_DIR=${REMOVE_PYENV_DIR}
+  PYENV_BACKUP_DELETE=${PYENV_BACKUP_DELETE}
+Tip: open a new shell so ${PROFILE_FILE} changes (if any) take effect.
+EOF
