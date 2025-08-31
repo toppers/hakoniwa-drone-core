@@ -9,7 +9,11 @@
         "lib_path": [
           "/usr/lib/x86_64-linux-gnu"
         ],
-        "PATH": ["/usr/bin"] 
+        "PATH": ["/usr/bin"],
+        "PYTHONPATH": [
+          "/usr/lib/python3/dist-packages",
+          "/home/tmori/.pyenv/versions/3.12.3/lib/python3.12/site-packages"
+        ]
       }
     },    
     "start_grace_sec": 1,
@@ -24,25 +28,25 @@
         "config/drone/api",
         "config/pdudef/webavatar.json"
       ],
-      "cwd": "/home/tmori/qiita/hakoniwa-drone-core"
+      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-core"
     },
     {
       "name": "environment",
       "activation_timing": "before_start",
-      "command": "/home/tmori/venv-ardupilot/bin/python",
+      "command": "python",
       "args": [
         "-m",
         "hako_env_event",
         "../config/pdudef/webavatar.json",
         "20", "assets/config"
       ],
-      "cwd": "/home/tmori/qiita/hakoniwa-drone-core/drone_api",
+      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-core/drone_api",
       "env": {
         "prepend": {
           "PYTHONPATH": [
-            "/home/tmori/qiita/hakoniwa-drone-core/drone_api",
-            "/home/tmori/qiita/hakoniwa-drone-core/drone_api/assets",
-            "/home/tmori/qiita/hakoniwa-drone-core/drone_api/assets/lib"
+            "/home/tmori/hakoniwa/hakoniwa-drone-core/drone_api",
+            "/home/tmori/hakoniwa/hakoniwa-drone-core/drone_api/assets",
+            "/home/tmori/hakoniwa/hakoniwa-drone-core/drone_api/assets/lib"
           ]
         }
       }
@@ -50,7 +54,7 @@
     {
       "name": "webserver",
       "activation_timing": "after_start",
-      "command": "/home/tmori/venv-ardupilot/bin/python",
+      "command": "python",
       "args": [
         "-m",
         "server.main",
@@ -58,7 +62,7 @@
         "--config_path", "../hakoniwa-drone-core/config/pdudef/webavatar.json",
         "--delta_time_usec", "20000"
       ],
-      "cwd": "/home/tmori/qiita/hakoniwa-webserver",
+      "cwd": "/home/tmori/hakoniwa/hakoniwa-webserver",
       "depends_on": ["drone"]
     },
     {
@@ -66,7 +70,7 @@
       "activation_timing": "after_start",
       "command": "simulation.exe",
       "args": [],
-      "cwd": "/mnt/c/project/hakoniwa-unity-drone/WebAvatar",
+      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-core/WebAvatar",
       "depends_on": ["webserver"]
     }
   ],

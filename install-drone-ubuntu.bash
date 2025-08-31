@@ -127,11 +127,25 @@ if [ "$INSTALL_HAKONIWA" = "1" ]; then
   begin_phase "Hakoniwa: pip install hakoniwa-pdu into ${PYTHON_VERSION}"
   "$PIP_BIN" install -U pip
   "$PIP_BIN" install -U hakoniwa-pdu
+  "$PIP_BIN" install -U \
+    "scipy" \
+    "aiohttp>=3.10.0" \
+    "aiohttp-cors>=0.7.0" \
+    "websockets==13.1"
   ok "hakoniwa-pdu installed for ${PYTHON_VERSION}"
   end_phase
 else
   warn "Hakoniwa section skipped (INSTALL_HAKONIWA=0)"
 fi
+
+function install_mustache()
+{
+  curl -fsSL -o mo https://raw.githubusercontent.com/tests-always-included/mo/master/mo
+  chmod +x mo
+  mkdir -p scripts && mv mo scripts/
+}
+
+install_mustache
 
 printf "\n${C_G}All done!${C_0} Current Python: $("$PY_BIN" -V)\n"
 echo "Tip: open a new shell so your ${PROFILE_FILE} changes take effect there too."

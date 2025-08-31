@@ -6,6 +6,10 @@ if [[ $# -ne 1 ]]; then
   exit 1
 fi
 
+if [ "$(uname)" = "Linux" ]; then
+  export PYTHONPATH=/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+fi
+
 LAUNCH_FILE=$1
 if [[ ! -f "$LAUNCH_FILE" ]]; then
   echo "Launch file not found: $LAUNCH_FILE" >&2
