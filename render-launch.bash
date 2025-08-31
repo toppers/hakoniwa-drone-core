@@ -24,7 +24,7 @@ PY
 
 # 2) レンダリング（mo に環境変数で渡す）
 export REPO_ROOT SYS_DIST PYENV_SITE
-scripts/mo config/launcher/drone-api.launch.json.mo > config/launcher/drone-api.launch.json
+scripts/mo config/launcher/drone-api-ubuntu.launch_json.mo > config/launcher/drone-api-ubuntu.launch.json
 
 # 任意：JSON 検証
 command -v jq >/dev/null 2>&1 && jq . config/launcher/drone-api.launch.json >/dev/null

@@ -9,9 +9,9 @@
         "lib_path": ["/usr/lib/x86_64-linux-gnu"],
         "PATH": ["/usr/bin"],
         "PYTHONPATH": [
-          "{{REPO_ROOT}}/hakoniwa-drone-core/drone_api",
-          "{{REPO_ROOT}}/hakoniwa-drone-core/drone_api/assets",
-          "{{REPO_ROOT}}/hakoniwa-drone-core/drone_api/assets/lib",
+          "{{REPO_ROOT}}/drone_api",
+          "{{REPO_ROOT}}/drone_api/assets",
+          "{{REPO_ROOT}}/drone_api/assets/lib",
           "{{SYS_DIST}}",
           "{{PYENV_SITE}}"
         ]
@@ -26,23 +26,23 @@
       "activation_timing": "before_start",
       "command": "lnx/linux-main_hako_drone_service",
       "args": ["config/drone/api", "config/pdudef/webavatar.json"],
-      "cwd": "{{REPO_ROOT}}/hakoniwa-drone-core"
+      "cwd": "{{REPO_ROOT}}"
     },
     {
       "name": "environment",
       "activation_timing": "before_start",
       "command": "python",
       "args": ["-m","hako_env_event","../config/pdudef/webavatar.json","20","assets/config"],
-      "cwd": "{{REPO_ROOT}}/hakoniwa-drone-core/drone_api"
+      "cwd": "{{REPO_ROOT}}/drone_api"
     },
     {
       "name": "webserver",
       "activation_timing": "after_start",
       "command": "python",
       "args": ["-m","server.main","--asset_name","WebServer",
-               "--config_path","../hakoniwa-drone-core/config/pdudef/webavatar.json",
+               "--config_path","{{REPO_ROOT}}/config/pdudef/webavatar.json",
                "--delta_time_usec","20000"],
-      "cwd": "{{REPO_ROOT}}/hakoniwa-webserver",
+      "cwd": "{{REPO_ROOT}}/../hakoniwa-webserver",
       "depends_on": ["drone"]
     },
     {
@@ -50,7 +50,7 @@
       "activation_timing": "after_start",
       "command": "simulation.exe",
       "args": [],
-      "cwd": "{{REPO_ROOT}}/hakoniwa-drone-core/WebAvatar",
+      "cwd": "{{REPO_ROOT}}/WebAvatar",
       "depends_on": ["webserver"]
     }
   ],

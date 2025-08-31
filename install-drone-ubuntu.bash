@@ -143,6 +143,7 @@ function install_mustache()
   curl -fsSL -o mo https://raw.githubusercontent.com/tests-always-included/mo/master/mo
   chmod +x mo
   mkdir -p scripts && mv mo scripts/
+  bash render-launch.bash
 }
 
 install_mustache
