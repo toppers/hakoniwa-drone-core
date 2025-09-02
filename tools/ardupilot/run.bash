@@ -27,4 +27,5 @@ echo "  MAVLink out: udp:${HOST_IP}:${MAVLINK_OUT_PORT}"
 --instance ${INSTANCE} \
 --slave 0 \
 --sim-address=${WSL_IP} \
+--out=udp:127.0.0.1:${MAVLINK_OUT_PORT} \
 --out=udp:${HOST_IP}:${MAVLINK_OUT_PORT}

@@ -94,7 +94,7 @@ async def run():
     print("-- Taking off")
     await drone.action.takeoff()
 
-    await wait_until_altitude(drone, target_altitude=2.4)
+    await wait_until_altitude(drone, target_altitude=2.0)
 
     print("-- Offboard start")
     await drone.offboard.set_position_ned(PositionNedYaw(0.0, 0.0, -2.5, 0.0))
