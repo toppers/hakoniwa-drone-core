@@ -59,7 +59,11 @@ def on_manual_timing_control(context):
         if pose_raw_data is None or len(pose_raw_data) == 0:
             #print("ERROR: Failed to read pose data")
             continue
-        pose: Twist = pdu_to_py_Twist(pose_raw_data)
+        try:
+            pose: Twist = pdu_to_py_Twist(pose_raw_data)
+        except Exception as e:
+            print("WARNING: hako_env_event is failed to read pose data. writer will be soon available...")
+            continue
         #print(f"Drone pose: {pose}")
 
         drone_position = (pose.linear.x, pose.linear.y, pose.linear.z)

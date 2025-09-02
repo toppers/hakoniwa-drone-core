@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]
+if [ $# -ne 1 ] && [ $# -ne 2 ] && [ $# -ne 3 ]
 then
-    echo "Usage: $0 {px4|ardupilot|rc|api}"
+    echo "Usage: $0 {px4|ardupilot|rc|api} [config-path] [drone-num]"
     exit 1
 fi
 
@@ -57,20 +57,23 @@ then
 fi
 
 RUN_MODE=${1}
+CONFIG_PATH=${2:-hakoniwa-drone-core/config/pdudef/webavatar.json}
+CONFIG_PATH=${BASE_DIR}/${CONFIG_PATH}
+DRONE_NUM=${3:-1}
 
 if [ $RUN_MODE = "px4" ]
 then
-     setsid bash hakoniwa-drone-core/docker/tools/run-hako-px4.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-px4.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} &
      HAKO_DRONE_PID=$!
      sleep 2
 elif [ $RUN_MODE = "ardupilot" ]
 then
-     setsid bash hakoniwa-drone-core/docker/tools/run-hako-ardupilot.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-ardupilot.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} ${DRONE_NUM} &
      HAKO_DRONE_PID=$!
      sleep 2
 elif [ $RUN_MODE = "rc" -o $RUN_MODE = "api" ]
 then
-     setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json $RUN_MODE &
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} $RUN_MODE &
      HAKO_DRONE_PID=$!
      sleep 2
 
@@ -83,7 +86,7 @@ fi
 
 curr_dir=$(pwd)
 cd ${BASE_DIR}/hakoniwa-drone-core
-setsid bash drone_api/assets/run-wind.bash  ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+setsid bash drone_api/assets/run-wind.bash  ${CONFIG_PATH} &
 HAKO_WIND_PID=$!
 cd ${curr_dir}
 sleep 2
@@ -93,7 +96,7 @@ hako-cmd start
 
 sleep 3
 
-setsid bash hakoniwa-drone-core/docker/tools/run-webserver.bash ${BASE_DIR}/hakoniwa-webserver ${BASE_DIR}/hakoniwa-drone-core/config/pdudef/webavatar.json &
+setsid bash hakoniwa-drone-core/docker/tools/run-webserver.bash ${BASE_DIR}/hakoniwa-webserver ${CONFIG_PATH} &
 HAKO_WEB_PID=$!
 echo "WEBSERVER PID: ${HAKO_WEB_PID}"
 
