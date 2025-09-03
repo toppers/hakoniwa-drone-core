@@ -16,103 +16,29 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Callable
 from enum import Enum
 from hakoniwa_pdu.apps.drone.hakosim import MultirotorClient as HakoniwaSensorClient
+from hakoniwa_pdu.apps.drone.hakosim import ImageType
+from hakoniwa_pdu.apps.drone.hakosim_types import Pose, Quaternionr, Vector3r
+from hakoniwa_pdu.apps.drone.hakosim_lidar import LidarData
+from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_pytype_GameControllerOperation import GameControllerOperation
 
-class ImageType:
-    Scene = "png"
-
-@dataclass
-class Vector3r:
-    x: float = 0.0
-    y: float = 0.0 
-    z: float = 0.0
-
-@dataclass
-class Quaternionr:
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
-    w: float = 1.0
-    
-    @staticmethod
-    def euler_to_quaternion(roll, pitch, yaw):
-        """オイラー角からクォータニオンに変換"""
-        cy = math.cos(yaw * 0.5)
-        sy = math.sin(yaw * 0.5)
-        cp = math.cos(pitch * 0.5)
-        sp = math.sin(pitch * 0.5)
-        cr = math.cos(roll * 0.5)
-        sr = math.sin(roll * 0.5)
-        
-        return Quaternionr(
-            x=sr * cp * cy - cr * sp * sy,
-            y=cr * sp * cy + sr * cp * sy,
-            z=cr * cp * sy - sr * sp * cy,
-            w=cr * cp * cy + sr * sp * sy
-        )
-    
-    @staticmethod
-    def quaternion_to_euler(q):
-        """クォータニオンからオイラー角に変換"""
-        # Roll (x軸回転)
-        sinr_cosp = 2 * (q.w * q.x + q.y * q.z)
-        cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y)
-        roll = math.atan2(sinr_cosp, cosr_cosp)
-        
-        # Pitch (y軸回転)
-        sinp = 2 * (q.w * q.y - q.z * q.x)
-        if abs(sinp) >= 1:
-            pitch = math.copysign(math.pi / 2, sinp)
-        else:
-            pitch = math.asin(sinp)
-        
-        # Yaw (z軸回転)  
-        siny_cosp = 2 * (q.w * q.z + q.x * q.y)
-        cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
-        yaw = math.atan2(siny_cosp, cosy_cosp)
-        
-        return roll, pitch, yaw
-
-@dataclass
-class Pose:
-    position: Vector3r
-    orientation: Quaternionr
-
-@dataclass 
-class GameControllerOperation:
-    """ゲームコントローラー操作データ"""
-    axis: List[float] = None
-    button: List[bool] = None
-    
-    def __post_init__(self):
-        if self.axis is None:
-            self.axis = [0.0] * 8
-        if self.button is None:
-            self.button = [False] * 16
-
-@dataclass
-class LidarData:
-    """LIDARデータ"""
-    point_cloud: List[Vector3r]
-    time_stamp: float
-    pose: Pose
 
 class FrameConverter:
     @staticmethod
     def ros_to_ned_pos(ros_pos: Vector3r) -> Vector3r:
         """ROS(FLU)座標系の位置をNED座標系に変換"""
         return Vector3r(
-            x=ros_pos.x,
-            y=-ros_pos.y,
-            z=-ros_pos.z
+            x_val=ros_pos.x_val,
+            y_val=-ros_pos.y_val,
+            z_val=-ros_pos.z_val
         )
 
     @staticmethod
     def ned_to_ros_pos(ned_pos: Vector3r) -> Vector3r:
         """NED座標系の位置をROS(FLU)座標系に変換"""
         return Vector3r(
-            x=ned_pos.x,
-            y=-ned_pos.y,
-            z=-ned_pos.z
+            x_val=ned_pos.x_val,
+            y_val=-ned_pos.y_val,
+            z_val=-ned_pos.z_val
         )
 
     @staticmethod
@@ -123,10 +49,10 @@ class FrameConverter:
         
         # クォータニオンの積で回転を合成 (q_ros = q_ned * q_rot)
         return Quaternionr(
-            w = ned_q.w * roll_180.w - ned_q.x * roll_180.x - ned_q.y * roll_180.y - ned_q.z * roll_180.z,
-            x = ned_q.w * roll_180.x + ned_q.x * roll_180.w + ned_q.y * roll_180.z - ned_q.z * roll_180.y,
-            y = ned_q.w * roll_180.y - ned_q.x * roll_180.z + ned_q.y * roll_180.w + ned_q.z * roll_180.x,
-            z = ned_q.w * roll_180.z + ned_q.x * roll_180.y - ned_q.y * roll_180.x + ned_q.z * roll_180.w
+            w_val = ned_q.w_val * roll_180.w_val - ned_q.x_val * roll_180.x_val - ned_q.y_val * roll_180.y_val - ned_q.z_val * roll_180.z_val,
+            x_val = ned_q.w_val * roll_180.x_val + ned_q.x_val * roll_180.w_val - ned_q.y_val * roll_180.z_val + ned_q.z_val * roll_180.y_val,
+            y_val = ned_q.w_val * roll_180.y_val - ned_q.x_val * roll_180.z_val + ned_q.y_val * roll_180.w_val - ned_q.z_val * roll_180.x_val,
+            z_val = ned_q.w_val * roll_180.z_val + ned_q.x_val * roll_180.y_val - ned_q.y_val * roll_180.x_val + ned_q.z_val * roll_180.w_val
         )
 
     @staticmethod
@@ -749,24 +675,21 @@ class MavlinkMultirotorClient:
                 return False
 
             # 高度到達待機
-            if timeout_sec > 0:
-                print(f"Waiting to reach altitude of {height}m...")
-                start_time = time.time()
-                while time.time() - start_time < timeout_sec:
-                    current_pose = self.simGetVehiclePose(vehicle_name)
-                    if current_pose:
-                        current_altitude = current_pose.position.z
-                        print(f"Current altitude: {current_altitude:.2f}m")
-                        # 目標高度の95%に達したら成功とみなす
-                        if current_altitude >= height * 0.95:
-                            print(f"Reached target altitude of {height}m.")
-                            return True
-                    time.sleep(1)
-                print(f"Takeoff timeout: Failed to reach {height}m within {timeout_sec}s.")
-                return False
-            
-            return True # timeout_secが指定されなければコマンド送信だけで成功とする
-                
+            print(f"Waiting to reach altitude of {height}m...")
+            start_time = time.time()
+            while True:
+                current_pose = self.simGetVehiclePose(vehicle_name)
+                if current_pose:
+                    current_altitude = current_pose.position.z_val
+                    print(f"Current altitude: {current_altitude:.2f}m")
+                    # 目標高度の95%に達したら成功とみなす
+                    if current_altitude >= height * 0.95:
+                        print(f"Reached target altitude of {height}m.")
+                        return True
+                time.sleep(1)
+                if timeout_sec > 0 and time.time() - start_time > timeout_sec:
+                    print(f"Takeoff timeout: Failed to reach {height}m within {timeout_sec}s.")
+                    return False
         except Exception as e:
             print(f"Takeoff failed for {vehicle.name}: {e}")
             return False
@@ -791,31 +714,29 @@ class MavlinkMultirotorClient:
                 ned_yaw_deg = self.converter.ros_to_ned_yaw(yaw_deg)
 
             print(f"INFO: moveToPosition(ROS): x={x}, y={y}, z={z}, yaw={yaw_deg}")
-            print(f"INFO: moveToPosition(NED): x={ned_pos.x}, y={ned_pos.y}, z={ned_pos.z}, yaw={ned_yaw_deg}")
-            
-            if not vehicle.move_to_position(ned_pos.x, ned_pos.y, ned_pos.z, ned_yaw_deg):
+            print(f"INFO: moveToPosition(NED): x={ned_pos.x_val}, y={ned_pos.y_val}, z={ned_pos.z_val}, yaw={ned_yaw_deg}")
+
+            if not vehicle.move_to_position(ned_pos.x_val, ned_pos.y_val, ned_pos.z_val, ned_yaw_deg):
                 return False
 
             # 目標位置到達待機（簡易実装）
-            if timeout_sec > 0:
-                start_time = time.time()
-                while time.time() - start_time < timeout_sec:
-                    current_pose = self.simGetVehiclePose(vehicle_name)
-                    if current_pose:
-                        distance = math.sqrt(
-                            (current_pose.position.x - x)**2 +
-                            (current_pose.position.y - y)**2 +
-                            (current_pose.position.z - z)**2
-                        )
-                        if distance < 1.0:  # 1m以内で到達とみなす
-                            print("DONE")
-                            return True
-                    time.sleep(0.5)
-                print("Move timeout")
-                return False
-            else:
-                print("DONE")
-                return True
+            start_time = time.time()
+            while True:
+                current_pose = self.simGetVehiclePose(vehicle_name)
+                if current_pose:
+                    distance = math.sqrt(
+                        (current_pose.position.x_val - x)**2 +
+                        (current_pose.position.y_val - y)**2 +
+                        (current_pose.position.z_val - z)**2
+                    )
+                    print(f"Distance to target: {distance:.2f}m")
+                    if distance < 1.0:
+                        print("DONE")
+                        return True
+                time.sleep(0.5)
+                if timeout_sec > 0 and time.time() - start_time > timeout_sec:
+                    print(f"Move timeout: Failed to reach target position within {timeout_sec}s.")
+                    return False
                 
         except Exception as e:
             print(f"Move failed for {vehicle.name}: {e}")
@@ -873,9 +794,9 @@ class MavlinkMultirotorClient:
         # ROS:   X=前, Y=左, Z=上
         # Unity: X=右, Y=上, Z=前
         unity_pos = Vector3r(
-            -pose.position.y,  # ROS Y(左) → Unity X(右) 符号反転
-            pose.position.z,   # ROS Z(上) → Unity Y(上)
-            pose.position.x    # ROS X(前) → Unity Z(前)
+            -pose.position.y_val,  # ROS Y(左) → Unity X(右) 符号反転
+            pose.position.z_val,   # ROS Z(上) → Unity Y(上)
+            pose.position.x_val    # ROS X(前) → Unity Z(前)
         )
         
         # 姿勢もROS→Unity座標系変換
@@ -885,9 +806,9 @@ class MavlinkMultirotorClient:
             -yaw,   # ROS yaw → Unity pitch (符号反転)
             -roll   # ROS roll → Unity yaw (符号反転)
         )
-        
-        print(f"ROS({pose.position.x:.2f}, {pose.position.y:.2f}, {pose.position.z:.2f}) -> Unity({unity_pos.x:.2f}, {unity_pos.y:.2f}, {unity_pos.z:.2f})")
-        
+
+        print(f"ROS({pose.position.x_val:.2f}, {pose.position.y_val:.2f}, {pose.position.z_val:.2f}) -> Unity({unity_pos.x_val:.2f}, {unity_pos.y_val:.2f}, {unity_pos.z_val:.2f})")
+
         return Pose(unity_pos, unity_orientation)
     
     def _get_yaw_degree(self, vehicle_name: Optional[str] = None) -> float:
