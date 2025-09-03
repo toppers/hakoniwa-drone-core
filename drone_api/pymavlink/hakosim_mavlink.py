@@ -15,6 +15,7 @@ import queue
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Callable
 from enum import Enum
+from hakoniwa_pdu.apps.drone.hakosim import MultirotorClient as HakoniwaSensorClient
 
 class ImageType:
     Scene = "png"
@@ -581,13 +582,12 @@ class MavlinkDrone:
         print("✗ DISARM failed")
         return False
 
-class MultirotorClient:
-    def __init__(self, config_path: str = None, default_drone_name: str = None):
+class MavlinkMultirotorClient:
+    def __init__(self, default_drone_name: str = None, sensor_client: HakoniwaSensorClient = None):
         """
         MAVLink版MultirotorClient初期化
         
         Args:
-            config_path: 使用しない（互換性のため残す）
             default_drone_name: デフォルトドローン名
         """
         self.vehicles: Dict[str, MavlinkDrone] = {}
@@ -598,6 +598,10 @@ class MultirotorClient:
         # デフォルト設定
         if default_drone_name is None:
             self.default_drone_name = "drone1"
+
+        # Hakoniwaセンサー取得用のクライアントを初期化
+        self.sensor_client = sensor_client
+
     
     def add_vehicle(self, name: str, connection_string: str):
         """車両を追加"""
@@ -608,21 +612,27 @@ class MultirotorClient:
     
     def confirmConnection(self) -> bool:
         """全車両への接続を確認・確立"""
+        # MAVLinkコントローラーへの接続
         if not self.vehicles:
             print("No vehicles configured. Use add_vehicle() first.")
             return False
             
-        success = True
+        print("Connecting to MAVLink...")
+        controller_ok = True
         for vehicle in self.vehicles.values():
             if not vehicle.connect():
-                success = False
+                controller_ok = False
             vehicle.get_arming_check_status()
             vehicle.pump_status_text(3.0)
 
-        self._connected = success
-
-
-        return success
+        # Hakoniwaセンサー用クライアントへの接続
+        if self.sensor_client is not None:
+            print("Connecting to Hakoniwa PDU for sensors...")
+            sensor_ok = self.sensor_client.confirmConnection()
+            self._connected = controller_ok and sensor_ok
+        else:
+            self._connected = controller_ok
+        return self._connected
     
     def disconnect_all(self):
         """全車両の接続を切断"""
@@ -890,32 +900,47 @@ class MultirotorClient:
         return math.degrees(yaw)
     
     def simGetImage(self, camera_id: int, image_type: str, vehicle_name: Optional[str] = None) -> Optional[bytes]:
-        """カメラ画像を取得（プレースホルダー実装）"""
-        print(f"INFO: simGetImage not implemented for MAVLink version")
-        return None
+        """カメラ画像を取得"""
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+
+        return self.sensor_client.simGetImage(camera_id, image_type, self.get_vehicle_name(vehicle_name))
     
     def simSetCameraOrientation(self, camera_id: int, degree: float, vehicle_name: Optional[str] = None) -> bool:
-        """カメラ向きを設定（プレースホルダー実装）"""
-        raise NotImplementedError("Camera orientation control not implemented in MAVLink version")
+        """カメラ向きを設定"""
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+        # hakosim.pyの戻り値は実際には角度情報だが、ここでは成功/失敗のbool値に変換
+        result = self.sensor_client.simSetCameraOrientation(camera_id, degree, self.get_vehicle_name(vehicle_name))
+        return result is not None
     
     def getLidarData(self, return_point_cloud: bool = False, vehicle_name: Optional[str] = None) -> Optional[LidarData]:
-        """LIDARデータを取得（プレースホルダー実装）"""
-        print(f"INFO: getLidarData not implemented for MAVLink version")
-        return None
+        """LIDARデータを取得"""
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+        # 注: 返されるデータ型はHakoniwaSensorClientの実装に依存
+        return self.sensor_client.getLidarData(return_point_cloud, self.get_vehicle_name(vehicle_name))
     
     def getGameJoystickData(self, vehicle_name: Optional[str] = None) -> Optional[GameControllerOperation]:
-        """ゲームコントローラーデータを取得（プレースホルダー実装）"""
-        print(f"INFO: getGameJoystickData not implemented for MAVLink version")
-        return GameControllerOperation()
+        """ゲームコントローラーデータを取得"""
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+        # 注: 返されるデータ型はHakoniwaSensorClientの実装に依存
+        return self.sensor_client.getGameJoystickData(self.get_vehicle_name(vehicle_name))
     
     def putGameJoystickData(self, data: GameControllerOperation, vehicle_name: Optional[str] = None) -> bool:
         """ゲームコントローラーデータを送信（プレースホルダー実装）"""
-        print(f"INFO: putGameJoystickData not implemented for MAVLink version")
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+        print(f"INFO: putGameJoystickData not fully implemented due to data type conversion requirement.")
+        # 異なるGameControllerOperation型間の変換が必要なため、未実装
         return False
     
     def grab_baggage(self, grab: bool, timeout_sec: float = -1, vehicle_name: Optional[str] = None) -> bool:
-        """荷物を掴む/離す（プレースホルダー実装）"""
-        raise NotImplementedError("Gripper control not implemented in MAVLink version")
+        """荷物を掴む/離す"""
+        if self.sensor_client is None:
+            raise ValueError("HakoniwaSensorClient is not initialized")
+        return self.sensor_client.grab_baggage(grab, timeout_sec, self.get_vehicle_name(vehicle_name))
 
 
 # 使用例
@@ -923,7 +948,7 @@ if __name__ == "__main__":
     print("=== Initial Status Check ===")
 
     # MAVLink版クライアント作成
-    client = MultirotorClient()
+    client = MavlinkMultirotorClient()
     
     # 車両追加（複数可能）
     client.add_vehicle("drone1", "udp:127.0.0.1:14550")  # SITL接続例
