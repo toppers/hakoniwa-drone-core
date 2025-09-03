@@ -6,13 +6,12 @@ MAVLink版 MultirotorClient
 箱庭のPDU通信をpymavlinkのMAVLink通信に置き換えた実装
 """
 
-from asyncio import timeout
 from pymavlink import mavutil
+from collections import deque
+import math, time
 import time
 import math
-import threading
 import queue
-from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Callable
 from enum import Enum
 from hakoniwa_pdu.apps.drone.hakosim import MultirotorClient as HakoniwaSensorClient
@@ -694,53 +693,113 @@ class MavlinkMultirotorClient:
             print(f"Takeoff failed for {vehicle.name}: {e}")
             return False
     
-    def moveToPosition(self, x: float, y: float, z: float, speed: float, 
-                      yaw_deg: Optional[float] = None, timeout_sec: float = -1, 
-                      vehicle_name: Optional[str] = None) -> bool:
-        """ROS座標系で指定された位置へ移動"""
+    def _yaw_wrap_deg(self, d):
+        d = (d + 180.0) % 360.0 - 180.0
+        return d
+
+    def _dist3(self, a, b):
+        return math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2)
+
+    def moveToPosition(self, x: float, y: float, z: float, speed: float,
+                    yaw_deg: float | None = None, timeout_sec: float = -1,
+                    vehicle_name: str | None = None) -> bool:
+        """ROS(FLU)座標で指定位置へ移動。位置+ヨー+速度が収束し、dwell継続で完了。"""
         vehicle = self._get_vehicle(vehicle_name)
         if not vehicle:
             return False
-        
+
+        # ---- パラメータ（必要に応じて調整） ----
+        POS_TOL = 0.30        # 位置誤差 [m]
+        POS_TOL_OUT = POS_TOL + 0.20  # ヒステリシス外側
+        YAW_TOL_DEG = 5.0     # ヨー誤差 [deg]
+        VEL_TOL = 0.20        # 速度しきい [m/s]
+        DWELL_SEC = 1.0       # 収束状態の維持時間 [s]
+        POLL = 0.1            # ポーリング周期 [s]
+        SPEED_CMD = max(0.1, float(speed))
+
         try:
-            # ROS(FLU) to NED変換
+            # ---- 目標をNEDに変換してコマンド送出 ----
             ros_pos = Vector3r(x, y, z)
             ned_pos = self.converter.ros_to_ned_pos(ros_pos)
-
             if yaw_deg is None:
-                # _get_yaw_degreeはROS座標系のヨーを返すので、NEDに変換
-                ned_yaw_deg = self.converter.ros_to_ned_yaw(self._get_yaw_degree(vehicle_name))
+                ros_yaw_cmd = self._get_yaw_degree(vehicle_name)
             else:
-                ned_yaw_deg = self.converter.ros_to_ned_yaw(yaw_deg)
+                ros_yaw_cmd = float(yaw_deg)
+            ned_yaw_cmd = self.converter.ros_to_ned_yaw(ros_yaw_cmd)
 
-            print(f"INFO: moveToPosition(ROS): x={x}, y={y}, z={z}, yaw={yaw_deg}")
-            print(f"INFO: moveToPosition(NED): x={ned_pos.x_val}, y={ned_pos.y_val}, z={ned_pos.z_val}, yaw={ned_yaw_deg}")
+            print(f"[CMD] moveToPosition ROS(xyz,yaw)=({x:.2f},{y:.2f},{z:.2f},{ros_yaw_cmd:.1f}) "
+                f"=> NED({ned_pos.x_val:.2f},{ned_pos.y_val:.2f},{ned_pos.z_val:.2f},{ned_yaw_cmd:.1f})")
 
-            if not vehicle.move_to_position(ned_pos.x_val, ned_pos.y_val, ned_pos.z_val, ned_yaw_deg):
+            ok = vehicle.move_to_position(ned_pos.x_val, ned_pos.y_val, ned_pos.z_val, ned_yaw_cmd)
+            if not ok:
+                print("move_to_position rejected by vehicle")
                 return False
 
-            # 目標位置到達待機（簡易実装）
-            start_time = time.time()
+            # ---- 監視ループ：ROS座標で誤差評価 ----
+            target_ros = (x, y, z)
+            target_yaw_ros = ros_yaw_cmd
+
+            pos_hist = deque(maxlen=6)  # 0.5～0.6秒ぶんの履歴（POLL=0.1想定）
+            t0 = time.time()
+            dwell_entered_at = None
+            inside = False
+
             while True:
-                current_pose = self.simGetVehiclePose(vehicle_name)
-                if current_pose:
-                    distance = math.sqrt(
-                        (current_pose.position.x_val - x)**2 +
-                        (current_pose.position.y_val - y)**2 +
-                        (current_pose.position.z_val - z)**2
-                    )
-                    print(f"Distance to target: {distance:.2f}m")
-                    if distance < 1.0:
-                        print("DONE")
+                pose = self.simGetVehiclePose(vehicle_name)
+                if pose is None:
+                    time.sleep(POLL)
+                    continue
+
+                # 現在姿勢（ROS想定）
+                cur_ros = (pose.position.x_val, pose.position.y_val, pose.position.z_val)
+                # ※もし simGetVehiclePose が NED を返す環境なら下行を使ってROSへ変換
+                # cur_ros = self.converter.ned_to_ros_pos(pose.position)
+
+                # 現在ヨー（ROS想定）。NEDで来るなら変換関数を使う
+                cur_yaw_ros = self._get_yaw_degree(vehicle_name)
+
+                # 誤差
+                pos_err = self._dist3(cur_ros, target_ros)
+                yaw_err = abs(self._yaw_wrap_deg(cur_yaw_ros - target_yaw_ros))
+
+                # 速度（位置差分から近似）
+                now = time.time()
+                pos_hist.append((now, cur_ros))
+                vel = None
+                if len(pos_hist) >= 2:
+                    (t_prev, p_prev) = pos_hist[0]
+                    dt = max(1e-3, now - t_prev)
+                    vel = self._dist3(cur_ros, p_prev) / dt
+
+                # 到達内側／外側の判定（ヒステリシス）
+                if pos_err <= POS_TOL and (yaw_deg is None or yaw_err <= YAW_TOL_DEG) and (vel is None or vel <= VEL_TOL):
+                    if not inside:
+                        inside = True
+                        dwell_entered_at = now
+                    elif (now - dwell_entered_at) >= DWELL_SEC:
+                        print(f"[DONE] pos_err={pos_err:.2f}m yaw_err={yaw_err:.1f}° vel={0.0 if vel is None else vel:.2f}m/s")
                         return True
-                time.sleep(0.5)
-                if timeout_sec > 0 and time.time() - start_time > timeout_sec:
-                    print(f"Move timeout: Failed to reach target position within {timeout_sec}s.")
+                else:
+                    # 外に出たときは、外側しきいでリセット
+                    if pos_err >= POS_TOL_OUT or (yaw_deg is not None and yaw_err > YAW_TOL_DEG) or (vel is not None and vel > VEL_TOL):
+                        inside = False
+                        dwell_entered_at = None
+
+                # デバッグ表示（必要なら間引いて）
+                if vel is not None:
+                    print(f"err={pos_err:.2f}m yaw={yaw_err:.1f}° vel={vel:.2f}m/s inside={inside}")
+
+                # タイムアウト
+                if timeout_sec > 0 and (now - t0) > timeout_sec:
+                    print(f"[TIMEOUT] pos_err={pos_err:.2f}m yaw_err={yaw_err:.1f}°")
                     return False
-                
+
+                time.sleep(POLL)
+
         except Exception as e:
             print(f"Move failed for {vehicle.name}: {e}")
             return False
+
     
     def moveToPositionUnityFrame(self, x: float, y: float, z: float, speed: float,
                                yaw_deg: Optional[float] = None, timeout_sec: float = -1,
