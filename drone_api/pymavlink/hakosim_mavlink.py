@@ -10,6 +10,7 @@ from pymavlink import mavutil
 from collections import deque
 import math, time
 import queue
+import argparse
 from typing import Optional, Dict, Any, List, Tuple, Callable
 
 from hakoniwa_pdu.apps.drone.hakosim import MultirotorClient as HakoniwaSensorClient
@@ -158,7 +159,6 @@ class MavlinkMultirotorClient:
         self.vehicles[name] = MavlinkDrone(name, connection_string, controller)
         if self.default_drone_name is None:
             self.default_drone_name = name
-        print(f"Added vehicle: {name} ({vehicle_type}) with connection: {connection_string}")
 
     def confirmConnection(self) -> bool:
         if not self.vehicles:
@@ -404,20 +404,23 @@ class MavlinkMultirotorClient:
 
 # --- Main execution block ---
 if __name__ == "__main__":
-    client = MavlinkMultirotorClient()
-    
-    # --- 使用するドローンの設定 ---
-    # ArduPilotの例:
-    # client.add_vehicle("drone1", "udp:127.0.0.1:14550", "ardupilot")
-    
-    # PX4の例:
-    client.add_vehicle("drone1", "udp:127.0.0.1:14540", "px4")
+    parser = argparse.ArgumentParser(description="Control a MAVLink drone.")
+    parser.add_argument('--name', type=str, default='Drone', help='Name of the drone.')
+    parser.add_argument('--connection', type=str, required=True, help='Connection string (e.g., udp:127.0.0.1:14540).')
+    parser.add_argument('--type', type=str, default='px4', choices=['px4', 'ardupilot'], help='Vehicle type (px4 or ardupilot).')
+    args = parser.parse_args()
+
+    client = MavlinkMultirotorClient(default_drone_name=args.name)
+    #client.add_vehicle("drone1", "udp:127.0.0.1:14540", "px4")
+    print(f"Adding vehicle: {args.name} ({args.type}) with connection: {args.connection}")
+    client.add_vehicle(args.name, args.connection, args.type)
 
     if not client.confirmConnection():
         print("Failed to connect to vehicle(s).")
         exit(1)
     
     try:
+        print("--- Starting mission ---")
         client.enableApiControl(True)
         time.sleep(1)
         
@@ -426,17 +429,21 @@ if __name__ == "__main__":
             exit(1)
         time.sleep(2)
         
-        if client.takeoff(10.0, timeout_sec=60):
+        if client.takeoff(1.0, timeout_sec=60):
             print("Takeoff successful.")
             time.sleep(5)
             
-            if client.moveToPosition(10.0, 0.0, 10.0, 5.0, timeout_sec=60):
+            if client.moveToPosition(2.0, 0.0, 1.0, 5.0, timeout_sec=60):
                 print("Move 1 successful.")
                 time.sleep(2)
-                
-                if client.moveToPosition(10.0, 10.0, 10.0, 5.0, yaw_deg=90, timeout_sec=60):
+
+                if client.moveToPosition(2.0, 2.0, 1.0, 5.0, yaw_deg=90, timeout_sec=60):
                     print("Move 2 successful.")
                     time.sleep(2)
+
+                    if client.moveToPosition(0.0, 0.0, 1.0, 5.0, yaw_deg=0, timeout_sec=60):
+                        print("Move 3 successful.")
+                        time.sleep(2)
 
         client.land()
         time.sleep(5)
@@ -445,7 +452,7 @@ if __name__ == "__main__":
         print("Interrupted by user.")
     
     finally:
-        print("Cleaning up...")
+        print("--- Cleaning up ---")
         client.armDisarm(False)
         client.disconnect_all()
         print("Cleanup complete.")
