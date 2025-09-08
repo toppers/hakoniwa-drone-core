@@ -63,7 +63,7 @@ DRONE_NUM=${3:-1}
 
 if [ $RUN_MODE = "px4" ]
 then
-     setsid bash hakoniwa-drone-core/docker/tools/run-hako-px4.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} &
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-px4.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} ${DRONE_NUM} &
      HAKO_DRONE_PID=$!
      sleep 2
 elif [ $RUN_MODE = "ardupilot" ]
