@@ -1,0 +1,20 @@
+{
+  "log_map": {
+    "drone_log1": {
+      "drone_name": "Drone",
+      "pdu_name": "pos"
+    }
+  },
+  "pdu_def_file": "config/pdudef/webavatar-2.json",
+  "start_time": "00:00:00.000",
+  "range_sec": {
+    "description": "Range in seconds from start_time. this config priority is higher than range time format.",
+    "begin": 65,
+    "end": 100
+  },
+  "range_timestamp": {
+    "begin": "00:01:05.000",
+    "end": "00:01:40.000"
+  },
+  "speed": 1.0
+}

@@ -113,6 +113,20 @@ Supporting this flexibility is the "microservice architecture" common to the ent
 On the other hand, existing OSS (Gazebo, AirSim, etc.) are mainly made overseas, and their introduction and customization require high technical knowledge, making the hurdle high especially for educational institutions and small and medium-sized organizations.
 In that respect, the Hakoniwa Drone Simulator is developed in Japan, and by providing official support and educational services, it greatly lowers the hurdles for introduction and operation. Especially for educational and research institutions in Japan, the strong support system in Japanese is a major advantage.
 
+## Log Replay Feature
+
+This simulator is equipped with a log replay feature that plays back recorded flight logs (`drone_dynamics.csv`).
+This feature allows you to reproduce past simulation flights for detailed analysis and debugging.
+
+Main features:
+*   **Simulation Playback**: Faithfully reproduces the drone's movements based on log data.
+*   **Playback Control**: Allows you to specify the playback range and change the playback speed (e.g., slow motion).
+*   **Transparent Switching**: Since it uses the same interface as a normal simulation, you can check the replay using your existing visualization environment (Unity/Unreal) as is.
+
+For detailed instructions on how to configure and run the replay feature, please refer to the following document:
+
+*   [Log Replay Feature Details (replay/README.en.md)](replay/README.en.md)
+
 # Dependent Libraries
 
 The Hakoniwa Drone Simulator library group depends on the following external libraries and internal libraries (developed by the Hakoniwa project).
