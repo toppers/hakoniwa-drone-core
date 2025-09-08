@@ -41,7 +41,7 @@ def main():
         return 1
 
     # connect to the HakoSim simulator
-    client = hakosim.MultirotorClient(sys.argv[1], "Drone")
+    client = hakosim.MultirotorClient(sys.argv[1], "Drone1")
     client.confirmConnection()
     client.enableApiControl(True)
     client.armDisarm(True)
@@ -62,22 +62,20 @@ def main():
 
         print(filtered_points)
 
-    client.takeoff(0.5)
+    client.takeoff(0.6)
 
-    client.moveToPosition(1, 0, 0.5, 1)
+    client.moveToPosition(1, 0.5, 0.6, 1)
     debug_pos(client)
-    client.grab_baggage(True)
 
     time.sleep(3)
 
-    client.moveToPosition(0, 0, 0.5, 1)
+    client.moveToPosition(0, 0.5, 0.6, 1)
     debug_pos(client)
     time.sleep(3)
-    client.grab_baggage(False)
 
     time.sleep(3)
 
-    client.moveToPosition(-0.5, 0, 0.25, 1)
+    client.moveToPosition(-0.5, 0.5, 0.1, 1)
     debug_pos(client)
 
     time.sleep(3)
@@ -103,7 +101,7 @@ def main():
 
     png_image = client.simGetImage("0", hakosim.ImageType.Scene)
     if png_image:
-        with open("scene.png", "wb") as f:
+        with open("scene-2.png", "wb") as f:
             f.write(png_image)
 
     client.simSetCameraOrientation("0",-90)

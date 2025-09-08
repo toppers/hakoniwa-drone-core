@@ -73,7 +73,7 @@ then
      sleep 2
 elif [ $RUN_MODE = "rc" -o $RUN_MODE = "api" ]
 then
-     setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} $RUN_MODE &
+     setsid bash hakoniwa-drone-core/docker/tools/run-hako-drone.bash ${BASE_DIR}/hakoniwa-drone-core ${CONFIG_PATH} ${RUN_MODE}-${DRONE_NUM} &
      HAKO_DRONE_PID=$!
      sleep 2
 
