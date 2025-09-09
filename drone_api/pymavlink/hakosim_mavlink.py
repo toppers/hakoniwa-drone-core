@@ -44,19 +44,15 @@ class FrameConverter:
 
     @staticmethod
     def ned_to_ros_orient(ned_q: Quaternionr) -> Quaternionr:
-        """NED座標系のクォータニオンをROS(FLU)座標系に変換"""
-        # NEDからFLUへの変換は、x軸周りに180度回転させることに相当
-        q_rot = Quaternionr.euler_to_quaternion(math.pi, 0, 0)
-        
-        # 回転の合成は q_ros = q_rot * q_ned の順序で行う
+        # x軸にπ回転（Rx(π) = [0, 1, 0, 0]）
+        q_rot = Quaternionr.euler_to_quaternion(math.pi, 0.0, 0.0)
         w1, x1, y1, z1 = q_rot.w_val, q_rot.x_val, q_rot.y_val, q_rot.z_val
         w2, x2, y2, z2 = ned_q.w_val, ned_q.x_val, ned_q.y_val, ned_q.z_val
 
         w = w1*w2 - x1*x2 - y1*y2 - z1*z2
         x = w1*x2 + x1*w2 + y1*z2 - z1*y2
         y = w1*y2 - x1*z2 + y1*w2 + z1*x2
-        z = w1*w2 + x1*y2 - y1*x2 + z1*w2
-        
+        z = w1*z2 + x1*y2 - y1*x2 + z1*w2
         return Quaternionr(w, x, y, z)
 
     @staticmethod
