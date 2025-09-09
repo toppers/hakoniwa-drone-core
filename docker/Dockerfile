@@ -51,7 +51,7 @@ RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/late
     && rm -rf lnx lnx.zip
 
 
-RUN pip3 install --break-system-packages hakoniwa-pdu
+RUN pip3 install --break-system-packages hakoniwa-pdu pymavlink
 
 
 WORKDIR /root

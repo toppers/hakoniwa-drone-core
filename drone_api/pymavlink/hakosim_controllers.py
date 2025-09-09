@@ -192,7 +192,7 @@ class ArduPilotController(AbstractFlightController):
         self.mav_conn.mav.command_long_send(
             self.target_system, self.target_component,
             mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0,
-            0, 0, 0, 0, 0, 0, height_m
+            0, 0, 0, 0, 0, 0, -height_m
         )
         ack = self._wait_for_command_ack(mavutil.mavlink.MAV_CMD_NAV_TAKEOFF)
         return ack and ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
@@ -208,11 +208,14 @@ class ArduPilotController(AbstractFlightController):
         return ack and ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
 
     def go_to_local_ned(self, x: float, y: float, z: float, yaw_deg: float):
+        TYPE_MASK_POS_YAW = 0x09F8
         self.mav_conn.mav.set_position_target_local_ned_send(
             0, self.target_system, self.target_component,
             mavutil.mavlink.MAV_FRAME_LOCAL_NED,
-            0b0000111111111000, x, y, z, 0, 0, 0, 0, 0, 0,
-            math.radians(yaw_deg), 0
+            TYPE_MASK_POS_YAW, 
+            float(x), float(y), float(z),
+            0, 0, 0, 0, 0, 0,
+            math.radians(float(yaw_deg)), 0
         )
 
     def stop_movement(self):

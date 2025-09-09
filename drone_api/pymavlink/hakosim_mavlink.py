@@ -286,7 +286,7 @@ class MavlinkMultirotorClient:
         vehicle = self._get_vehicle(vehicle_name)
         if not vehicle: return False
 
-        POS_TOL = 0.30
+        POS_TOL = 0.50
         POS_TOL_OUT = POS_TOL + 0.20
         YAW_TOL_DEG = 5.0
         VEL_TOL = 0.20
