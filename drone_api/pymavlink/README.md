@@ -39,7 +39,7 @@ GPSが有効になってから次のステップへ
 ### 3. pythonスクリプト実行
 
 ```bash
-cd /hakoniwa-drone-core/drone_api/pymavlink
+cd hakoniwa-drone-core/drone_api/pymavlink
 ```
 
 ```bash

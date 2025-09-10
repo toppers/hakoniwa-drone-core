@@ -23,7 +23,6 @@ echo "  MAVLink out: udp:${HOST_IP}:${MAVLINK_OUT_PORT}"
 
 ./Tools/autotest/sim_vehicle.py -v ArduCopter -f airsim-copter  \
 -A "--sim-port-in ${SIM_PORT_IN} --sim-port-out ${SIM_PORT_OUT}" \
---console \
 --instance ${INSTANCE} \
 --slave 0 \
 --sim-address=${WSL_IP} \
