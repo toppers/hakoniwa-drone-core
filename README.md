@@ -95,7 +95,7 @@ For commercial licensing inquiries:
   - 箱庭システムを前提としたAPI。
   - ドローンを直接PDU経由で制御し、Unity/Unrealの可視化や外部環境シミュレーションと統合可能。
   - 教育・実習・デモ用途に最適。
-- 📘 詳細: [Python API (Ardupilot / PX4 対応)](docs/python-api.md)
+- 📘 詳細: [Python API (Ardupilot / PX4 対応)](docs/python_api/mavlink_api.md)
   - `pymavlink` を利用し、ArdupilotやPX4 SITLと連携可能。
   - Ardupilot/PX4の制御モードや状態遷移を吸収し、同一のAPIで操作可能。
   - 複数機体・混在環境（Ardupilot + PX4）もサポート。
