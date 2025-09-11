@@ -44,6 +44,8 @@ public:
      * Get internal state for the drone service
      */
     virtual int get_internal_state(uint32_t index) const = 0;
+
+    virtual bool flushSensorData(uint32_t ) override { return false;}
 };
 }
 

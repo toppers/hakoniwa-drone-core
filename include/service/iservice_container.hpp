@@ -60,6 +60,9 @@ public:
      */
     virtual DroneServiceExtendedOptions getExtendedOptions(uint32_t index) const = 0;
 
+
+    virtual bool flushSensorData(uint32_t index) = 0;
+
 };
 
 } // namespace hako::service
