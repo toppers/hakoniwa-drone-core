@@ -61,14 +61,7 @@ hakoniwa-drone-core/config
 
 ## Execution Procedure
 
-### 1) Hakoniwa (Docker)
-
-```bash
-bash hakoniwa-drone-core/docker/tools/run-hako.bash px4 \
-  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
-```
-
-### 2) PX4 (WSL2)
+### 1) PX4 (WSL2)
 
 ```bash
 # Vehicle 0
@@ -81,6 +74,13 @@ bash -x hakoniwa-drone-core/tools/px4/run.bash \
 ```
 
 *   Proceed to the next step after **GPS becomes effective** (wait until HOME is set, etc.).
+
+### 2) Hakoniwa (Docker)
+
+```bash
+bash hakoniwa-drone-core/docker/tools/run-hako.bash px4 \
+  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
+```
 
 ### 3) Python Script (Inside Docker)
 

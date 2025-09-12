@@ -60,14 +60,7 @@ hakoniwa-drone-core/config
 
 ## Execution Procedure
 
-### 1) Hakoniwa (Docker)
-
-```bash
-bash hakoniwa-drone-core/docker/tools/run-hako.bash ardupilot \
-  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
-```
-
-### 2) Ardupilot (WSL2)
+### 1) Ardupilot (WSL2)
 
 ```bash
 # Vehicle 0
@@ -81,6 +74,13 @@ bash -x hakoniwa-drone-core/tools/ardupilot/run.bash \
 
 *   `HOST_IP` is the host IP (where Mission Planner is running).
 *   Proceed to the next step after **GPS becomes effective** (wait until HOME is set, etc.).
+
+### 2) Hakoniwa (Docker)
+
+```bash
+bash hakoniwa-drone-core/docker/tools/run-hako.bash ardupilot \
+  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
+```
 
 ### 3) Python Script (Inside Docker)
 

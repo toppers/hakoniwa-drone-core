@@ -64,14 +64,7 @@ hakoniwa-drone-core/config
 
 ## 実行手順
 
-### 1) 箱庭（Docker）
-
-```bash
-bash hakoniwa-drone-core/docker/tools/run-hako.bash ardupilot \
-  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
-```
-
-### 2) Ardupilot（WSL2）
+### 1) Ardupilot（WSL2）
 
 ```bash
 # 機体0
@@ -85,6 +78,13 @@ bash -x hakoniwa-drone-core/tools/ardupilot/run.bash \
 
 * `HOST_IP` はホスト IP（Mission Planner が動く側）。
 * **GPS が有効**になってから次へ（HOME セット等が済むまで待機）。
+
+### 2) 箱庭（Docker）
+
+```bash
+bash hakoniwa-drone-core/docker/tools/run-hako.bash ardupilot \
+  hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
+```
 
 ### 3) Python スクリプト（Docker 内）
 
