@@ -67,7 +67,7 @@ hakoniwa-drone-core/config
 ### 1) 箱庭（Docker）
 
 ```bash
-bash hakoniwa-drone-core/docker/tools/run-hako.bash ardupilot \
+bash hakoniwa-drone-core/docker/tools/run-hako.bash px4 \
   hakoniwa-drone-core/config/pdudef/webavatar-2.json 2
 ```
 
@@ -106,7 +106,7 @@ python3 -m hakosim_mavlink --name Drone1 \
 
 ## インスタンス対応表（例）
 
-| 機体 | Python (Docker内, TCP) | QGC (WSL2 IP, UDP) | Drone名 (Python) | 設定ファイル                |
+| 機体 | Sim (Docker内, TCP) | QGC (WSL2 IP, UDP) | Drone名 (Python) | 設定ファイル                |
 | -- | --------------------- | ------------------ | --------------- | --------------------- |
 | 0  | tcp:127.0.0.1:4560    | WSL2\_IP:14540     | `Drone`         | `drone_config_0.json` |
 | 1  | tcp:127.0.0.1:4561    | WSL2\_IP:14541     | `Drone1`        | `drone_config_1.json` |
