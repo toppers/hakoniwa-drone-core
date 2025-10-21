@@ -48,7 +48,7 @@ def main():
     client.armDisarm(True)
 
     lidarData = client.getLidarData()
-    if (len(lidarData.point_cloud) < 3):
+    if (lidarData is not None or len(lidarData.point_cloud) < 3):
         print("\tNo points received from Lidar data")
     else:
         print(f"len: {len(lidarData.point_cloud)}")

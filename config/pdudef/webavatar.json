@@ -28,7 +28,7 @@
                     "org_name": "disturb",
                     "name": "Drone_disturb",
                     "channel_id": 3,
-                    "pdu_size": 120,
+                    "pdu_size": 256,
                     "write_cycle": 1,
                     "method_type": "SHM"
                 },
@@ -255,7 +255,7 @@
                     "org_name": "disturb",
                     "name": "Drone_disturb",
                     "channel_id": 3,
-                    "pdu_size": 120,
+                    "pdu_size": 256,
                     "write_cycle": 1,
                     "method_type": "SHM"
                 },

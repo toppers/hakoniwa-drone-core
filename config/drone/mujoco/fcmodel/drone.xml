@@ -1,0 +1,85 @@
+<mujoco>
+  <option timestep="0.003" density="1.204" viscosity="0.05" integrator="Euler"/>
+  <option gravity="0 0 -9.81"/>
+  <visual>
+    <global elevation="-10"/>
+  </visual>
+  <default>
+    <tendon limited="true" width="0.003" rgba="1 1 1 1"/>
+    <geom friction=".2"/>
+    <default class="weight">
+      <geom rgba=".8 .4 .8 1"/>
+      <site rgba=".8 .4 .8 1"/>
+    </default>
+    <default class="drone">
+      <geom density="0.167" fluidshape="ellipsoid" friction="0.5 0.5 0.5"/>
+      <default class="pink">
+        <geom rgba="1 .6 .7 1"/>
+        <site rgba="1 .6 .7 1"/>
+      </default>
+      <default class="blue">
+        <geom rgba=".3 .7 .9 1"/>
+        <site rgba=".3 .7 .9 1"/>
+      </default>
+      <default class="black">
+        <geom rgba="0 0 0 1"/>
+        <site rgba="0 0 0 1"/>
+      </default>
+      <default class="gray">
+        <geom rgba=".5 .5 .5 1"/>
+        <site rgba=".5 .5 .5 1"/>
+      </default>
+      <default class="green">
+        <geom rgba=".4 .9 .5 1"/>
+        <site rgba=".4 .9 .5 1"/>
+      </default>
+      <default class="orange">
+        <geom rgba="1 .4 0 1"/>
+        <site rgba="1 .4 0 1"/>
+      </default>
+    </default>
+  </default>
+  <asset>
+    <!-- 白いテクスチャを設定 -->
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1="1 1 1" rgb2="1 1 1"/>
+    
+    <!-- マテリアル（白色）を設定 -->
+    <material name="white_ground" texture="grid" reflectance="0"/>
+  </asset>
+  <worldbody>
+    <!-- 環境光（全体の明るさを調整） -->
+    <light diffuse="1 1 1" specular="0.5 0.5 0.5" pos="0 0 5"/>
+    <!-- 地面の設定（白色にする） -->
+    <geom name="ground" type="plane" size="5 5 .01" pos="0 0 0" material="white_ground"/>
+
+    <!-- 本体（ベース） -->
+    <body name="drone_base" pos="0 0 0.0" childclass="gray">
+      <freejoint/>
+      <geom type="box" size="0.16 0.16 0.01" mass="0.70"  friction="0.8 0.1 0.1"/>
+
+      <body name="prop1" pos="0.05 -0.05 0.02" childclass="black">
+        <geom name="prop1_geom" type="cylinder" size="0.02 0.0025" mass="0.0025"/>
+      </body>
+      <body name="prop2" pos="-0.05 0.05 0.02" childclass="black">
+        <geom name="prop2_geom" type="cylinder" size="0.02 0.0025" mass="0.0025"/>
+      </body>
+      <body name="prop3" pos="0.05 0.05 0.02" childclass="black">
+        <geom name="prop3_geom" type="cylinder" size="0.02 0.0025" mass="0.0025"/>
+      </body>
+      <body name="prop4" pos="-0.05 -0.05 0.02" childclass="black">
+        <geom name="prop4_geom" type="cylinder" size="0.02 0.0025" mass="0.0025"/>
+      </body>
+
+
+    </body>
+
+
+  </worldbody>
+<!--
+  <equality>
+      <connect body1="drone_base" body2="box" anchor="0 0 -0.2"/>
+  </equality>
+
+-->
+
+</mujoco>

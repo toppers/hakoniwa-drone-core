@@ -38,7 +38,7 @@ typedef enum {
 
 typedef struct {
     ServicePduDataIdType id;
-    union {
+    struct {
         HakoCpp_HakoDroneCmdTakeoff takeoff;
         HakoCpp_HakoDroneCmdLand land;
         HakoCpp_HakoDroneCmdMove move;

@@ -1,0 +1,68 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": ["/usr/lib/x86_64-linux-gnu"],
+        "PATH": ["/usr/bin"],
+        "PYTHONPATH": [
+          "/usr/local/lib/python3.12/dist-packages"
+        ]
+      }
+    },
+    "start_grace_sec": 1,
+    "delay_sec": 3
+  },
+  "assets": [
+    {
+      "name": "drone",
+      "activation_timing": "before_start",
+      "command": "linux-main_hako_aircraft_service_px4",
+      "args": [
+        "127.0.0.1",
+        "4560",
+        "config/drone/kobe", 
+        "config/pdudef/webavatar.json"],
+      "cwd": "/root/workspace/${DIRNAME}"
+    },
+    {
+      "name": "webserver",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": ["-m","server.main","--asset_name","WebServer",
+               "--config_path","../${DIRNAME}/config/pdudef/webavatar.json",
+               "--delta_time_usec","20000"],
+      "cwd": "/root/workspace/hakoniwa-webserver",
+      "depends_on": ["drone"]
+    },
+    {
+      "name": "pymavlink_test",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": [
+            "-m", "env_test",
+            "--name","Drone",
+            "--connect", "udp:127.0.0.1:14540",
+            "--type","px4",
+            "--config-path","../../config/pdudef/webavatar.json"
+      ],
+      "cwd": "/root/workspace/${DIRNAME}/drone_api/pymavlink",
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/root/workspace/${DIRNAME}/drone_api/pymavlink"
+          ]
+        }
+      },
+      "depends_on": ["webserver"]
+    }
+  ],
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": ["${asset}","asset_exit","${timestamp}"]
+  }
+}
