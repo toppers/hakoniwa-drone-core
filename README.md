@@ -189,8 +189,8 @@ For commercial licensing inquiries:
 
 ## 内部
 
-- [hakoniwa-core-cpp-client](https://github.com/toppers/hakoniwa-core-cpp-client.git) : 箱庭シミュレーションとの統合。
-- [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git) : 箱庭PDUとの統合。
+- [hakoniwa-core-pro](https://github.com/hakoniwalab/hakoniwa-core-pro) : 箱庭シミュレーションとの統合。
+- [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git) : 箱庭PDUとの統合。(hakoniwa-core-proに含まれる)
 
 # アーキテクチャ
 

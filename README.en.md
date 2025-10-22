@@ -183,8 +183,8 @@ The Hakoniwa Drone Simulator library group depends on the following external lib
 
 ## Internal
 
--   [hakoniwa-core-cpp-client](https://github.com/toppers/hakoniwa-core-cpp-client.git): Integration with Hakoniwa simulation.
--   [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git): Integration with Hakoniwa PDU.
+-   [hakoniwa-core-pro](https://github.com/hakoniwalab/hakoniwa-core-pro): Integration with Hakoniwa simulation.
+-   [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git): Integration with Hakoniwa PDU. (included in hakoniwa-core-pro)
 
 # Architecture
 

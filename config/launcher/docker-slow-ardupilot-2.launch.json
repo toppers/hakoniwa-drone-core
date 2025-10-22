@@ -1,0 +1,108 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": ["/usr/lib/x86_64-linux-gnu"],
+        "PATH": ["/usr/bin"],
+        "PYTHONPATH": [
+          "/usr/local/lib/python3.12/dist-packages"
+        ]
+      }
+    },
+    "start_grace_sec": 1,
+    "delay_sec": 3
+  },
+  "assets": [
+    {
+      "name": "drone",
+      "activation_timing": "before_start",
+      "command": "linux-main_hako_aircraft_service_ardupilot",
+      "args": [
+        "${WSL_IP}",
+        "9002", "9003",
+        "config/drone/ardupilot-2", 
+        "config/pdudef/webavatar-2.json"],
+      "cwd": "/root/workspace/${DIRNAME}"
+    },
+    {
+      "name": "environment",
+      "activation_timing": "before_start",
+      "command": "python3",
+      "args": [
+        "-m","hakoniwa_envsim.envasset",
+        "../../${DIRNAME}/config/pdudef/webavatar-2.json",
+        "20",
+        "../examples/datasets/simple_room"
+        ],
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/root/workspace/hakoniwa-envsim/src"
+          ]
+        }
+      },
+      "cwd": "/root/workspace/hakoniwa-envsim/src"
+    },
+    {
+      "name": "webserver",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": ["-m","server.main","--asset_name","WebServer",
+               "--config_path","../${DIRNAME}/config/pdudef/webavatar-2.json",
+               "--delta_time_usec","20000"],
+      "cwd": "/root/workspace/hakoniwa-webserver",
+      "depends_on": ["drone"]
+    },
+    {
+      "name": "pymavlink_test-1",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": [
+            "-m", "env_slow_test",
+            "--name","Drone",
+            "--connect", "udp:127.0.0.1:14550",
+            "--type","ardupilot",
+            "--config-path","../../config/pdudef/webavatar-2.json"
+      ],
+      "cwd": "/root/workspace/${DIRNAME}/drone_api/pymavlink",
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/root/workspace/${DIRNAME}/drone_api/pymavlink"
+          ]
+        }
+      },
+      "depends_on": ["webserver"]
+    }
+  , {
+      "name": "pymavlink_test-2",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": [
+            "-m", "env_slow_test",
+            "--name","Drone1",
+            "--connect", "udp:127.0.0.1:14560",
+            "--type","ardupilot",
+            "--config-path","../../config/pdudef/webavatar-2.json"
+      ],
+      "cwd": "/root/workspace/${DIRNAME}/drone_api/pymavlink",
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/root/workspace/${DIRNAME}/drone_api/pymavlink"
+          ]
+        }
+      },
+      "depends_on": ["pymavlink_test-1"]
+    }
+  ],  
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": ["${asset}","asset_exit","${timestamp}"]
+  }
+}

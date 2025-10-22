@@ -46,21 +46,24 @@ def main():
     client.enableApiControl(True)
     client.armDisarm(True)
 
-    lidarData = client.getLidarData()
-    if (len(lidarData.point_cloud) < 3):
-        print("\tNo points received from Lidar data")
-    else:
-        print(f"len: {len(lidarData.point_cloud)}")
-        points = parse_lidarData(lidarData)
-        print("\tReading: time_stamp: %d number_of_points: %d" % (lidarData.time_stamp, len(points)))
-        print("\t\tlidar position: %s" % (pprint.pformat(lidarData.pose.position)))
-        print("\t\tlidar orientation: %s" % (pprint.pformat(lidarData.pose.orientation)))
-    
-        #lidar_z = lidarData.pose.position.z_val
-        condition = numpy.logical_and(points <= 2, points > 0)
-        filtered_points = points[numpy.any(condition, axis=1)]
+    try:
+        lidarData = client.getLidarData()
+        if (len(lidarData.point_cloud) < 3):
+            print("\tNo points received from Lidar data")
+        else:
+            print(f"len: {len(lidarData.point_cloud)}")
+            points = parse_lidarData(lidarData)
+            print("\tReading: time_stamp: %d number_of_points: %d" % (lidarData.time_stamp, len(points)))
+            print("\t\tlidar position: %s" % (pprint.pformat(lidarData.pose.position)))
+            print("\t\tlidar orientation: %s" % (pprint.pformat(lidarData.pose.orientation)))
+        
+            #lidar_z = lidarData.pose.position.z_val
+            condition = numpy.logical_and(points <= 2, points > 0)
+            filtered_points = points[numpy.any(condition, axis=1)]
 
-        print(filtered_points)
+            print(filtered_points)
+    except Exception as e:
+        print("Lidar not found")
 
     client.takeoff(0.5)
 

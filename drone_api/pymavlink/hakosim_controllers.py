@@ -86,7 +86,11 @@ class ArduPilotController(AbstractFlightController):
     """ArduPilot用のフライトコントローラ実装"""
 
     def _initialize(self):
-        self.target_component = self.mav_conn.target_component
+        #self.target_component = self.mav_conn.target_component
+        comp_autopilot = getattr(mavutil.mavlink, "MAV_COMP_ID_AUTOPILOT", 1)  # 1 にフォールバック
+        self.target_component = comp_autopilot
+        # pymavlink 側の既定値も揃えておく（保険）
+        self.mav_conn.target_component = comp_autopilot
         print("=== [ArduPilot] Setting Parameters ===")
         self._set_param("ARMING_CHECK", 0)
         self._set_param("SIM_SPEEDUP", 1, mavutil.mavlink.MAV_PARAM_TYPE_REAL32)
@@ -143,8 +147,22 @@ class ArduPilotController(AbstractFlightController):
 
         return self._arm_and_verify()
 
+    def _drain_statustext(self, window_sec=3.0):
+        t0 = time.time()
+        while time.time() - t0 < window_sec:
+            msg = self.mav_conn.recv_match(type='STATUSTEXT', blocking=False)
+            if msg:
+                # 文字化け対策
+                try:
+                    txt = msg.text if isinstance(msg.text, str) else msg.text.decode("utf-8", "ignore")
+                except Exception:
+                    txt = str(msg.text)
+                if "PreArm" in txt or "Arm" in txt:
+                    print(f"[ArduPilot][STATUSTEXT] {txt}")
+
     def _arm_and_verify(self) -> bool:
         print("=== [ArduPilot] Attempting to ARM ===")
+        self._drain_statustext(1.0)
         # Attempt 1: Basic ARM
         self.mav_conn.mav.command_long_send(
             self.target_system, self.target_component,
@@ -153,11 +171,12 @@ class ArduPilotController(AbstractFlightController):
         )
         self._wait_for_command_ack(mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM, timeout=3)
         time.sleep(1)
+        self._drain_statustext(1.0)
         if self._is_armed():
             print("✓ [ArduPilot] Successfully ARMED!")
             return True
 
-        # Attempt 2: Force ARM (magic number)
+        # Attempt 2: Force ARM (magic number)        
         print("[ArduPilot] ARM attempt 2: Force ARM")
         self.mav_conn.mav.command_long_send(
             self.target_system, self.target_component,
@@ -170,6 +189,7 @@ class ArduPilotController(AbstractFlightController):
             print("✓ [ArduPilot] Successfully ARMED!")
             return True
 
+        self._drain_statustext(1.0)
         print("✗ [ArduPilot] ARM failed after all attempts.")
         return False
 

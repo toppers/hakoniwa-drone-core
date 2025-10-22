@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import libs.hakosim as hakosim
+from hakoniwa_pdu.apps.drone.hakosim import MultirotorClient, ImageType
 from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_pytype_GameControllerOperation import GameControllerOperation
 import pygame
 import time
@@ -15,12 +15,12 @@ from rc_utils.rc_utils import RcConfig, StickMonitor
 DEFAULT_CONFIG_PATH = "rc_config/ps4-control.json"
 
 def saveCameraImage(client):
-    png_image = client.simGetImage("0", hakosim.ImageType.Scene)
+    png_image = client.simGetImage("0", ImageType.Scene)
     if png_image:
         with open("scene.png", "wb") as f:
             f.write(png_image)
 
-def joystick_control(client: hakosim.MultirotorClient, joystick, stick_monitor: StickMonitor):
+def joystick_control(client: MultirotorClient, joystick, stick_monitor: StickMonitor):
     try:
         while True:
             client.run_nowait()
@@ -32,12 +32,16 @@ def joystick_control(client: hakosim.MultirotorClient, joystick, stick_monitor: 
                     if event.axis < 6:
                         op_index = stick_monitor.rc_config.get_op_index(event.axis)
                         stick_value = stick_monitor.stick_value(event.axis, event.value)
-                        if (abs(stick_value) > 0.1):
-                            pass
+                        if (stick_value is not None):
+                            if abs(stick_value) > 0.1:
+                                pass
                             #print(f"stick event: stick_index={event.axis} op_index={op_index} event.value={event.value} stick_value={stick_value}")
-                        data.axis[op_index] = stick_value
-                    else:
-                        print(f'ERROR: not supported axis index: {event.axis}')
+                            if len(data.axis) <= op_index:
+                                print(f'ERROR: axis size is small: {len(data.axis)} <= {op_index}')
+                            else:
+                                data.axis[op_index] = stick_value
+                        else:
+                            print(f'ERROR: not supported axis index: {event.axis}')
                 elif event.type == pygame.JOYBUTTONDOWN or event.type == pygame.JOYBUTTONUP:
                     if event.button < 16:
                         event_op_index = stick_monitor.rc_config.get_event_op_index(event.button)
@@ -102,7 +106,7 @@ def main():
         pygame.quit()
         return 1
 
-    client = hakosim.MultirotorClient(config_path)
+    client = MultirotorClient(config_path)
     if args.name:
         print(f"Name: {args.name}")
         client.default_drone_name = args.name

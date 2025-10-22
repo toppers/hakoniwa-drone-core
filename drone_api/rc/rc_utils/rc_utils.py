@@ -124,7 +124,8 @@ class RcConfig:
             feature['average'] = feature.get('average', False)
             feature['valueInverse'] = feature.get('valueInverse', False)
         else:
-            raise ValueError(f"Feature for stick index {stick_index} not found.")
+            print(f"ERROR: Feature for stick index {stick_index} not found.")
+            return None
  
         return feature
 
@@ -139,6 +140,8 @@ class StickMonitor:
         op_index = self.rc_config.get_op_index(stick_index)
         feature = self.rc_config.get_stick_feature(stick_index)
         v = stick_value
+        if feature is None:
+            return None
 
         if feature['average']:
             v = self.average_stick_value(op_index, v)

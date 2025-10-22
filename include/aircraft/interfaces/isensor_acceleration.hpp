@@ -11,6 +11,7 @@ protected:
     DroneVelocityBodyFrameType prev_data;
 public:
     virtual ~ISensorAcceleration() {}
+
     virtual void run(const DroneEulerType& euler, const DroneVelocityBodyFrameType& vel, const DroneAngularVelocityBodyFrameType& angular_rate, const DroneAccelerationBodyFrameType& data) = 0;
     virtual DroneAccelerationBodyFrameType sensor_value() = 0;
 };

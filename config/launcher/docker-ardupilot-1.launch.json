@@ -9,11 +9,7 @@
         "lib_path": ["/usr/lib/x86_64-linux-gnu"],
         "PATH": ["/usr/bin"],
         "PYTHONPATH": [
-          "{{REPO_ROOT}}/drone_api",
-          "{{REPO_ROOT}}/drone_api/assets",
-          "{{REPO_ROOT}}/drone_api/assets/lib",
-          "{{SYS_DIST}}",
-          "{{PYENV_SITE}}"
+          "/usr/local/lib/python3.12/dist-packages"
         ]
       }
     },
@@ -24,34 +20,42 @@
     {
       "name": "drone",
       "activation_timing": "before_start",
-      "command": "lnx/linux-main_hako_drone_service",
-      "args": ["config/drone/api-1", "config/pdudef/webavatar.json"],
-      "cwd": "{{REPO_ROOT}}"
+      "command": "linux-main_hako_aircraft_service_ardupilot",
+      "args": [
+        "${WSL_IP}",
+        "9002", "9003",
+        "config/drone/ardupilot-1",
+        "config/pdudef/webavatar.json"],
+      "cwd": "/root/workspace/${DIRNAME}"
     },
     {
       "name": "environment",
       "activation_timing": "before_start",
-      "command": "python",
-      "args": ["-m","hako_env_event","../config/pdudef/webavatar.json","20","assets/config"],
-      "cwd": "{{REPO_ROOT}}/drone_api"
+      "command": "python3",
+      "args": [
+        "-m","hakoniwa_envsim.envasset",
+        "../../${DIRNAME}/config/pdudef/webavatar.json",
+        "20",
+        "../examples/datasets/simple_room"
+        ],
+      "env": {
+        "prepend": {
+          "PYTHONPATH": [
+            "/root/workspace/hakoniwa-envsim/src"
+          ]
+        }
+      },
+      "cwd": "/root/workspace/hakoniwa-envsim/src"
     },
     {
       "name": "webserver",
       "activation_timing": "after_start",
-      "command": "python",
+      "command": "python3",
       "args": ["-m","server.main","--asset_name","WebServer",
-               "--config_path","{{REPO_ROOT}}/config/pdudef/webavatar.json",
+               "--config_path","../${DIRNAME}/config/pdudef/webavatar.json",
                "--delta_time_usec","20000"],
-      "cwd": "{{REPO_ROOT}}/../hakoniwa-webserver",
+      "cwd": "/root/workspace/hakoniwa-webserver",
       "depends_on": ["drone"]
-    },
-    {
-      "name": "Unity",
-      "activation_timing": "after_start",
-      "command": "simulation.exe",
-      "args": [],
-      "cwd": "{{REPO_ROOT}}/WebAvatar",
-      "depends_on": ["webserver"]
     }
   ],
   "notify": {

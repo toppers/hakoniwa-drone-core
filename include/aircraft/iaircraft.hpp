@@ -16,13 +16,13 @@
 
 namespace hako::aircraft {
 
-class IAirCraft {
+class IAirCraft: public IAirCraftInputAccessor, public std::enable_shared_from_this<IAirCraft> {
 protected:
     bool            enable_disturbance = false;
     IDroneDynamics *drone_dynamics = nullptr;
     IRotorDynamics *rotor_dynamics[ROTOR_NUM];
     RotorConfigType rotor_config[ROTOR_NUM];
-    IThrustDynamics *thrust_dynamis = nullptr;
+    IThrustDynamics *thrust_dynamics = nullptr;
     IBatteryDynamics *battery_dynamics = nullptr;
 
     ISensorAcceleration *acc = nullptr;
@@ -38,10 +38,19 @@ protected:
     }
     uint64_t simulation_time_usec = 0;
     uint64_t delta_time_usec = 0;
+    AircraftInputType* aircraft_input = nullptr;
 public:
     virtual ~IAirCraft() {}
     virtual void run(AircraftInputType& input) = 0;
     virtual void reset() = 0;
+    const AircraftInputType& get_input() override
+    {
+        if (aircraft_input == nullptr) {
+            throw std::runtime_error("Aircraft input is not set. Make sure to call run() before accessing input.");
+        }
+        return *aircraft_input;
+    }
+
     void set_delta_time_usec(uint64_t d_time_usec)
     {
         this->delta_time_usec = d_time_usec;
@@ -101,6 +110,7 @@ public:
     {
         for (int i = 0; i < ROTOR_NUM; i++) {
             this->rotor_dynamics[i] = src[i];
+            this->rotor_dynamics[i]->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
         }
     }
     void set_battery_dynamics(IBatteryDynamics *src)
@@ -131,11 +141,18 @@ public:
     }
     void set_thrus_dynamics(IThrustDynamics *src)
     {
-        this->thrust_dynamis = src;
+        this->thrust_dynamics = src;
+
+        if (this->thrust_dynamics != nullptr) {
+            this->thrust_dynamics->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     void set_acc(ISensorAcceleration *src)
     {
         this->acc = src;
+        if (this->acc != nullptr) {
+            this->acc->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     ISensorAcceleration& get_acc()
     {
@@ -144,6 +161,9 @@ public:
     void set_gps(ISensorGps *src)
     {
         this->gps = src;
+        if (this->gps != nullptr) {
+            this->gps->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     ISensorGps& get_gps()
     {
@@ -152,6 +172,9 @@ public:
     void set_baro(ISensorBaro *src)
     {
         this->baro = src;
+        if (this->baro != nullptr) {
+            this->baro->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     ISensorBaro& get_baro()
     {
@@ -160,6 +183,9 @@ public:
     void set_gyro(ISensorGyro *src)
     {
         this->gyro = src;
+        if (this->gyro != nullptr) {
+            this->gyro->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     ISensorGyro& get_gyro()
     {
@@ -169,6 +195,9 @@ public:
     void set_mag(ISensorMag *src)
     {
         this->mag = src;
+        if (this->mag != nullptr) {
+            this->mag->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        }
     }
     ISensorMag& get_mag()
     {
@@ -192,6 +221,6 @@ public:
     virtual std::shared_ptr<IAirCraft> getAirCraft(size_t index) = 0;
     virtual std::vector<std::shared_ptr<IAirCraft>> getAllAirCrafts() = 0;
 };
-extern IAirCraft* create_aircraft(int index, const config::DroneConfig& drone_config);
+extern std::shared_ptr<IAirCraft> create_aircraft(int index, const config::DroneConfig& drone_config);
 
 }

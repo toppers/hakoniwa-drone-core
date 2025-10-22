@@ -21,28 +21,22 @@
       "activation_timing": "before_start",
       "command": "mac/mac-main_hako_drone_service",
       "args": [
-        "config/drone/api-1",
+        "config/drone/rc-1",
         "config/pdudef/webavatar.json"
       ],
-      "cwd": "/Users/tmori/project/private/hakoniwa-drone-pro"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}"
     },
     {
       "name": "environment",
       "activation_timing": "before_start",
       "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
       "args": [
-        "-m","hakoniwa_envsim.envasset",
-        "../../../private/hakoniwa-drone-pro/config/pdudef/webavatar.json",
-        "20",
+        "-m",
+        "hakoniwa_envsim.envasset",
+        "${HAKO_DRONE_PROJECT_PATH}/config/pdudef/webavatar.json",
+        "20", 
         "../examples/datasets/simple_room"
-        ],
-      "env": {
-        "prepend": {
-          "PYTHONPATH": [
-            "/Users/tmori/project/oss/hakoniwa-envsim/src"
-          ]
-        }
-      },
+      ],
       "cwd": "/Users/tmori/project/oss/hakoniwa-envsim/src"
     },
     {
@@ -54,15 +48,16 @@
       "depends_on": ["drone"]
     },
     {
-      "name": "api_control",
+      "name": "remote_controller",
       "activation_timing": "after_start",
       "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
       "args": [
         "-m",
-        "api_control_sample",
-        "../../config/pdudef/webavatar.json"
+        "rc-custom",
+        "../../config/pdudef/webavatar.json",
+        "rc_config/ps4-control.json"
       ],
-      "cwd": "/Users/tmori/project/private/hakoniwa-drone-pro/drone_api/rc"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api/rc"
     }    
   ],
   "notify": {
