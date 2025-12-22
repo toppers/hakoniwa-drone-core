@@ -1,0 +1,135 @@
+{
+  "mission": [
+    {
+      "command": "takeoff",
+      "parameters": {
+        "height": 20,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 28.399,
+        "y": 57.073,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 0,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 52.369,
+        "y": 84.239,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -54,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 182.299,
+        "y": -22.535,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 45,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 196.298,
+        "y": -40.522,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 58,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 160.252,
+        "y": -58.931,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 148,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 251.524,
+        "y": -147.197,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 50,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 184.697,
+        "y": -226.519,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 124,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 59.762,
+        "y": -374.493,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 124,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -127.54,
+        "y": -130.929,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -122,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -83.49,
+        "y": -93.102,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -47,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -18.824,
+        "y": -3.819,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -59,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "land"
+    }
+  ]
+}

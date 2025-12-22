@@ -46,7 +46,8 @@ RUN echo "deb [trusted=yes] https://hakoniwalab.github.io/apt stable main" \
 # Python（>= のクォートを忘れずに）
 RUN pip3 install --no-cache-dir --break-system-packages numpy scipy \
  && pip3 install --no-cache-dir --break-system-packages "aiohttp>=3.10.0" "aiohttp_cors>=0.7.0" "websockets==13.1" \
- && pip3 install --no-cache-dir --break-system-packages hakoniwa-pdu pymavlink
+ && pip3 install --no-cache-dir --break-system-packages hakoniwa-pdu pymavlink \
+ && pip3 install --no-cache-dir --break-system-packages panda3d
 
 # OSS版 lnx.zip を取得・配置（PROは起動時にentrypointで上書き）
 RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/latest/download/lnx.zip \

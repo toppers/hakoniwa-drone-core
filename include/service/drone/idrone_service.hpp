@@ -29,10 +29,19 @@ public:
      * Start service
      */
     virtual bool startService(uint64_t deltaTimeUsec) = 0;
+
+    /*
+     * Prepare to advance time step
+     */
+    virtual void advanceTimeStepPrepare() = 0;
     /*
      * Advance time step
      */
     virtual void advanceTimeStep() = 0;
+    /*
+     * Post to advance time step
+     */
+    virtual void advanceTimeStepPost() = 0;
     /*
      * Stop service
      */

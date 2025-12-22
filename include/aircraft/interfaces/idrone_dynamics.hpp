@@ -37,6 +37,7 @@ public:
     virtual DroneEulerType get_angle() const = 0;
 
     virtual DroneVelocityType get_propeller_wind() const = 0;
+    virtual int get_collided_counts() const = 0;
 
     virtual DroneVelocityBodyFrameType get_vel_body_frame() const = 0;
     virtual DroneAngularVelocityBodyFrameType get_angular_vel_body_frame() const = 0;

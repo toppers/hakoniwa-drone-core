@@ -1,0 +1,22 @@
+{
+    "pduMetaDataSize": 24,
+    "pdu_config_path": "../../config/pdudef/webavatar.json",
+    "services": [
+        {
+            "name": "DroneService/CameraCaptureImage",
+            "type": "drone_srv_msgs/CameraCaptureImage",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 536
+                },
+                "client": {
+                    "heapSize": 10002992,
+                    "baseSize": 680
+                }
+            }
+        }
+    ],
+    "nodes": []
+}

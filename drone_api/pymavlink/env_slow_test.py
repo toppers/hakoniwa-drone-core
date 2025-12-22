@@ -31,7 +31,7 @@ def run_mission(client: MavlinkMultirotorClient) -> bool:
 
     client.armDisarm(True)
     time.sleep(1)
-    if client.takeoff(1.0, timeout_sec=6000):
+    if client.takeoff(10.0, timeout_sec=6000):
         print("Takeoff successful.")
         time.sleep(5)
 
@@ -46,15 +46,15 @@ def run_mission(client: MavlinkMultirotorClient) -> bool:
             print("No heartbeat received.")
 
 
-        if client.moveToPosition(4.0, 4.0, 1.0, 0.1, yaw_deg=180, timeout_sec=6000):
+        if client.moveToPosition(400.0, 400.0, 10.0, 0.1, yaw_deg=180, timeout_sec=6000):
             print("Move 1 successful.")
             time.sleep(5)
 
-            if client.moveToPosition(4.0, 0.0, 1.0, 0.1, yaw_deg=-90, timeout_sec=6000):
+            if client.moveToPosition(400.0, 0.0, 10.0, 0.1, yaw_deg=-90, timeout_sec=6000):
                 print("Move 2 successful.")
                 time.sleep(5)
 
-                if client.moveToPosition(0.0, 0.0, 1.0, 0.1, yaw_deg=45, timeout_sec=6000):
+                if client.moveToPosition(0.0, 0.0, 10.0, 0.1, yaw_deg=45, timeout_sec=6000):
                     print("Move 3 successful.")
                     time.sleep(5)
                     return True

@@ -1,0 +1,57 @@
+<mujoco>
+  <option timestep="0.003" gravity="0 0 -9.81" integrator="Euler"/>
+  <size nstack="400000" nconmax="500"/>
+
+  <worldbody>
+    <!-- ground -->
+    <geom name="ground" type="plane" size="500 500 0.01" pos="0 0 0" rgba="1 1 1 1"/>
+
+    <!-- ドローン本体 (単一剛体) -->
+    <body name="d1_drone_base" pos="0 0 0.1">
+      <!-- 6DOF -->
+      <freejoint/>
+
+      <!-- ★慣性はここだけに持たせる -->
+      <inertial
+        pos="0 0 0"
+        mass="0.71"
+        diaginertia="0.0061 0.00653 0.0116" />
+
+      <!-- 見た目用 (質量ゼロ) -->
+      <geom name="d1_body_vis" type="box"
+            size="0.05 0.05 0.01"
+            mass="0"
+            rgba="0.5 0.5 0.5 1"/>
+
+      <!-- ★ プロペラ body 達 (質量ゼロの空ボディ) -->
+      <body name="d1_prop1" pos=" 0.05  -0.05 0.0">
+        <geom name="d1_prop1_vis" type="sphere"
+              size="0.005"
+              mass="0"
+              rgba="0 1 0 1"/>
+      </body>
+
+      <body name="d1_prop2" pos="-0.05 0.05 0.0">
+        <geom name="d1_prop2_vis" type="sphere"
+              size="0.005"
+              mass="0"
+              rgba="0 0 1 1"/>
+      </body>
+
+      <body name="d1_prop3" pos=" 0.05 0.05 0.0">
+        <geom name="d1_prop3_vis" type="sphere"
+              size="0.005"
+              mass="0"
+              rgba="1 0 0 1"/>
+      </body>
+
+      <body name="d1_prop4" pos="-0.05  -0.05 0.0">
+        <geom name="d1_prop4_vis" type="sphere"
+              size="0.005"
+              mass="0"
+              rgba="1 0.5 0 1"/>
+      </body>
+
+    </body>
+  </worldbody>
+</mujoco>

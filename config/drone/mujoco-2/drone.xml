@@ -1,0 +1,202 @@
+<mujoco>
+  <!-- option は1つに統合 -->
+  <option timestep="0.001" density="1.204" viscosity="0.05" integrator="Euler" gravity="0 0 -9.81"/>
+  <size nstack="4000000" nconmax="50000"/>
+  <visual>
+    <global elevation="-10"/>
+  </visual>
+
+  <default>
+    <tendon limited="true" width="0.003" rgba="1 1 1 1"/>
+    <geom friction=".2"/>
+    <default class="weight">
+      <geom rgba=".8 .4 .8 1"/>
+      <site rgba=".8 .4 .8 1"/>
+    </default>
+    <default class="drone">
+      <geom density="0.167" fluidshape="ellipsoid" friction="0.5 0.5 0.5"/>
+      <default class="pink">
+        <geom rgba="1 .6 .7 1"/>
+        <site rgba="1 .6 .7 1"/>
+      </default>
+      <default class="blue">
+        <geom rgba=".3 .7 .9 1"/>
+        <site rgba=".3 .7 .9 1"/>
+      </default>
+      <default class="black">
+        <geom rgba="0 0 0 1"/>
+        <site rgba="0 0 0 1"/>
+      </default>
+      <default class="gray">
+        <geom rgba=".5 .5 .5 1"/>
+        <site rgba=".5 .5 .5 1"/>
+      </default>
+      <default class="green">
+        <geom rgba=".4 .9 .5 1"/>
+        <site rgba=".4 .9 .5 1"/>
+      </default>
+      <default class="orange">
+        <geom rgba="1 .4 0 1"/>
+        <site rgba="1 .4 0 1"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1="1 1 1" rgb2="1 1 1"/>
+    <material name="white_ground" texture="grid" reflectance="0"/>
+  </asset>
+
+  <worldbody>
+    <light diffuse="1 1 1" specular="0.5 0.5 0.5" pos="0 0 5"/>
+    <geom name="ground" type="plane" size="5 5 .01" pos="0 0 0" material="white_ground"/>
+
+    <!-- ========= Drone #1 ========= -->
+    <body name="d1_b_drone_base" pos="0 0 0.0" childclass="gray">
+      <freejoint name="d1_j_free"/>
+      <geom name="d1_g_base" type="box" size="0.07 0.07 0.015" density="810" friction="0.001 0.001 0.001"/>
+
+      <body name="d1_b_arm1" pos="0.13 -0.13 0" childclass="black">
+        <geom name="d1_g_arm1" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+        <body name="d1_b_p1" pos="0.05 -0.05 0.02" childclass="blue">
+          <geom name="d1_g_prop1" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d1_b_prop1" pos="0.18 -0.18 0.02" childclass="black">
+        <geom name="d1_g_p1" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d1_b_arm2" pos="-0.13 0.13 0" childclass="black">
+        <geom name="d1_g_arm2" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+        <body name="d1_b_p2" pos="-0.05 0.05 0.02" childclass="green" gravcomp="0.0">
+          <geom name="d1_g_prop2" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d1_b_prop2" pos="-0.18 0.18 0.02" childclass="black">
+        <geom name="d1_g_p2" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d1_b_arm3" pos="0.13 0.13 0" childclass="black">
+        <geom name="d1_g_arm3" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+        <body name="d1_b_p3" pos="0.05 0.05 0.02" childclass="pink">
+          <geom name="d1_g_prop3" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d1_b_prop3" pos="0.18 0.18 0.02" childclass="black">
+        <geom name="d1_g_p3" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d1_b_arm4" pos="-0.13 -0.13 0" childclass="black">
+        <geom name="d1_g_arm4" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+        <body name="d1_b_p4" pos="-0.05 -0.05 0.02" childclass="orange">
+          <geom name="d1_g_prop4" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d1_b_prop4" pos="-0.18 -0.18 0.02" childclass="black">
+        <geom name="d1_g_p4" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d1_b_reg1" pos="-0.1 0.1 -0.10" childclass="black">
+        <geom name="d1_g_reg1" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+      </body>
+      <body name="d1_b_reg2" pos="0.1 0.1 -0.10" childclass="black">
+        <geom name="d1_g_reg2" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+      </body>
+      <body name="d1_b_reg3" pos="-0.1 -0.1 -0.10" childclass="black">
+        <geom name="d1_g_reg3" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+      </body>
+      <body name="d1_b_reg4" pos="0.1 -0.1 -0.10" childclass="black">
+        <geom name="d1_g_reg4" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+      </body>
+
+      <body name="d1_b_reg_bottom1" pos="0.0 -0.13 -0.18" childclass="pink">
+        <geom name="d1_g_reg_bottom1" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+      </body>
+      <body name="d1_b_reg_bottom2" pos="0.0 0.13 -0.18" childclass="pink">
+        <geom name="d1_g_reg_bottom2" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+      </body>
+    </body>
+
+
+    <!-- ========= Drone #2 ========= -->
+    <body name="d2_b_drone_base" pos="0 0 0.0" childclass="gray">
+      <freejoint name="d2_j_free"/>
+      <geom name="d2_g_base" type="box" size="0.07 0.07 0.015" density="810" friction="0.001 0.001 0.001"/>
+
+      <body name="d2_b_arm1" pos="0.13 -0.13 0" childclass="black">
+        <geom name="d2_g_arm1" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+        <body name="d2_b_p1" pos="0.05 -0.05 0.02" childclass="blue">
+          <geom name="d2_g_prop1" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d2_b_prop1" pos="0.18 -0.18 0.02" childclass="black">
+        <geom name="d2_g_p1" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d2_b_arm2" pos="-0.13 0.13 0" childclass="black">
+        <geom name="d2_g_arm2" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+        <body name="d2_b_p2" pos="-0.05 0.05 0.02" childclass="green" gravcomp="0.0">
+          <geom name="d2_g_prop2" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d2_b_prop2" pos="-0.18 0.18 0.02" childclass="black">
+        <geom name="d2_g_p2" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d2_b_arm3" pos="0.13 0.13 0" childclass="black">
+        <geom name="d2_g_arm3" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+        <body name="d2_b_p3" pos="0.05 0.05 0.02" childclass="pink">
+          <geom name="d2_g_prop3" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d2_b_prop3" pos="0.18 0.18 0.02" childclass="black">
+        <geom name="d2_g_p3" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d2_b_arm4" pos="-0.13 -0.13 0" childclass="black">
+        <geom name="d2_g_arm4" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+        <body name="d2_b_p4" pos="-0.05 -0.05 0.02" childclass="orange">
+          <geom name="d2_g_prop4" type="cylinder" size="0.076 0.0025" density="200"/>
+        </body>
+      </body>
+      <body name="d2_b_prop4" pos="-0.18 -0.18 0.02" childclass="black">
+        <geom name="d2_g_p4" type="box" size="0.007 0.007 0.007" density="500"/>
+      </body>
+
+      <body name="d2_b_reg1" pos="-0.1 0.1 -0.10" childclass="black">
+        <geom name="d2_g_reg1" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+      </body>
+      <body name="d2_b_reg2" pos="0.1 0.1 -0.10" childclass="black">
+        <geom name="d2_g_reg2" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+      </body>
+      <body name="d2_b_reg3" pos="-0.1 -0.1 -0.10" childclass="black">
+        <geom name="d2_g_reg3" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+      </body>
+      <body name="d2_b_reg4" pos="0.1 -0.1 -0.10" childclass="black">
+        <geom name="d2_g_reg4" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+      </body>
+
+      <body name="d2_b_reg_bottom1" pos="0.0 -0.13 -0.18" childclass="pink">
+        <geom name="d2_g_reg_bottom1" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+      </body>
+      <body name="d2_b_reg_bottom2" pos="0.0 0.13 -0.18" childclass="pink">
+        <geom name="d2_g_reg_bottom2" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+      </body>
+    </body>
+
+    <!-- 余分な </body> を削除したことに注意 -->
+
+    <!-- 荷物（box）
+    <body name="box" pos="0 0.05 0.01">
+      <freejoint/>
+      <geom name="box_geom" type="box" size="0.03 0.03 0.02" density="300" rgba="1 0 0 1"/>
+    </body>
+ -->
+  </worldbody>
+
+  <!--
+  <equality>
+    <connect body1="drone_base" body2="box" anchor="0 0 -0.2"/>
+  </equality>
+  -->
+</mujoco>

@@ -21,6 +21,12 @@ namespace fs = std::filesystem;
 #endif
 
 namespace hako::config {
+/*
+ * this value is used when POS_DIST_CONTROL = 1 on control parameter file.
+ * if you set hako_drone_control_disabled_target_yaw_deg to yaw target,
+ * then the target yaw control is automatically calculated from the position target.
+ */
+constexpr double hako_drone_control_disabled_target_yaw_deg = 9999999.0;
 /* #define DRONE_PX4_RX_DEBUG_ENABLE */
 /* DRONE_PX4_TX_DEBUG_ENABLE */
 /* DRONE_PID_CONTROL_CPP */

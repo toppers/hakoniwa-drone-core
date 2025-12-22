@@ -96,7 +96,7 @@ Furthermore, two types of this API are available depending on the application.
   - It absorbs the control modes and state transitions of Ardupilot/PX4, allowing operation with a unified API.
   - It also supports multi-vehicle and mixed environments (Ardupilot + PX4).
 
-## Simulation of External Environments (Wind, Temperature, etc.)
+## External Environment Simulation (Small-scale)
 
 The Hakoniwa Drone Simulator provides a function to simulate external environments such as wind and temperature. This allows for the realistic reproduction of the effects of external factors on the drone's behavior.
 For example, the following simulations are possible:
@@ -110,6 +110,15 @@ For details, please refer to [here](/docs/environment/README-ja.md).
 
 A sample program for executing external environment simulations is provided in Python.
 If you use this sample, please set up the [Hakoniwa Drone Operation Python API](#hakoniwa-drone-operation-python-api) in advance.
+
+## External Environment Simulation (Large-scale)
+
+For simulations involving large-scale external environments  
+(such as wind, temperature, atmospheric pressure, radio signal strength, and urban data),  
+please use the following new version:
+
+- [hakoniwa-map-viewer](https://github.com/hakoniwalab/hakoniwa-map-viewer)
+
 
 ## Simulation with Multiple Vehicles
 

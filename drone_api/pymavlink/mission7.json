@@ -1,0 +1,113 @@
+{
+  "mission": [
+    {
+      "command": "takeoff",
+      "parameters": {
+        "height": 20,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -28.994,
+        "y": -16.191,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 0,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -44.498,
+        "y": -40.455,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 117,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -84.697,
+        "y": -91.886,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 122,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -153.258,
+        "y": -12.63,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -125,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -196.817,
+        "y": -44.144,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 138,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -254.277,
+        "y": 18.584,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -127,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -218.435,
+        "y": 65.165,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -58,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -143.35,
+        "y": 169.004,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -60,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -6.721,
+        "y": 7.579,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 55,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "land"
+    }
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "mission": [
+    {
+      "command": "takeoff",
+      "parameters": {
+        "height": 20,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -28.752,
+        "y": -15.948,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 0,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -48.61,
+        "y": -42.15,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 122,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -83.974,
+        "y": -93.101,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 119,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -129.234,
+        "y": -132.141,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 133,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 79.318,
+        "y": -395.887,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 57,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 100.833,
+        "y": -396.885,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 3,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 152.653,
+        "y": -330.655,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -58,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 118.602,
+        "y": -300.987,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -133,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 186.632,
+        "y": -225.793,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -54,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 300.427,
+        "y": -93.594,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -55,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 236.475,
+        "y": -5.12,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -121,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 195.337,
+        "y": -35.422,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 138,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 182.3,
+        "y": -21.806,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -128,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": 52.127,
+        "y": 83.997,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": -135,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "moveToPosition",
+      "parameters": {
+        "x": -4.05,
+        "y": 16.318,
+        "z": 20,
+        "speed": 10,
+        "yaw_deg": 124,
+        "timeout_sec": 6000
+      }
+    },
+    {
+      "command": "land"
+    }
+  ]
+}

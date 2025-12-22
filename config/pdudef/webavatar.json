@@ -172,7 +172,7 @@
                     "org_name": "status",
                     "name": "Drone_status",
                     "channel_id": 18,
-                    "pdu_size": 56,
+                    "pdu_size": 64,
                     "write_cycle": 1,
                     "method_type": "SHM"
                 }
@@ -345,7 +345,7 @@
                     "org_name": "status",
                     "name": "Drone_status",
                     "channel_id": 18,
-                    "pdu_size": 56,
+                    "pdu_size": 64,
                     "write_cycle": 1,
                     "method_type": "SHM"
                 }

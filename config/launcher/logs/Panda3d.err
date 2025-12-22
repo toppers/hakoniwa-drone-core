@@ -1,0 +1,24 @@
+Known pipe types:
+  glxGraphicsPipe
+(1 aux display modules not yet loaded.)
+Xlib:  extension "XFree86-DGA" missing on display ":0".
+:device(error): Error adding inotify watch on /dev/input: そのようなファイルやディレクトリはありません
+:device(error): Error opening directory /dev/input: そのようなファイルやディレクトリはありません
+:assimp(warning): Mesh 1: Not suitable for vcache optimization
+:assimp(warning): Mesh 13: Not suitable for vcache optimization
+:assimp(warning): Mesh 21: Not suitable for vcache optimization
+:assimp(warning): Mesh 29: Not suitable for vcache optimization
+:assimp(warning): Mesh 45: Not suitable for vcache optimization
+:assimp(warning): Mesh 60: Not suitable for vcache optimization
+:assimp(warning): Mesh 64: Not suitable for vcache optimization
+:assimp(warning): Mesh 90: Not suitable for vcache optimization
+:assimp(warning): Mesh 102: Not suitable for vcache optimization
+:assimp(warning): Mesh 107: Not suitable for vcache optimization
+:assimp(warning): Mesh 132: Not suitable for vcache optimization
+:assimp(warning): Mesh 133: Not suitable for vcache optimization
+:assimp(warning): Mesh 140: Not suitable for vcache optimization
+:assimp(warning): Mesh 153: Not suitable for vcache optimization
+:assimp(warning): Mesh 154: Not suitable for vcache optimization
+:assimp(warning): Mesh 159: Not suitable for vcache optimization
+:assimp(warning): Mesh 165: Not suitable for vcache optimization
+:assimp(warning): Mesh 168: Not suitable for vcache optimization

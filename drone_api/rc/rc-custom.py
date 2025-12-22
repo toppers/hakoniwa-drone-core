@@ -66,6 +66,7 @@ def main():
     parser.add_argument("config_path", help="Path to the custom.json file")
     parser.add_argument("rc_config_path", nargs="?", help="Path to the optional RC config file")
     parser.add_argument("--name", type=str, help="Optional name for the configuration")
+    parser.add_argument("--index", default=0, type=int, help="Joystick index (default: 0)")
 
     args = parser.parse_args()
 
@@ -96,7 +97,7 @@ def main():
     joystick_count = pygame.joystick.get_count()
     print(f"Number of joysticks: {joystick_count}")
     try:
-        joystick = pygame.joystick.Joystick(0)
+        joystick = pygame.joystick.Joystick(args.index)
         joystick.init()
         print(f'ジョイスティックの名前: {joystick.get_name()}')
         print(f'ボタン数 : {joystick.get_numbuttons()}')
