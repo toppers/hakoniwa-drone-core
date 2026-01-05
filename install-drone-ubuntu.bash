@@ -111,7 +111,7 @@ if [ "$INSTALL_HAKONIWA" = "1" ]; then
 
   # 4.2 Download & unpack WebAvatar.zip
   begin_phase "Hakoniwa: download & unpack WebAvatar.zip"
-  fetch_and_unpack "WebAvatar.zip" "https://github.com/toppers/hakoniwa-drone-core/releases/latest/download/WebAvatar.zip"
+  fetch_and_unpack "WebAvatar.zip" "https://github.com/toppers/hakoniwa-drone-core/releases/download/v3.3.0/WebAvatar.zip"
   end_phase
 
   # 4.3 Install hakoniwa-core-full from repo
