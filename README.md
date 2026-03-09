@@ -95,6 +95,11 @@ For commercial licensing inquiries:
   - 箱庭システムを前提としたAPI。
   - ドローンを直接PDU経由で制御し、Unity/Unrealの可視化や外部環境シミュレーションと統合可能。
   - 教育・実習・デモ用途に最適。
+- 📘 詳細: [External RPC Driver](drone_api/external_rpc/README.md)
+  - 箱庭 service API を使って `SetReady` / `TakeOff` / `GetState` / `GoTo` / `Land` を実行する最小 Python driver。
+  - fleet config の `serviceConfigPath` と `controller.serviceMode = "rpc"` を前提とする。
+  - `HakoniwaRpcDroneClient` による単一機体制御と、`FleetRpcController` による複数機体同時制御の入口を提供する。
+  - 箱庭あり版の service 制御の結合確認やテストドライバ用途を想定。
 - 📘 詳細: [Python API (Ardupilot / PX4 対応)](docs/python_api/mavlink_api.md)
   - `pymavlink` を利用し、ArdupilotやPX4 SITLと連携可能。
   - Ardupilot/PX4の制御モードや状態遷移を吸収し、同一のAPIで操作可能。
@@ -132,7 +137,7 @@ For commercial licensing inquiries:
 - PX4 
 - 箱庭ドローン操作用 Python API での制御
 
-設定ファイルでインスタンス数を指定することで、2機にとどまらず N 機体の同時シミュレーションも可能です。
+legacy 形式では `drone_config_x.json` の列挙で、新方式では fleet file で、2機にとどまらず N 機体の同時シミュレーションが可能です。
 
 ※ 実行可能な台数はマシンの性能に左右されます。
 
@@ -144,7 +149,9 @@ For commercial licensing inquiries:
   Python クライアントは MAVLink ポートを通じて個別に接続します。
 - Hakoniwa PDU経由の制御では、Python クライアントが直接 PDU を介して
   各ドローンインスタンスを制御します。
-- 各機体には対応する `drone_config_x.json` が存在し、aircraft と controller の設定を定義します。
+- legacy 形式では各機体に対応する `drone_config_x.json` が存在し、aircraft と controller の設定を定義します。
+- new 形式では fleet file を入口にし、type 定義と個体配置から各機体の `DroneConfig` を構成します。
+- 箱庭 service 制御を使う場合は、fleet file に `serviceConfigPath` を持たせ、type 定義側で `controller.serviceMode = "rpc"` を指定します。
 
 ![image](/docs/images/multi-drone-architecture.png)
 
@@ -153,6 +160,90 @@ For commercial licensing inquiries:
 - [Ardupilotでの複数機体シミュレーション](/docs/multi_drones/ardupilot.md)
 - [PX4での複数機体シミュレーション](/docs/multi_drones/px4.md)
 - [箱庭ドローン操作用 Python APIでの複数機体制御](/docs/multi_drones/hakoniwa_python.md)
+
+## 100台+同時シミュレーション（大規模フリート）
+
+v3.6.0 では、**1台のマシン上で100台以上を同時実行できる fleet-oriented architecture** を導入しました。  
+実測では、**100 / 128 / 200 / 256 機体**で同時シミュレーション実行を確認しています。
+
+従来、大規模マルチエージェントのリアルタイム検証は専用サーバー群を前提にすることが一般的でした。  
+本リリースでは、**手元の1台のMac上で同等のスケールを運用可能**な構成を示しています。
+
+デモ動画:
+- 200台同時シミュレーション: https://www.youtube.com/watch?v=p-0IIz8a55M
+
+このリリースの本質:
+- `fleet abstraction`（`type定義 + fleetインスタンス定義`）を中核にしたスケール設計
+- 「機体ごとの個別通信」ではなく「ノード単位の集約通信」で水平展開
+- 1台のPC上で、プロセス分割による分散シミュレーションを完結可能
+
+スコープ / 前提:
+- 100台構成では `MuJoCo` / `PX4` / `Ardupilot` は利用せず、内蔵コントローラ + 共有メモリを前提
+- 衝突判定なし
+- 外部制御は Python からの低頻度コマンド（`GoTo` 等）を前提
+- 検証環境は Arm Mac（macOS）に限定（他OSは未検証）
+
+ユースケース:
+- バーチャルドローンショーでのデモ
+- 群制御アルゴリズムの検証
+- 大規模シミュレーション研究（分散実行の評価）
+
+v3.6.0での対応:
+1. ドローン設定のコンパクト化
+   - `drone_config_x.json` 列挙型から `type定義 + fleetインスタンス定義` へ移行
+   - `pdudef` も `paths`（型定義）+ `robots`（インスタンス列挙）の分離構成に統一
+2. ログ出力のオプション化
+   - 100台運用で CSV ログを無効化可能
+3. Python制御の複数機体対応
+   - `FleetRpcController` を中心に同時指令・非同期待機を実装
+   - `run_square_mission.bash` / `run_show.bash` で多機体シナリオを実行可能
+4. 内蔵コントローラの選択性
+   - controller 設定を type 側で扱い、差し替えしやすい構成に整理
+
+通信モデル:
+- 共有メモリ + PDU ベースで低オーバーヘッド通信
+- 200機体状態の実データ量（合計）は `約10KB/step`（packed payload）
+- 100機体単位に分割する運用では `約5KB/packet` が目安
+- `DroneVisualStateArray` は `pdu_size=16384 bytes (=16KB)` で運用（固定フレーム確保）
+- サイズ設計の考え方: 1パケットあたりの実測値（100機体: 約4〜5KB）を基準に、将来の項目追加・運用余裕を見込んで 16KB 枠を採用
+
+並列実行の実測結果:
+- 200機体 `show-runner` 実測
+- `1 process: wall-clock 232.65s`
+- `4 processes: wall-clock 135.62s`
+- `約42%` 実行時間短縮
+- ※ 考察: 理論線形短縮（75%）より小さい理由:
+  共有メモリ同期・サービス登録/初期化待ち・制御オーケストレーションの固定コストが残るため
+
+スケーリング見通し（推計）:
+- `1 node ≈ 200 drones`
+- `5 nodes ≈ 1000 drones`
+- 単一PC内でも「複数ノード相当の分割実行」を再現可能（ローカル分散構成）
+- サーバーは個別1000機体ではなく集約5ノードを受信
+- 5ノード時の概算（状態PDUのみ）: `約50KB/step`（20ms周期で `約2.5MB/s`）
+  - 計算: `50KB / 0.02s ≈ 2.5MB/s`
+  - ※ Conductor でノード時刻同期を行う構成では、別途同期トラフィックが加わる
+  - ※ 1000機体の分散実測は次フェーズで検証予定
+
+次フェーズ（性能検証）:
+- 1ノード/5ノードで同条件の end-to-end レイテンシ計測
+- jitter（周期ゆらぎ）と packet drop 率の定量化
+- 同一フォーマットでの再現可能なベンチマーク公開
+
+今回のアーキテクチャ:
+- fleets 構成では、`type定義 + fleetインスタンス定義` を入口に、`drone-service`（分割実行可）+ `VisualStatePublisher` + `WebBridge` + `External RPC` で群制御します。
+- 詳細は以下の構成図と fleets ドキュメントを参照してください。
+
+![Fleets 100+ Architecture](docs/fleets/architecture.png)
+
+関連ドキュメント:
+- [fleets ドキュメント索引](docs/fleets/README.md)
+- [fleets 実行時コンフィグ構成（どれを使うか）](docs/fleets/config-runtime-map.md)
+- [fleets 機体数依存コンフィグ範囲](docs/fleets/config-scope.md)
+- [hakoniwa-core 固定パラメータ設計](docs/fleets/core-parameter-sizing.md)
+- [Drone Show Runbook](docs/fleets/drone-show-runbook.md)
+- [性能レポート](docs/fleets/performance-report.md)
+- [External RPC Driver](drone_api/external_rpc/README.md)
 
 ## ログリプレイ機能
 
@@ -196,7 +287,7 @@ For commercial licensing inquiries:
 ## 内部
 
 - [hakoniwa-core-pro](https://github.com/hakoniwalab/hakoniwa-core-pro) : 箱庭シミュレーションとの統合。
-- [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git) : 箱庭PDUとの統合。(hakoniwa-core-proに含まれる)
+- [hakoniwa-pdu-registry](https://github.com/hakoniwalab/hakoniwa-pdu-registry.git) : 箱庭PDUの定義・生成・管理。(hakoniwa-core-proに含まれる)
 
 # アーキテクチャ
 
@@ -220,6 +311,7 @@ For commercial licensing inquiries:
 
 * 🖼️ [全体アーキテクチャを見る](docs/architecture/overview.md)
 * 🔬 [内部アーキテクチャの技術詳細を見る](docs/architecture/detail.md)
+* 🛰️ [DroneVisualStatePublisher 設計メモを見る](docs/architecture/visual_state_publisher.md)
 
 
 # 動作環境
@@ -259,7 +351,7 @@ For commercial licensing inquiries:
 | [風のシミュレーション](docs/environment/README-ja.md) | 風の影響を受けたドローンの動作を確認 | ✅ | ❌ |
 | 衝突検出 | ドローンの衝突を検出する機能 | ✅ | ❌ |
 | Web連携 (任意) | [hakoniwa-webserver](https://github.com/toppers/hakoniwa-webserver) など | ✅ | ❌ |
-| ROS2連携 (任意) | [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu) など | ✅ | ❌ |
+| ROS2連携 (任意) | [hakoniwa-pdu-registry](https://github.com/hakoniwalab/hakoniwa-pdu-registry) など | ✅ | ❌ |
 
 📌 **備考**
 - Pythonは **3.12.0** 固定（それ以外は非対応）

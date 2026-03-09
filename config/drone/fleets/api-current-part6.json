@@ -1,0 +1,596 @@
+{
+  "serviceConfigPath": "config/drone/fleets/services/api-current-service.json",
+  "types": {
+    "api": "config/drone/fleets/types/api.json"
+  },
+  "drones": [
+    {
+      "name": "Drone-215",
+      "type": "api",
+      "position_meter": [
+        1.2715743885273927,
+        -3.633950821687216,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-216",
+      "type": "api",
+      "position_meter": [
+        1.6704523956025983,
+        -3.468730141424315,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-217",
+      "type": "api",
+      "position_meter": [
+        2.048323494584045,
+        -3.259888167028895,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-218",
+      "type": "api",
+      "position_meter": [
+        2.400435737156124,
+        -3.0100512075019155,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-219",
+      "type": "api",
+      "position_meter": [
+        2.7223611075682075,
+        -2.722361107568209,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-220",
+      "type": "api",
+      "position_meter": [
+        3.0100512075019146,
+        -2.400435737156125,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-221",
+      "type": "api",
+      "position_meter": [
+        3.259888167028894,
+        -2.048323494584047,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-222",
+      "type": "api",
+      "position_meter": [
+        3.468730141424314,
+        -1.6704523956025998,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-223",
+      "type": "api",
+      "position_meter": [
+        3.633950821687215,
+        -1.2715743885273945,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-224",
+      "type": "api",
+      "position_meter": [
+        3.753472461900021,
+        -0.8567055957318115,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-225",
+      "type": "api",
+      "position_meter": [
+        3.8257920080889845,
+        -0.4310632329977362,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-226",
+      "type": "api",
+      "position_meter": [
+        4.4,
+        0,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-227",
+      "type": "api",
+      "position_meter": [
+        4.309931741510976,
+        0.8857134883901043,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-228",
+      "type": "api",
+      "position_meter": [
+        4.043414371129015,
+        1.7351657624986019,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-229",
+      "type": "api",
+      "position_meter": [
+        3.611359141312016,
+        2.513580146417086,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-230",
+      "type": "api",
+      "position_meter": [
+        3.0314544439330215,
+        3.189088263808128,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-231",
+      "type": "api",
+      "position_meter": [
+        2.327441645438635,
+        3.7340347329769044,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-232",
+      "type": "api",
+      "position_meter": [
+        1.5281431125172094,
+        4.126109381447154,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-233",
+      "type": "api",
+      "position_meter": [
+        0.6662822210201376,
+        4.34926062704369,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-234",
+      "type": "api",
+      "position_meter": [
+        -0.22285634289033565,
+        4.394352631552633,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-235",
+      "type": "api",
+      "position_meter": [
+        -1.102871141938371,
+        4.259539323011299,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-236",
+      "type": "api",
+      "position_meter": [
+        -1.9377342668535915,
+        3.9503399741112633,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-237",
+      "type": "api",
+      "position_meter": [
+        -2.693266323209717,
+        3.4794132425258737,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-238",
+      "type": "api",
+      "position_meter": [
+        -3.3385357398482807,
+        2.8660389239777784,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-239",
+      "type": "api",
+      "position_meter": [
+        -3.8471251110361613,
+        2.135328635136757,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-240",
+      "type": "api",
+      "position_meter": [
+        -4.1982127281602155,
+        1.3171977410827755,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-241",
+      "type": "api",
+      "position_meter": [
+        -4.377425022924339,
+        0.44514061674470207,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-242",
+      "type": "api",
+      "position_meter": [
+        -4.377425022924339,
+        -0.445140616744701,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-243",
+      "type": "api",
+      "position_meter": [
+        -4.198212728160216,
+        -1.3171977410827727,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-244",
+      "type": "api",
+      "position_meter": [
+        -3.847125111036161,
+        -2.1353286351367573,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-245",
+      "type": "api",
+      "position_meter": [
+        -3.338535739848281,
+        -2.866038923977777,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-246",
+      "type": "api",
+      "position_meter": [
+        -2.693266323209716,
+        -3.479413242525874,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-247",
+      "type": "api",
+      "position_meter": [
+        -1.9377342668535942,
+        -3.9503399741112624,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-248",
+      "type": "api",
+      "position_meter": [
+        -1.10287114193837,
+        -4.259539323011299,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-249",
+      "type": "api",
+      "position_meter": [
+        -0.22285634289033573,
+        -4.394352631552633,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-250",
+      "type": "api",
+      "position_meter": [
+        0.6662822210201375,
+        -4.34926062704369,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-251",
+      "type": "api",
+      "position_meter": [
+        1.5281431125172056,
+        -4.126109381447155,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-252",
+      "type": "api",
+      "position_meter": [
+        2.327441645438635,
+        -3.734034732976905,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-253",
+      "type": "api",
+      "position_meter": [
+        3.031454443933021,
+        -3.189088263808128,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-254",
+      "type": "api",
+      "position_meter": [
+        3.611359141312016,
+        -2.513580146417087,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-255",
+      "type": "api",
+      "position_meter": [
+        4.043414371129015,
+        -1.7351657624986025,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Drone-256",
+      "type": "api",
+      "position_meter": [
+        4.309931741510976,
+        -0.8857134883901053,
+        0
+      ],
+      "angle_degree": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

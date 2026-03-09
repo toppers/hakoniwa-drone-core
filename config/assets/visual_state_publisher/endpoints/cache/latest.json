@@ -1,0 +1,7 @@
+{
+  "type": "buffer",
+  "name": "visual_state_latest_cache",
+  "store": {
+    "mode": "latest"
+  }
+}

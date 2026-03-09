@@ -1,0 +1,6 @@
+{
+  "cache": "endpoints/cache/latest.json",
+  "comm": "endpoints/comm/output_shm_callback.json",
+  "name": "drone_visual_state_output",
+  "pdu_def_path": "../../pdudef/drone-visual-state.json"
+}

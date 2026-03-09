@@ -1,6 +1,13 @@
-FROM ubuntu:24.04 as hakoniwa-drone-core
+FROM ubuntu:24.04 AS hakoniwa-drone-core
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG HAKO_PDU_ENDPOINT_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-endpoint.git"
+ARG HAKO_PDU_ENDPOINT_REF="main"
+ARG HAKO_PDU_BRIDGE_CORE_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-bridge-core.git"
+ARG HAKO_PDU_BRIDGE_CORE_REF="main"
+ARG HAKO_THREEJS_DRONE_REPO="https://github.com/hakoniwalab/hakoniwa-threejs-drone.git"
+ARG HAKO_THREEJS_DRONE_REF="main"
+ARG CMAKE_BUILD_JOBS=4
 
 ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
     HAKO_BINARY_PATH="/usr/share/hakoniwa/offset" \
@@ -12,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev xorg-dev \
     libglfw3-dev libgtest-dev libspdlog-dev \
+    libboost-dev \
     libssl-dev libreadline-dev zlib1g-dev \
     autoconf automake pkg-config \
     curl wget jq git \
@@ -42,6 +50,33 @@ RUN echo "deb [trusted=yes] https://hakoniwalab.github.io/apt stable main" \
  | tee /etc/apt/sources.list.d/hakoniwa.list \
  && apt-get update && apt-get install -y --no-install-recommends hakoniwa-core-full \
  && rm -rf /var/lib/apt/lists/*
+
+# hakoniwa-pdu-endpoint（bridge-core 依存）
+RUN git clone --depth 1 --branch "${HAKO_PDU_ENDPOINT_REF}" "${HAKO_PDU_ENDPOINT_REPO}" /tmp/hakoniwa-pdu-endpoint \
+ && cmake -S /tmp/hakoniwa-pdu-endpoint -B /tmp/hakoniwa-pdu-endpoint/build -DCMAKE_BUILD_TYPE=Release \
+ && cmake --build /tmp/hakoniwa-pdu-endpoint/build -j"${CMAKE_BUILD_JOBS}" \
+ && cmake --install /tmp/hakoniwa-pdu-endpoint/build --prefix /usr/local/hakoniwa \
+ && rm -rf /tmp/hakoniwa-pdu-endpoint
+
+# hakoniwa-pdu-bridge-core（web bridge バイナリ）
+RUN git clone --depth 1 --branch "${HAKO_PDU_BRIDGE_CORE_REF}" "${HAKO_PDU_BRIDGE_CORE_REPO}" /tmp/hakoniwa-pdu-bridge-core \
+ && cmake -S /tmp/hakoniwa-pdu-bridge-core -B /tmp/hakoniwa-pdu-bridge-core/build \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="-I/usr/include/hakoniwa" \
+      -DBUILD_TESTING=OFF \
+      -DHAKO_PDU_ENDPOINT_PREFIX=/usr/local/hakoniwa \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/hakoniwa \
+ && cmake --build /tmp/hakoniwa-pdu-bridge-core/build \
+      --target hakoniwa-pdu-bridge hakoniwa-pdu-web-bridge hakoniwa-pdu-bridge-monitor \
+      -j"${CMAKE_BUILD_JOBS}" \
+ && cmake --install /tmp/hakoniwa-pdu-bridge-core/build --prefix /usr/local/hakoniwa \
+ && install -d /usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config \
+ && cp -R /tmp/hakoniwa-pdu-bridge-core/config/web_bridge_fleets \
+      /usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config/ \
+ && rm -rf /tmp/hakoniwa-pdu-bridge-core
+
+# threejs viewer（fleets web 配信用）
+RUN git clone --depth 1 --branch "${HAKO_THREEJS_DRONE_REF}" "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone
 
 # Python（>= のクォートを忘れずに）
 RUN pip3 install --no-cache-dir --break-system-packages numpy scipy \

@@ -1,0 +1,21 @@
+{
+  "meta": {
+    "name": "show_hakoniwa_100",
+    "version": "1.0",
+    "drone_count": 100
+  },
+  "options": {
+    "center": [0.0, 0.0, 0.0],
+    "scale": 1.0,
+    "base_alt": 4.0,
+    "min_distance": 0.6,
+    "max_speed": 2.0,
+    "failure_policy": "hold"
+  },
+  "formation_files": [
+    { "id": "HAKONIWA", "path": "formations/formation-HAKONIWA-100.json" }
+  ],
+  "timeline": [
+    { "formation": "HAKONIWA", "duration_sec": 6.0, "hold_sec": 2.0 }
+  ]
+}

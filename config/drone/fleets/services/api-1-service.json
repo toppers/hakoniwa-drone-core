@@ -1,0 +1,82 @@
+{
+    "pduMetaDataSize": 24,
+    "pdu_config_path": "config/pdudef/drone-pdudef-1.json",
+    "services": [
+        {
+            "name": "DroneService/DroneSetReady/Drone",
+            "type": "drone_srv_msgs/DroneSetReady",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                },
+                "client": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                }
+            }
+        },
+        {
+            "name": "DroneService/DroneTakeOff/Drone",
+            "type": "drone_srv_msgs/DroneTakeOff",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 416
+                },
+                "client": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                }
+            }
+        },
+        {
+            "name": "DroneService/DroneGoTo/Drone",
+            "type": "drone_srv_msgs/DroneGoTo",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 448
+                },
+                "client": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                }
+            }
+        },
+        {
+            "name": "DroneService/DroneGetState/Drone",
+            "type": "drone_srv_msgs/DroneGetState",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                },
+                "client": {
+                    "heapSize": 0,
+                    "baseSize": 632
+                }
+            }
+        },
+        {
+            "name": "DroneService/DroneLand/Drone",
+            "type": "drone_srv_msgs/DroneLand",
+            "maxClients": 1,
+            "pduSize": {
+                "server": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                },
+                "client": {
+                    "heapSize": 0,
+                    "baseSize": 408
+                }
+            }
+        }
+    ],
+    "nodes": []
+}

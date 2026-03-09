@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "name": "show_hello_world_100",
+    "version": "1.0",
+    "drone_count": 100
+  },
+  "options": {
+    "center": [0.0, 0.0, 0.0],
+    "scale": 1.0,
+    "base_alt": 4.0,
+    "min_distance": 0.6,
+    "max_speed": 2.0,
+    "failure_policy": "hold"
+  },
+  "formation_files": [
+    { "id": "H", "path": "formations/formation-H-100.json" },
+    { "id": "E", "path": "formations/formation-E-100.json" },
+    { "id": "L", "path": "formations/formation-L-100.json" },
+    { "id": "O", "path": "formations/formation-O-100.json" },
+    { "id": "W", "path": "formations/formation-W-100.json" },
+    { "id": "R", "path": "formations/formation-R-100.json" },
+    { "id": "D", "path": "formations/formation-D-100.json" }
+  ],
+  "timeline": [
+    { "formation": "H", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "E", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "L", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "L", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "O", "duration_sec": 3.0, "hold_sec": 1.0 },
+    { "formation": "W", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "O", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "R", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "L", "duration_sec": 3.0, "hold_sec": 0.5 },
+    { "formation": "D", "duration_sec": 3.0, "hold_sec": 1.0 }
+  ]
+}

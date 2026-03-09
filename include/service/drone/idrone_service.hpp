@@ -1,6 +1,7 @@
 #pragma once
 
 #include "aircraft/iaircraft.hpp"
+#include "config/drone_config.hpp"
 #include "controller/iaircraft_controller.hpp"
 #include "service/iservice_container.hpp"
 #include "service/iservice_pdu_types.hpp"
@@ -9,6 +10,10 @@
 #include <memory>
 
 namespace hako::service {
+
+namespace impl {
+class IDroneServicePort;
+}
 
 
 extern bool drone_pdu_data_deep_copy(const ServicePduDataType& source, ServicePduDataType& dest);
@@ -20,7 +25,10 @@ public:
     /*
      * Create drone service
      */
-    static std::shared_ptr<IDroneService> create(std::shared_ptr<aircraft::IAirCraft> aircraft, std::shared_ptr<controller::IAircraftController> controller);
+    static std::shared_ptr<IDroneService> create(
+        std::shared_ptr<aircraft::IAirCraft> aircraft,
+        std::shared_ptr<controller::IAircraftController> controller,
+        const config::DroneConfig* drone_config = nullptr);
     /*
      * Destructor
      */
@@ -78,6 +86,11 @@ public:
     virtual std::string getRobotName() = 0;
 
     /*
+     * Set service port for RPC mode
+     */
+    virtual void setServicePort(std::shared_ptr<impl::IDroneServicePort> service_port) = 0;
+
+    /*
      * Set PDU syncher
      */
     virtual void setPduSyncher(std::shared_ptr<IServicePduSyncher> pdu_syncher) = 0;
@@ -103,4 +116,3 @@ public:
 };
 
 }
-

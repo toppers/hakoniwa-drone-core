@@ -1,0 +1,6 @@
+{
+  "name": "drone_visual_state_input",
+  "pdu_def_path": "../../../pdudef/drone-pdudef-current.json",
+  "cache": "cache/latest.json",
+  "comm": "comm/input_shm_callback.json"
+}

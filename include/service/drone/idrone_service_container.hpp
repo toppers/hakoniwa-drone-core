@@ -1,15 +1,23 @@
 #pragma once
 
 #include "aircraft/iaircraft.hpp"
+#include "config/drone_config.hpp"
 #include "controller/iaircraft_controller.hpp"
 #include "service/iservice_container.hpp"
 #include <memory>
 
 namespace hako::service {
 
+namespace impl {
+class IDroneServicePort;
+}
+
 class IDroneServiceContainer : public IServiceContainer {
 public:
-    static std::shared_ptr<IDroneServiceContainer> create(std::shared_ptr<aircraft::IAirCraftContainer> aircraft_container, std::shared_ptr<controller::IAircraftControllerContainer> controller_container);
+    static std::shared_ptr<IDroneServiceContainer> create(
+        std::shared_ptr<aircraft::IAirCraftContainer> aircraft_container,
+        std::shared_ptr<controller::IAircraftControllerContainer> controller_container,
+        config::DroneConfigManager* config_manager = nullptr);
     virtual ~IDroneServiceContainer() = default;
     virtual bool startService(uint64_t deltaTimeUsec) override = 0;
     virtual bool setRealTimeStepUsec(uint64_t deltaTimeUsec) override = 0;
@@ -26,6 +34,8 @@ public:
 
     virtual uint32_t getNumServices() override = 0;
     virtual std::string getRobotName(uint32_t index) override = 0;
+    virtual void setServicePort(uint32_t index, std::shared_ptr<impl::IDroneServicePort> service_port) = 0;
+    virtual std::string getFleetServiceConfigPath() const = 0;
 
     virtual void setPduSyncher(std::shared_ptr<IServicePduSyncher> pdu_syncher) override = 0;
     /*
@@ -48,4 +58,3 @@ public:
     virtual bool flushSensorData(uint32_t ) override { return false;}
 };
 }
-

@@ -6,10 +6,12 @@
 #include <vector>
 #include <filesystem>
 #include <optional>
+#include <array>
 
 #include <regex>
 #include <algorithm>
 #include "config/drone_config_types.hpp"
+#include "config/fleet_validator.hpp"
 
 namespace fs = std::filesystem;
 #ifdef __APPLE__
@@ -42,33 +44,15 @@ private:
     nlohmann::json configJson;
     std::string config_filepath;
     std::string controllerParamText = "";
+    static std::string join_module_filename(const std::string& module_directory, const std::string& module_name);
+    fs::path getConfigDirectoryPath() const;
+    static std::string normalize_path_string(const fs::path& path);
+    std::string resolvePath(const std::string& raw_path, bool must_exist) const;
+    std::string resolveModuleDirectory(const std::string& raw_directory) const;
 public:
     DroneConfig() {}
-    bool init(const std::string& configFilePath) {
-        config_filepath = configFilePath;
-        std::ifstream configFile(config_filepath);
-        if (configFile.is_open()) {
-            try {
-                configFile >> configJson;
-            } catch (nlohmann::json::parse_error& e) {
-                std::cerr << "JSON parsing error: " << e.what() << std::endl;
-                return false;
-            }
-        } else {
-            std::cerr << "Unable to open config file: " << config_filepath << std::endl;
-            return false;
-        }
-        return true;
-    }
-    bool init_from_text(const std::string& configText) {
-        try {
-            configJson = nlohmann::json::parse(configText);
-        } catch (nlohmann::json::parse_error& e) {
-            std::cerr << "JSON parsing error: " << e.what() << std::endl;
-            return false;
-        }
-        return true;
-    }
+    bool init(const std::string& configFilePath);
+    bool init_from_text(const std::string& configText);
 
     /* Simulation parameters */
     double getSimTimeStep() const {
@@ -77,15 +61,8 @@ public:
     bool getSimLockStep() const {
         return configJson["simulation"]["lockstep"].get<bool>();
     }
-    std::string getSimLogOutputDirectory() const 
-    {
-        std::string directory = configJson["simulation"]["logOutputDirectory"].get<std::string>();
-        if (!std::filesystem::exists(directory)) {
-            std::cerr << "Error: Log output directory '" << directory << "' does not exist." << std::endl;
-            return "./";
-        }
-        return directory;
-    }
+    LoggingMode getSimLoggingMode() const;
+    std::string getSimLogOutputDirectory() const;
     std::string getRoboName() const
     {
         return configJson["name"].get<std::string>();
@@ -379,25 +356,7 @@ public:
             return "";
         }
     }
-    std::string getCompSensorVendor(const std::string& sensor_name) const {
-        if (configJson["components"]["sensors"][sensor_name].contains("vendor")) {
-            std::string moduleDirectory = configJson["components"]["sensors"][sensor_name]["vendor"].get<std::string>();
-            if (moduleDirectory.back() != '/' && moduleDirectory.back() != '\\') {
-                moduleDirectory += "/";
-            }
-            std::string moduleName = getCompSensorContextModuleName(sensor_name);
-            if (moduleName.empty()) {
-                moduleName = getLastDirectoryName(moduleDirectory);
-            }
-#if WIN32
-            return moduleDirectory + moduleName + SHARED_LIB_EXT;
-#else
-            return moduleDirectory + "lib" + moduleName + SHARED_LIB_EXT;
-#endif
-        } else {
-            return "";
-        }
-    }
+    std::string getCompSensorVendor(const std::string& sensor_name) const;
     std::string getCompSensorContextModuleName(const std::string& sensor_name) const
     {
         return getCompSensorContext(sensor_name, "moduleName");
@@ -453,33 +412,9 @@ public:
         }
         return "";
     }
-    std::string getControllerModuleFilePath() const
-    {
-        if (configJson["controller"].contains("moduleDirectory")) {
-            std::string moduleDirectory = configJson["controller"]["moduleDirectory"].get<std::string>();
-            if (moduleDirectory.back() != '/' && moduleDirectory.back() != '\\') {
-                moduleDirectory += "/";
-            }
-#if WIN32
-            return moduleDirectory + getControllerModuleName() + SHARED_LIB_EXT;
-#else
-            return moduleDirectory + "lib" + getControllerModuleName() + SHARED_LIB_EXT;
-#endif
-        }
-        else {
-            return "";
-        }
-    }
-    std::string getControllerParamFilePath() const
-    {
-        if (configJson["controller"].contains("paramFilePath")) {
-            std::string paramFilePath = configJson["controller"]["paramFilePath"].get<std::string>();
-            return paramFilePath;
-        }
-        else {
-            return "";
-        }
-    }
+    std::string getControllerServiceMode() const;
+    std::string getControllerModuleFilePath() const;
+    std::string getControllerParamFilePath() const;
     std::string getControllerParamText() const
     {
         //std::cout << "controllerParamText: " << controllerParamText << std::endl;
@@ -498,6 +433,9 @@ public:
     {
         controllerParamText = paramText;
     }
+    void setRoboName(const std::string& name);
+    void setCompDroneDynamicsPosition(const std::array<double, 3>& position);
+    void setCompDroneDynamicsAngle(const std::array<double, 3>& angle);
     struct MixerInfo {
         bool enable;
         std::string vendor;
@@ -536,101 +474,36 @@ public:
     }
 };
 
+std::string resolveRelativeToFile(
+    const std::string& base_filepath,
+    const std::string& raw_path,
+    bool must_exist);
+
+bool resolveFleetConfigToDroneConfigs(
+    const DroneFleetConfig& fleet_config,
+    std::vector<DroneConfig>& configs);
+
 
 class DroneConfigManager {
 private:
     std::vector<DroneConfig> configs;
+    std::string fleetServiceConfigPath;
 
 public:
     DroneConfigManager() {}
 
-    int loadConfigFromText(const std::string& config_text)
-    {
-        DroneConfig drone_config;
-        if (!drone_config.init_from_text(config_text)) {
-            std::cerr << "ERROR: can not find drone config path: " << config_text << std::endl;
-            return 0;
-        }
-        //std::cout << "INFO: LOADED drone config file: " << config_text << std::endl;
-        configs.push_back(drone_config);
-        return 0;
-    }
+    int loadConfigFromText(const std::string& config_text);
 
-    int loadConfigsFromDirectory(const std::string& directoryPath) {
-        namespace fs = std::filesystem;
-        std::regex pattern("drone_config_(\\d+)\\.json");
-
-        std::vector<std::pair<int, std::string>> filesWithIndex;
-
-        try {
-            for (const auto& entry : fs::directory_iterator(directoryPath)) {
-                if (entry.is_regular_file()) {
-                    std::smatch matches;
-                    std::string filename = entry.path().filename().string();
-
-                    if (std::regex_match(filename, matches, pattern) && matches.size() == 2) {
-                        int index = std::stoi(matches[1].str());
-                        filesWithIndex.emplace_back(index, entry.path().string());
-                    }
-                }
-            }
-        } catch (const fs::filesystem_error& e) {
-            std::cerr << "Filesystem error: " << e.what() << std::endl;
-            return 0;
-        } catch (const std::exception& e) {
-            std::cerr << "Standard exception: " << e.what() << std::endl;
-            return 0;
-        } catch (...) {
-            std::cerr << "Unknown error occurred during directory traversal." << std::endl;
-            return 0;
-        }
-
-        std::sort(filesWithIndex.begin(), filesWithIndex.end(), [](const auto& a, const auto& b) {
-            return a.first < b.first;
-        });
-
-        int loadedCount = 0;
-        for (const auto& [index, filePath] : filesWithIndex) {
-            if (loadConfigFromFile(filePath)) {
-                loadedCount++;
-            } else {
-                std::cerr << "Failed to load config from: " << filePath << std::endl;
-            }
-        }
-
-        return loadedCount;
-    }
-    bool loadConfigFromFile(const std::string& drone_config_path) {
-        DroneConfig drone_config;
-        if (!drone_config.init(drone_config_path)) {
-            std::cerr << "ERROR: can not find drone config path: " << drone_config_path << std::endl;
-            return false;
-        }
-        //std::cout << "INFO: LOADED drone config file: " << drone_config_path << std::endl;
-        configs.push_back(drone_config);
-        return true;
-    }
+    int loadConfigsFromDirectory(const std::string& directoryPath);
+    bool loadConfigFromFile(const std::string& drone_config_path);
 
 
-    bool getConfig(size_t index, DroneConfig& config) {
-        if (index >= configs.size()) {
-            return false;
-        }
-        config = configs[index];
-        return true;
-    }
-    DroneConfig& getConfig(size_t index) {
-        if (index >= configs.size()) {
-            throw std::out_of_range("Index out of range: getConfig on DroneConfigManager");
-        }
-        return configs[index];
-    }
-    int getConfigCount() {
-        return (int)configs.size();
-    }
+    bool getConfig(size_t index, DroneConfig& config);
+    DroneConfig& getConfig(size_t index);
+    int getConfigCount();
+    const std::string& getFleetServiceConfigPath() const;
 };
 
 extern class DroneConfigManager drone_config_manager;
 
 }
-

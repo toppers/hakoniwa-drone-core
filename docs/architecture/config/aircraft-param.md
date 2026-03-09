@@ -8,6 +8,11 @@
 - **name**: 機体名
 - **lockstep**: シミュレーションのロックステップモード。`true` で同期モードに設定されます。
 - **timeStep**: シミュレーションのタイムステップ間隔。単位は秒(`s`)。例: `0.003`。
+- **logging**: ログ採取方式の設定。
+  - **mode**: ログ採取方式。
+    - `csv`: 現行の CSV ログ出力を行います。
+    - `none`: ログを採取しません。CSV ファイルやログディレクトリも生成しません。
+    - `memory`: 将来拡張用の予約値です。現時点では仕様上の予約とします。
 - **logOutputDirectory**: ログファイルの出力ディレクトリへのパス。例: `"./"`。
 - **logOutput**: 各種センサーとMAVLinkのログ出力の有効/無効。
   - **sensors**: 各センサーのログ出力設定。`true` または `false`。
@@ -21,6 +26,37 @@
     - **intensity_nT**: 地磁気の強度。単位はナノテスラ(`nT`)。
     - **declination_deg**: 地磁気の偏角。単位は度(`deg`)。
     - **inclination_deg**: 地磁気の傾斜角。単位は度(`deg`)。
+
+### logging と logOutput の関係
+
+- `simulation.logging.mode = "none"` の場合:
+  - ログ採取自体を行いません
+  - `logOutputDirectory` は実質未使用です
+  - `logOutput.sensors` / `logOutput.mavlink` は無視されます
+- `simulation.logging.mode = "csv"` の場合:
+  - 従来どおり CSV 出力を行います
+  - `logOutputDirectory` と `logOutput.*` が有効です
+- `simulation.logging.mode` が未指定の場合:
+  - 後方互換のため、`csv` と同等に扱う想定です
+
+### パス解決の基準
+
+path 項目は、次の順で解決する方針とする。
+
+1. 絶対パスならそのまま使う
+2. 相対パスなら config ファイル基準で解決を試みる
+3. それで見つからない場合のみ、プロセスのカレントディレクトリ基準でも解決を試みる
+
+この fallback は後方互換のために残す。
+将来的な正規仕様は、config ファイル基準の相対パスとする。
+
+対象例:
+
+- `simulation.logOutputDirectory`
+- `components.battery.BatteryModelCsvFilePath`
+- `controller.moduleDirectory`
+- `controller.paramFilePath`
+- `components.sensors.*.vendor`
 
 ## コンポーネント設定
 - **droneDynamics**: ドローンの動力学モデル。
@@ -107,6 +143,12 @@
     - **kp**: 比例ゲイン [z]。
     - **ki**: 積分ゲイン [z]。
     - **kd**: 微分ゲイン [z]。
+
+### controller パスの仕様
+
+- `moduleDirectory` は config ファイル基準の相対パスを正規仕様とする
+- `paramFilePath` も config ファイル基準の相対パスを正規仕様とする
+- 後方互換のため、config ファイル基準で見つからない場合のみ、カレントディレクトリ基準でも解決を試みる
 
 
 ## 機体パラメータの設定例

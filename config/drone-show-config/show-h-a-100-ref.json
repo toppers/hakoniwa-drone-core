@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "name": "sample_h_a_100_ref",
+    "version": "1.0",
+    "drone_count": 100
+  },
+  "options": {
+    "center": [0.0, 0.0, 0.0],
+    "scale": 1.0,
+    "base_alt": 4.0,
+    "min_distance": 0.6,
+    "max_speed": 2.0,
+    "failure_policy": "hold"
+  },
+  "formation_files": [
+    { "id": "H", "path": "formations/formation-H-100.json" },
+    { "id": "A", "path": "formations/formation-A-100.json" }
+  ],
+  "timeline": [
+    {
+      "formation": "H",
+      "duration_sec": 6.0,
+      "hold_sec": 1.0
+    },
+    {
+      "formation": "A",
+      "duration_sec": 6.0,
+      "hold_sec": 1.0
+    }
+  ]
+}

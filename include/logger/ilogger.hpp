@@ -2,6 +2,7 @@
 
 #include "logger/ilog.hpp"
 #include "logger/ilog_file.hpp"
+#include "config/drone_config_types.hpp"
 
 
 #include <vector>

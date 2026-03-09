@@ -151,6 +151,89 @@ The following diagram shows the configuration for a multi-vehicle simulation.
 - [Multi-vehicle simulation with PX4](/docs/multi_drones/px4.en.md)
 - [Multi-vehicle control with Hakoniwa Drone Operation Python API](/docs/multi_drones/hakoniwa_python.en.md)
 
+## 100+ Concurrent Simulation (Large-Scale Fleet)
+
+In v3.6.0, we introduced a **fleet-oriented architecture that enables 100+ drones to run on a single machine**.  
+In internal tests, we confirmed stable concurrent runs with **100 / 128 / 200 / 256 drones**.
+
+Traditionally, real-time validation at this scale required dedicated server clusters.  
+This release demonstrates a practical configuration that can run at this scale on **a single Arm Mac**.
+
+Demo video:
+- 200-drone concurrent simulation: https://www.youtube.com/watch?v=p-0IIz8a55M
+
+Core value of this release:
+- Fleet abstraction based on `type definition + fleet instances`
+- Horizontal scale using node-level aggregation instead of per-drone stream handling
+- Distributed-style execution completed on a single PC via process partitioning
+
+Scope / assumptions:
+- For 100+ fleet scenarios, this setup assumes built-in controller + shared memory communication
+- No collision detection
+- Python-based low-frequency command control (`GoTo`, etc.)
+- Verified environment: Arm Mac (macOS). Other OS setups are not yet validated for this scale path.
+
+Use cases:
+- Virtual drone-show demonstrations
+- Swarm control algorithm validation
+- Large-scale simulation research (distributed execution evaluation)
+
+What was implemented in v3.6.0:
+1. Compact drone configuration model
+   - Migrated from per-drone `drone_config_x.json` enumeration to `type + fleet instance` structure
+   - Unified PDU definitions into `paths` (types) + `robots` (instances)
+2. Optional logging for scale operation
+   - CSV logging can be disabled for 100+ runs
+3. Multi-drone Python control model
+   - `FleetRpcController` for concurrent command dispatch and async waiting
+   - Multi-drone scenarios via `run_square_mission.bash` / `run_show.bash`
+4. Selectable built-in controller path
+   - Controller settings handled at type level for easier replacement
+
+Communication model:
+- Low-overhead shared-memory + PDU communication
+- Total packed payload for 200 drones: `~10KB/step`
+- In 100-drone packet-split operation: `~5KB/packet`
+- `DroneVisualStateArray` runs with `pdu_size=16384 bytes (=16KB)` fixed frame
+- Sizing rationale: based on measured per-packet payload (`~4-5KB` at 100 drones), keep 16KB for headroom and future fields
+
+Measured parallel-execution result:
+- 200-drone `show-runner` benchmark
+- `1 process: wall-clock 232.65s`
+- `4 processes: wall-clock 135.62s`
+- `~42%` runtime reduction
+- Note (analysis): lower than ideal linear speedup due to remaining fixed costs (shared-memory sync, service registration/init wait, control orchestration)
+
+Scaling outlook (estimated):
+- `1 node ≈ 200 drones`
+- `5 nodes ≈ 1000 drones`
+- Even on a single PC, a local multi-node-equivalent partitioned layout is reproducible
+- Server receives aggregated node packets instead of 1000 independent drone streams
+- 5-node estimate (state PDU only): `~50KB/step` (`~2.5MB/s` at 20ms)
+  - Calculation: `50KB / 0.02s ≈ 2.5MB/s`
+  - With Conductor-based node time sync, additional sync traffic is added
+  - Distributed 1000-drone measurement is planned as the next phase
+
+Next performance phase:
+- End-to-end latency measurement with the same scenario on 1-node and 5-node setups
+- Jitter and packet-drop quantification
+- Reproducible benchmark publication in a fixed report format
+
+Architecture for this release:
+- Fleet control uses `type + fleet instance` as the entry model, with partitioned `drone-service` + shared `VisualStatePublisher` + `WebBridge` + external RPC control.
+- See the architecture figure and fleets docs below.
+
+![Fleets 100+ Architecture](docs/fleets/architecture.png)
+
+Related docs:
+- [Fleets docs index](docs/fleets/README.md)
+- [Runtime config map (which config is used)](docs/fleets/config-runtime-map.md)
+- [Config scope by fleet size](docs/fleets/config-scope.md)
+- [hakoniwa-core fixed-parameter sizing](docs/fleets/core-parameter-sizing.md)
+- [Drone Show runbook](docs/fleets/drone-show-runbook.md)
+- [Performance report](docs/fleets/performance-report.md)
+- [External RPC Driver](drone_api/external_rpc/README.md)
+
 ## Log Replay Feature
 
 This simulator is equipped with a log replay feature that plays back recorded flight logs (`drone_dynamics.csv`).
@@ -193,7 +276,7 @@ The Hakoniwa Drone Simulator library group depends on the following external lib
 ## Internal
 
 -   [hakoniwa-core-pro](https://github.com/hakoniwalab/hakoniwa-core-pro): Integration with Hakoniwa simulation.
--   [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu.git): Integration with Hakoniwa PDU. (included in hakoniwa-core-pro)
+-   [hakoniwa-pdu-registry](https://github.com/hakoniwalab/hakoniwa-pdu-registry.git): Definition, generation, and management of Hakoniwa PDUs. (included in hakoniwa-core-pro)
 
 # Architecture
 
@@ -256,7 +339,7 @@ The required environments and tools differ for each, so please check the followi
 | [Wind Simulation](docs/environment/README-ja.md) | Check drone behavior under the influence of wind | ✅ | ❌ |
 | Collision Detection | Function to detect drone collisions | ✅ | ❌ |
 | Web Integration (optional) | [hakoniwa-webserver](https://github.com/toppers/hakoniwa-webserver) etc. | ✅ | ❌ |
-| ROS2 Integration (optional) | [hakoniwa-ros2pdu](https://github.com/toppers/hakoniwa-ros2pdu) etc. | ✅ | ❌ |
+| ROS2 Integration (optional) | [hakoniwa-pdu-registry](https://github.com/hakoniwalab/hakoniwa-pdu-registry) etc. | ✅ | ❌ |
 
 📌 **Notes**
 - Python is fixed at **3.12.0** (others are not supported)

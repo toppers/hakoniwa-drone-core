@@ -5,6 +5,11 @@
 #include <optional>
 
 namespace hako::config {
+    enum class LoggingMode {
+        None,
+        Csv,
+        Memory,
+    };
     struct OutOfBoundsReset {
         std::vector<bool> position; /* X, Y, Z */
         std::vector<bool> velocity; /* X, Y, Z */

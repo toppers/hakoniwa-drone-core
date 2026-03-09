@@ -1,0 +1,25 @@
+{
+  "meta": {
+    "name": "show_hakoniwa_drone_icon_drone_show_3step_256",
+    "version": "1.0",
+    "drone_count": 256
+  },
+  "options": {
+    "center": [0.0, 0.0, 0.0],
+    "scale": 1.0,
+    "base_alt": 4.0,
+    "min_distance": 0.6,
+    "max_speed": 3.0,
+    "failure_policy": "abort"
+  },
+  "formation_files": [
+    { "id": "HAKONIWA", "path": "formations/formation-HAKONIWA-256.json" },
+    { "id": "DRONE_ICON", "path": "formations/formation-DRONE-ICON-256.json" },
+    { "id": "DRONE_SHOW", "path": "formations/formation-DRONE-SHOW-256.json" }
+  ],
+  "timeline": [
+    { "formation": "HAKONIWA", "duration_sec": 8.0, "hold_sec": 3.0 },
+    { "formation": "DRONE_ICON", "duration_sec": 8.0, "hold_sec": 3.0 },
+    { "formation": "DRONE_SHOW", "duration_sec": 9.0, "hold_sec": 3.0 }
+  ]
+}

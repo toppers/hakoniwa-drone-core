@@ -5,7 +5,7 @@ REM 仮想環境を有効化（必要に応じて）
 REM call ..\venv\Scripts\activate.bat
 
 REM 相対パスでHAKO_BINARY_PATHを設定（バッチファイルから見た位置）
-set HAKO_BINARY_PATH=..\..\thirdparty\hakoniwa-ros2pdu\pdu\offset
+set HAKO_BINARY_PATH=..\..\thirdparty\hakoniwa-core-pro\hakoniwa-pdu-registry\pdu\offset
 echo HAKO_BINARY_PATH=%HAKO_BINARY_PATH%
 
 REM スクリプトの実行

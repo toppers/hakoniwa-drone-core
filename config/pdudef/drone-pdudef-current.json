@@ -1,0 +1,810 @@
+{
+  "paths": [
+    {
+      "id": "drone_type",
+      "path": "drone-pdutypes.json"
+    }
+  ],
+  "robots": [
+    {
+      "name": "Drone-1",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-2",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-3",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-4",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-5",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-6",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-7",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-8",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-9",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-10",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-11",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-12",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-13",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-14",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-15",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-16",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-17",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-18",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-19",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-20",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-21",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-22",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-23",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-24",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-25",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-26",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-27",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-28",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-29",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-30",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-31",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-32",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-33",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-34",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-35",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-36",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-37",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-38",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-39",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-40",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-41",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-42",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-43",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-44",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-45",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-46",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-47",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-48",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-49",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-50",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-51",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-52",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-53",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-54",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-55",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-56",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-57",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-58",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-59",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-60",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-61",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-62",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-63",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-64",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-65",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-66",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-67",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-68",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-69",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-70",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-71",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-72",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-73",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-74",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-75",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-76",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-77",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-78",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-79",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-80",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-81",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-82",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-83",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-84",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-85",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-86",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-87",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-88",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-89",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-90",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-91",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-92",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-93",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-94",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-95",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-96",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-97",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-98",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-99",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-100",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-101",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-102",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-103",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-104",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-105",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-106",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-107",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-108",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-109",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-110",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-111",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-112",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-113",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-114",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-115",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-116",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-117",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-118",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-119",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-120",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-121",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-122",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-123",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-124",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-125",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-126",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-127",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-128",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-129",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-130",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-131",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-132",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-133",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-134",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-135",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-136",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-137",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-138",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-139",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-140",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-141",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-142",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-143",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-144",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-145",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-146",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-147",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-148",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-149",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-150",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-151",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-152",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-153",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-154",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-155",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-156",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-157",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-158",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-159",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-160",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-161",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-162",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-163",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-164",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-165",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-166",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-167",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-168",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-169",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-170",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-171",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-172",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-173",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-174",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-175",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-176",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-177",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-178",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-179",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-180",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-181",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-182",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-183",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-184",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-185",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-186",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-187",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-188",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-189",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-190",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-191",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-192",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-193",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-194",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-195",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-196",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-197",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-198",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-199",
+      "pdutypes_id": "drone_type"
+    },
+    {
+      "name": "Drone-200",
+      "pdutypes_id": "drone_type"
+    }
+  ]
+}

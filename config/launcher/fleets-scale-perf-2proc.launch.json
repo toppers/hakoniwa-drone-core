@@ -1,0 +1,128 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "start_grace_sec": 1,
+    "delay_sec": 1,
+    "env": {
+      "prepend": {
+        "lib_path": [
+          "/usr/local/hakoniwa/lib"
+        ],
+        "PATH": [
+          "/usr/local/hakoniwa/bin"
+        ]
+      }
+    }
+  },
+  "assets": [
+    {
+      "name": "drone-service-1",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_PROJECT_PATH}/mac/mac-main_hako_drone_service",
+      "args": [
+        "config/drone/fleets/api-current-part1.json",
+        "config/pdudef/drone-pdudef-current.json",
+        "--asset-name",
+        "drone-1"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "delay_sec": 2
+    },
+    {
+      "name": "drone-service-2",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_PROJECT_PATH}/mac/mac-main_hako_drone_service",
+      "args": [
+        "config/drone/fleets/api-current-part2.json",
+        "config/pdudef/drone-pdudef-current.json",
+        "--asset-name",
+        "drone-2",
+        "--disable-conductor"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "drone-service-1"
+      ],
+      "delay_sec": 1
+    },
+    {
+      "name": "visual-state-publisher",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_PROJECT_PATH}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher",
+      "args": [
+        "config/assets/visual_state_publisher/visual_state_publisher.json"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "drone-service-1",
+        "drone-service-2"
+      ],
+      "delay_sec": 2
+    },
+    {
+      "name": "web-bridge-fleets",
+      "activation_timing": "before_start",
+      "command": "/usr/local/hakoniwa/bin/hakoniwa-pdu-web-bridge",
+      "args": [
+        "--config-root",
+        "/usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config/web_bridge_fleets",
+        "--node-name",
+        "web_bridge_fleets_node1",
+        "--delta-time-step-usec",
+        "20000",
+        "--enable-ondemand"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "visual-state-publisher"
+      ]
+    },
+    {
+      "name": "threejs-viewer-webserver",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": [
+        "-m",
+        "http.server",
+        "8000"
+      ],
+      "cwd": "${HAKO_THREEJS_VIEWER_PATH}",
+      "depends_on": [
+        "web-bridge-fleets"
+      ]
+    },
+    {
+      "name": "perf-monitor",
+      "activation_timing": "after_start",
+      "command": "bash",
+      "args": [
+        "tools/start-perf-monitor.bash",
+        "${FLEET_DRONE_COUNT:-1}",
+        "${PERF_LABEL:-fleets_scale_n1_2proc}",
+        "${PERF_DURATION_SEC:-86400}"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "web-bridge-fleets"
+      ]
+    },
+    {
+      "name": "host-perf-monitor",
+      "activation_timing": "after_start",
+      "command": "bash",
+      "args": [
+        "tools/start-host-perf-monitor.bash",
+        "${FLEET_DRONE_COUNT:-1}",
+        "${PERF_LABEL:-fleets_scale_n1_2proc}",
+        "${PERF_DURATION_SEC:-86400}"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "web-bridge-fleets"
+      ]
+    }
+  ]
+}

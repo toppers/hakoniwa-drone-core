@@ -1,0 +1,14 @@
+{
+    "serviceConfigPath": "config/drone/fleets/services/api-1-service.json",
+    "types": {
+        "api": "config/drone/fleets/types/api.json"
+    },
+    "drones": [
+        {
+            "name": "Drone",
+            "type": "api",
+            "position_meter": [0, 0, 0],
+            "angle_degree": [0, 0, 0]
+        }
+    ]
+}

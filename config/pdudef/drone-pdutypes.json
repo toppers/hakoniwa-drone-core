@@ -1,0 +1,21 @@
+[
+  { "channel_id": 0 , "pdu_size": 112    , "name": "motor"                    , "type": "hako_mavlink_msgs/HakoHilActuatorControls" },
+  { "channel_id": 1 , "pdu_size": 72     , "name": "pos"                      , "type": "geometry_msgs/Twist" },
+  { "channel_id": 2 , "pdu_size": 216    , "name": "impulse"                  , "type": "hako_msgs/ImpulseCollision" },
+  { "channel_id": 3 , "pdu_size": 256    , "name": "disturb"                  , "type": "hako_msgs/Disturbance" },
+  { "channel_id": 4 , "pdu_size": 56     , "name": "battery"                  , "type": "hako_msgs/HakoBatteryStatus" },
+  { "channel_id": 5 , "pdu_size": 72     , "name": "velocity"                 , "type": "geometry_msgs/Twist" },
+  { "channel_id": 6 , "pdu_size": 88     , "name": "drone_cmd_takeoff"        , "type": "hako_msgs/HakoDroneCmdTakeoff" },
+  { "channel_id": 7 , "pdu_size": 104    , "name": "drone_cmd_move"           , "type": "hako_msgs/HakoDroneCmdMove" },
+  { "channel_id": 8 , "pdu_size": 88     , "name": "drone_cmd_land"           , "type": "hako_msgs/HakoDroneCmdLand" },
+  { "channel_id": 9 , "pdu_size": 136    , "name": "hako_cmd_game"            , "type": "hako_msgs/GameControllerOperation" },
+  { "channel_id": 10, "pdu_size": 44     , "name": "hako_cmd_camera"          , "type": "hako_msgs/HakoCmdCamera" },
+  { "channel_id": 11, "pdu_size": 64     , "name": "hako_cmd_camera_move"     , "type": "hako_msgs/HakoCmdCameraMove" },
+  { "channel_id": 12, "pdu_size": 1002992, "name": "hako_camera_data"         , "type": "hako_msgs/HakoCameraData" },
+  { "channel_id": 13, "pdu_size": 56     , "name": "hako_cmd_camera_info"     , "type": "hako_msgs/HakoCameraInfo" },
+  { "channel_id": 14, "pdu_size": 40     , "name": "hako_cmd_magnet_holder"   , "type": "hako_msgs/HakoCmdMagnetHolder" },
+  { "channel_id": 15, "pdu_size": 32     , "name": "hako_status_magnet_holder", "type": "hako_msgs/HakoStatusMagnetHolder" },
+  { "channel_id": 16, "pdu_size": 177424 , "name": "lidar_points"             , "type": "sensor_msgs/PointCloud2" },
+  { "channel_id": 17, "pdu_size": 72     , "name": "lidar_pos"                , "type": "geometry_msgs/Twist" },
+  { "channel_id": 18, "pdu_size": 64     , "name": "status"                   , "type": "hako_msgs/DroneStatus" }
+]

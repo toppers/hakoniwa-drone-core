@@ -1,0 +1,9 @@
+{
+  "protocol": "shm",
+  "impl_type": "callback",
+  "name": "visual_state_input_shm",
+  "direction": "inout",
+  "io": {
+    "robots": []
+  }
+}

@@ -7,9 +7,9 @@ namespace hako::aircraft {
 
 class ISensorBaro : public ISensor {
 protected:
-    double ref_lat;
-    double ref_lon;
-    double ref_alt;
+    double ref_lat = 0.0;
+    double ref_lon = 0.0;
+    double ref_alt = 0.0;
 public:
     virtual ~ISensorBaro() {}
     virtual void init_pos(double lat_data, double lon_data, double alt_data)

@@ -33,7 +33,9 @@ protected:
     std::shared_ptr<logger::IHakoLogger> logger;
 public:
     virtual ~IAircraftController() {
-        logger->close();
+        if (logger != nullptr) {
+            logger->close();
+        }
     }
     void set_logger(std::shared_ptr<logger::IHakoLogger> logger)
     {
