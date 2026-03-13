@@ -1,0 +1,14 @@
+{
+  "asset_name": "DroneVisualStatePublisher",
+  "input_endpoint_config": "endpoints/input_shm.json",
+  "output_endpoint_config": "endpoints/output_shm.json",
+  "delta_time_usec": 20000,
+  "publish_interval_msec": 20,
+  "max_drones_per_packet": 100,
+  "pwm_duty_count": 4,
+  "global_drone_count": 200,
+  "global_start_index": 0,
+  "local_start_index": 0,
+  "local_drone_count": 100,
+  "output_chunk_base_index": 0
+}

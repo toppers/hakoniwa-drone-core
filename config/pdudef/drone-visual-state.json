@@ -1,8 +1,26 @@
 {
   "paths": [
-    { "id": "visual_state_type", "path": "drone-visual-state-pdutypes.json" }
+    {
+      "id": "VisualStatePublisher",
+      "path": "drone-visual-state-pdutypes.json"
+    },
+    {
+      "id": "Time",
+      "path": "pdutypes_time.json"
+    }
   ],
   "robots": [
-    { "name": "DroneVisualStatePublisher", "pdutypes_id": "visual_state_type" }
+    {
+      "name": "DroneVisualStatePublisher",
+      "pdutypes_id": "VisualStatePublisher"
+    },
+    {
+      "name": "cli-01",
+      "pdutypes_id": "Time"
+    },
+    {
+      "name": "srv-01",
+      "pdutypes_id": "Time"
+    }
   ]
 }

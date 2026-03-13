@@ -106,6 +106,11 @@ def parse_args() -> argparse.Namespace:
         default=12,
         help="Initialization RPC concurrency per drone-service process",
     )
+    p.add_argument(
+        "--use-async-shared",
+        action="store_true",
+        help="Use shared-runtime async RPC client implementation",
+    )
     return p.parse_args()
 
 
@@ -339,6 +344,7 @@ def wait_ready_gate(
 
 def main() -> int:
     args = parse_args()
+    total_t0 = time.perf_counter()
     if args.proc_count < 1:
         raise SystemExit("--proc-count must be >= 1")
     if args.init_concurrency_per_proc < 1:
@@ -397,8 +403,21 @@ def main() -> int:
     with FleetRpcController(
         drone_names=args.drones,
         service_config_path=args.service_config_path.resolve(),
+        use_async_shared=args.use_async_shared,
     ) as fleet:
+        if args.use_async_shared:
+            prepare_services = ["DroneSetReady", "DroneTakeOff", "DroneGoTo"]
+            if not args.no_ready_gate:
+                prepare_services.append("DroneGetState")
+            if args.land:
+                prepare_services.append("DroneLand")
+            print("INFO: prepare_basic_services start")
+            t0 = time.perf_counter()
+            fleet.prepare_services(prepare_services)
+            print(f"INFO: phase_time name=prepare_basic_services sec={time.perf_counter() - t0:.3f}")
+            print("INFO: prepare_basic_services done")
         if not args.no_ready_gate:
+            t0 = time.perf_counter()
             wait_ready_gate(
                 fleet,
                 args.drones,
@@ -407,8 +426,10 @@ def main() -> int:
                 batch_size=init_batch_size if init_batch_size > 0 else 24,
                 call_timeout_sec=args.ready_gate_call_timeout_sec,
             )
+            print(f"INFO: phase_time name=ready_gate sec={time.perf_counter() - t0:.3f}")
 
         if args.serial:
+            t0 = time.perf_counter()
             for d in args.drones:
                 print(f"INFO: init serial request drone={d} op=set_ready")
                 r1 = fleet.set_ready(d)
@@ -416,7 +437,9 @@ def main() -> int:
                 print(f"INFO: init serial request drone={d} op=takeoff")
                 r2 = fleet.takeoff(d, takeoff_alt)
                 print(f"INFO: init serial drone={d} op=takeoff ok={r2.ok} message={r2.message}")
+            print(f"INFO: phase_time name=init sec={time.perf_counter() - t0:.3f}")
         else:
+            t0 = time.perf_counter()
             retry_batch_size = init_batch_size if init_batch_size > 0 else auto_init_batch_size
             init_groups = [args.drones]
             if retry_batch_size > 0 and len(args.drones) > retry_batch_size:
@@ -448,8 +471,10 @@ def main() -> int:
                     batch_size=retry_batch_size,
                 )
                 print(f"INFO: init batch_done {i}/{total_groups}")
+            print(f"INFO: phase_time name=init sec={time.perf_counter() - t0:.3f}")
 
         for idx, step in enumerate(timeline, start=1):
+            step_t0 = time.perf_counter()
             fid = step["formation"]
             duration = float(step["duration_sec"])
             hold_sec = float(step["hold_sec"])
@@ -532,11 +557,13 @@ def main() -> int:
                     estimated_positions[d] = assignments[d]
 
             if hold_sec > 0:
-                import time
-
                 time.sleep(hold_sec)
+            print(
+                f"INFO: phase_time name=step#{idx} formation={fid} sec={time.perf_counter() - step_t0:.3f}"
+            )
 
         if args.land:
+            t0 = time.perf_counter()
             final_targets = [d for d in args.drones if d not in held_drones]
             if args.serial:
                 run_serial("land", final_targets, lambda d: fleet.land(d))
@@ -549,7 +576,9 @@ def main() -> int:
                     fleet=fleet,
                     batch_size=land_batch_size,
                 )
+            print(f"INFO: phase_time name=land sec={time.perf_counter() - t0:.3f}")
 
+    print(f"INFO: phase_time name=total sec={time.perf_counter() - total_t0:.3f}")
     print("INFO: show_done")
     return 0
 

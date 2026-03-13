@@ -56,6 +56,11 @@
   - 上記3箇所の `drone_visual_state_array_0.pdu_size` を一致させる
 - bridge 再ビルド・再起動後に再確認
 
+即チェック（257台以上）:
+- `max_drones_per_packet = N`（単一チャネル）になっているか
+- bridge の転送対象が `drone_visual_state_array_0` と運用方針で一致しているか
+- `visual-state-shm-callback.json` の受信チャネル定義が bridge 転送チャネルと一致しているか
+
 ## 4. `recv_event_table_ is full` で mission が落ちる
 
 ### 症状

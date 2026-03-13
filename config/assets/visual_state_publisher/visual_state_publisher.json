@@ -4,6 +4,11 @@
   "output_endpoint_config": "endpoints/output_shm.json",
   "delta_time_usec": 20000,
   "publish_interval_msec": 20,
-  "max_drones_per_packet": 256,
-  "pwm_duty_count": 4
+  "max_drones_per_packet": 512,
+  "pwm_duty_count": 4,
+  "global_drone_count": 0,
+  "global_start_index": 0,
+  "local_start_index": 0,
+  "local_drone_count": 0,
+  "output_chunk_base_index": 0
 }

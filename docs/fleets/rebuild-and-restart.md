@@ -29,8 +29,8 @@
 
 ```bash
 cd thirdparty/hakoniwa-core-pro
-ASSET_NUM=16 SERVICE_MAX=2048 RECV_EVENT_MAX=8192 SERVICE_CLIENT_MAX=512 CHANNEL_MAX=8192 ./build.bash
-ASSET_NUM=16 SERVICE_MAX=2048 RECV_EVENT_MAX=8192 SERVICE_CLIENT_MAX=512 CHANNEL_MAX=8192 bash install.bash
+ASSET_NUM=16 SERVICE_MAX=4096 RECV_EVENT_MAX=16384 SERVICE_CLIENT_MAX=1024 CHANNEL_MAX=16384 ./build.bash
+ASSET_NUM=16 SERVICE_MAX=4096 RECV_EVENT_MAX=16384 SERVICE_CLIENT_MAX=1024 CHANNEL_MAX=16384 bash install.bash
 ```
 
 補足:
@@ -70,18 +70,39 @@ hako-cmd pmeta
 - `pdu_meta_data.channel_num` が想定範囲に収まる
 - 以前のエラー（`recv_event_table_ is full`）が再発しない
 
-## 7. 256台向け追加チェック
+## 7. 256/320/512台向け追加チェック
 
-- core 上限値:
+- 256台:
   - `HAKO_PDU_CHANNEL_MAX = 8192`
   - `HAKO_SERVICE_MAX = 2048`
   - `HAKO_RECV_EVENT_MAX = 8192`
   - `HAKO_SERVICE_CLIENT_MAX = 512`
   - `HAKO_DATA_MAX_ASSET_NUM = 16`
-- visual state:
-  - `config/assets/visual_state_publisher/visual_state_publisher.json`
-    - `max_drones_per_packet = 256`
-  - `drone_visual_state_array_0` の `pdu_size` を関連ファイルで一致させる
+  - `max_drones_per_packet = 256`
+  - `drone_visual_state_array_0.pdu_size = 16384`
+- 320台:
+  - `HAKO_PDU_CHANNEL_MAX = 16384`
+  - `HAKO_SERVICE_MAX = 2048`
+  - `HAKO_RECV_EVENT_MAX = 8192`
+  - `HAKO_SERVICE_CLIENT_MAX = 512`
+  - `HAKO_DATA_MAX_ASSET_NUM = 16`
+  - `max_drones_per_packet = 320`
+  - `drone_visual_state_array_0.pdu_size = 32768`
+- 512台:
+  - `HAKO_PDU_CHANNEL_MAX = 16384`
+  - `HAKO_SERVICE_MAX = 4096`
+  - `HAKO_RECV_EVENT_MAX = 16384`
+  - `HAKO_SERVICE_CLIENT_MAX = 1024`
+  - `HAKO_DATA_MAX_ASSET_NUM = 16`
+  - `max_drones_per_packet = 512`
+  - `drone_visual_state_array_0.pdu_size = 32768`
+- 単一チャネル運用（推奨）:
+  - `web_bridge_fleets` の bridge 設定は `drone_visual_state_array_0` のみ転送
+  - `max_drones_per_packet = N` で `required_visual_state_array_channels = 1` に揃える
+- 分割チャネル運用時:
+  - 以下のチャネル数と `pdu_size` を一致させる
     - `config/pdudef/drone-visual-state-pdutypes.json`
     - `work/hakoniwa-pdu-bridge-core/config/web_bridge_fleets/pdu/drone-visual-state-pdutypes.json`
     - `work/hakoniwa-threejs-drone/config/pdudef-fleets-pdutypes.json`
+    - `work/hakoniwa-pdu-bridge-core/config/web_bridge_fleets/bridge/bridge.json`
+    - `work/hakoniwa-pdu-bridge-core/config/web_bridge_fleets/comm/visual-state-shm-callback.json`

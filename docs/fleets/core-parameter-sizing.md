@@ -62,6 +62,7 @@ bridge/publisher:
 - 分割チャネル運用:
   - `required_visual_state_array_channels = ceil(N / max_drones_per_packet)`
   - `bridge.json` 側の転送対象チャネル群と一致させる
+  - `comm/visual-state-shm-callback.json` の受信対象チャネル群とも一致させる
 - 周期:
   - `publish_interval_msec = 20`
   - `ticker_20ms.intervalMs = 20`
@@ -69,6 +70,8 @@ bridge/publisher:
   - `recommended_visual_state_pdu_size = next_pow2(64 * max_drones_per_packet)`
   - 例: `max_drones_per_packet=200` -> `12800` -> `16384`
   - 例: `max_drones_per_packet=256` -> `16384`
+  - 例: `max_drones_per_packet=320` -> `20480` -> `32768`
+  - 例: `max_drones_per_packet=512` -> `32768`
 
 ## なぜこのルールか（根拠）
 
@@ -143,6 +146,46 @@ bridge/publisher:
 - `max_drones_per_packet = 256`
 - `required_visual_state_array_channels = 1`
 - `recommended_visual_state_pdu_size = 16384`
+- `publish_interval_msec = 20`
+- `ticker_20ms.intervalMs = 20`
+
+## N=320 の採用値（実績）
+
+- `HAKO_PDU_CHANNEL_MAX = 16384`
+- `HAKO_SERVICE_MAX = 2048`
+- `HAKO_RECV_EVENT_MAX = 8192`
+- `HAKO_SERVICE_CLIENT_MAX = 512`
+- `HAKO_DATA_MAX_ASSET_NUM = 16`
+
+bridge/publisher（単一チャネル）:
+
+- `max_drones_per_packet = 320`
+- `required_visual_state_array_channels = 1`
+- `recommended_visual_state_pdu_size = 32768`
+- `publish_interval_msec = 20`
+- `ticker_20ms.intervalMs = 20`
+
+注意:
+
+- 現在の `web_bridge_fleets` 既定構成は `drone_visual_state_array_0` の単一チャネル転送。
+- 分割チャネルに戻す場合は、以下3点を必ず同時更新すること。
+  - bridge の `pduKeyGroups`（`_0/_1/...` を列挙）
+  - bridge の pdutypes（`drone_visual_state_array_0/_1/...` を定義）
+  - viewer 側 pdutypes（同一チャネル名・同一 `pdu_size`）
+
+## N=512 の推奨値（チャレンジ前設定）
+
+- `HAKO_PDU_CHANNEL_MAX = 16384`
+- `HAKO_SERVICE_MAX = 4096`
+- `HAKO_RECV_EVENT_MAX = 16384`
+- `HAKO_SERVICE_CLIENT_MAX = 1024`
+- `HAKO_DATA_MAX_ASSET_NUM = 16`
+
+bridge/publisher（単一チャネル）:
+
+- `max_drones_per_packet = 512`
+- `required_visual_state_array_channels = 1`
+- `recommended_visual_state_pdu_size = 32768`
 - `publish_interval_msec = 20`
 - `ticker_20ms.intervalMs = 20`
 

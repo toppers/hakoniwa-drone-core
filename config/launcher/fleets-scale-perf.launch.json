@@ -7,6 +7,9 @@
     "start_grace_sec": 1,
     "delay_sec": 1,
     "env": {
+      "set": {
+        "HAKO_PROFILE_SERVICE_CLIENT": "${HAKO_PROFILE_SERVICE_CLIENT:-0}"
+      },
       "prepend": {
         "lib_path": [
           "/usr/local/hakoniwa/lib"

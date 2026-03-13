@@ -3,6 +3,7 @@
 `hakoniwa-pdu-python` の `ShmPduServiceClientManager + ProtocolClientImmediate` を使う external service client です。
 
 共通処理は [hakosim_rpc.py](hakosim_rpc.py) の `HakoniwaRpcDroneClient` に集約しています。各 script は thin wrapper です。
+並行して、shared runtime ベースの試験実装 [hakosim_async_shared_rpc.py](hakosim_async_shared_rpc.py) も追加しています。
 
 複数機体を同時に扱うための最小 controller:
 
@@ -21,6 +22,7 @@
 ドローンショー（formation JSON 駆動）:
 
 - 実行入口: [run_show.bash](run_show.bash) -> [show_runner.py](show_runner.py)
+- 箱庭アセット版: [run_show_asset.bash](run_show_asset.bash) -> [show_asset_runner.py](show_asset_runner.py)
 - データ仕様/設計: [docs/fleets/drone-show-design.md](../../docs/fleets/drone-show-design.md)
 - 実行手順（運用）: [docs/fleets/drone-show-runbook.md](../../docs/fleets/drone-show-runbook.md)
 
@@ -30,14 +32,29 @@
    - `HakoniwaRpcDroneClient`
    - `1 drone = 1 client instance`
    - `SetReady` / `TakeOff` / `GetState` / `GoTo` / `Land`
-2. [fleet_rpc.py](fleet_rpc.py)
+2. [hakosim_async_shared_rpc.py](hakosim_async_shared_rpc.py)
+   - `AsyncSharedHakoniwaRpcDroneClient`
+   - `1 process = 1 SharedRpcRuntime`
+   - `1 drone = lightweight facade`
+   - 呼び出し元主導の `poll_once()` を前提にした shared runtime 試験実装
+   - service 定義の PDU 反映は runtime 初期化時に 1 回だけ行う
+   - client registration ごとに PDU 定義を再生成しない
+3. [hakosim_async_shared_asset_rpc.py](hakosim_async_shared_asset_rpc.py)
+   - `AssetAsyncSharedHakoniwaRpcDroneClient`
+   - asset 登録経路向けの wrapper
+   - `hakopy.init_for_external()` を呼ばない
+4. [show_asset_runner.py](show_asset_runner.py)
+   - 箱庭アセットとして動く show runner
+   - `on_manual_timing_control` で `poll_once()` と phase state machine を前進
+   - callback 側で `hakopy.usleep()` を呼び、箱庭時刻を進める
+5. [fleet_rpc.py](fleet_rpc.py)
    - `FleetRpcController`
    - `drone_name -> HakoniwaRpcDroneClient`
    - deferred command を `Future` で非同期実行
    - `GetState` の監視結果を `latest_state` として保持
-3. 各 `*_client.py`
+6. 各 `*_client.py`
    - 単一 command 用の thin wrapper
-4. [multi_goto_demo.py](multi_goto_demo.py)
+7. [multi_goto_demo.py](multi_goto_demo.py)
    - fleet controller の最小利用例
 
 最初の確認対象:
@@ -71,6 +88,12 @@ bash drone_api/external_rpc/run_square_mission.bash --drone-count 10 --side 4.0 
 bash drone_api/external_rpc/run_square_mission.bash --drones Drone-1,Drone-2,Drone-3 --side 4.0 --z 0.5
 bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
 bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/show-hello-world-100-ref.json --drone-count 100
+bash drone_api/external_rpc/run_show_asset.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
+bash drone_api/external_rpc/run_show_scale_bench.bash 100 4
+bash drone_api/external_rpc/run_show_scale_bench.bash 200 4
+bash drone_api/external_rpc/run_show_scale_bench.bash 400 4
+bash drone_api/external_rpc/run_show_scale_bench.bash 512 8
+bash tools/launch-show-asset-scale-bench.bash 100 4
 ```
 
 引数:
@@ -127,6 +150,7 @@ bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/s
    - `--drones`（`,` 区切り）
    - `--assign-mode`（`index|nearest`）
    - `--takeoff-alt`
+   - `--z-offset-m`
    - `--speed`
    - `--tolerance`
    - `--timeout-sec`
@@ -142,8 +166,54 @@ bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/s
    - `--no-ready-gate`
    - `--proc-count`
    - `--init-concurrency-per-proc`
+   - `--use-async-shared`
    - `--land`
    - `--serial`
+9. `run_show_asset.bash` の追加オプション:
+   - `--service-config`
+   - `--show-json`
+   - `--show-config`（`--show-json` の alias）
+   - `--pdu-config`
+   - `--drone-count`（`Drone-1..N` を自動生成）
+   - `--drones`（`,` 区切り）
+   - `--asset-name`
+   - `--assign-mode`（`index|nearest`）
+   - `--takeoff-alt`
+   - `--speed`
+   - `--tolerance`
+   - `--timeout-sec`
+   - `--delta-time-msec`
+   - `--final-hold-extra-sec`
+   - `--land`
+10. `run_show_scale_bench.bash`:
+   - `DRONE_COUNT` と `PROC_COUNT` だけで、代表的な show config と推奨引数を自動選択
+   - 対応機体数: `100`, `200`, `400`, `512`
+   - 追加引数はそのまま `run_show.bash` に引き渡す
+   - ログは既定で `tmp/show-scale-bench/show_scale_n<drone>_p<proc>.log` に保存
+
+```bash
+bash drone_api/external_rpc/run_show_scale_bench.bash 100 4
+bash drone_api/external_rpc/run_show_scale_bench.bash 200 4 --speed 14.0
+bash drone_api/external_rpc/run_show_scale_bench.bash 512 8 --timeout-sec 240
+```
+
+11. 箱庭アセットとして launcher から show を起動する場合:
+   - `launch-show-asset-scale-bench.bash` は `DRONE_COUNT` と `PROC_COUNT` だけで `SHOW_ASSET_JSON` を自動選択する
+   - 実行結果の summary は既定で `logs/perf/show_asset_summary_n<drone>_p<proc>.json` に保存される
+
+```bash
+bash tools/launch-show-asset-scale-bench.bash 100 4
+bash tools/launch-show-asset-scale-bench.bash 200 4
+bash tools/launch-show-asset-scale-bench.bash 512 8
+```
+
+12. 箱庭アセットのスケール検証を一括実行する場合:
+   - `run-show-asset-bench-matrix.bash` は `drone_count x proc_count` を順に実行し、summary CSV を作る
+
+```bash
+bash tools/run-show-asset-bench-matrix.bash
+bash tools/run-show-asset-bench-matrix.bash 100,200 1,2,4,8
+```
 
 前提:
 
@@ -162,3 +232,9 @@ bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/s
   - `GetState` の `position` / `angle_deg`
 - deferred command は blocking call だが、`FleetRpcController` では `ThreadPoolExecutor` を使って複数機体へ同時投入できる
 - 100台同時制御の入口は `HakoniwaRpcDroneClient` ではなく `FleetRpcController` を想定している
+- `--use-async-shared` では shared runtime を使うため、client registration の固定処理が大幅に減る
+- `run_show_asset.bash` / `show_asset_runner.py` は箱庭アセットの manual timing control を使う
+- asset 版では callback 内で `hakopy.usleep()` を呼ばないと時刻が進まない
+- profiling が必要な場合:
+  - `HAKO_RPC_PROFILE_PREPARE=1`: Python 側 registration path を usec 出力
+  - `HAKO_PROFILE_SERVICE_CLIENT=1`: core 側 service client registration を usec 出力

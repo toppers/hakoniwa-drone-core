@@ -28,6 +28,7 @@ READY_GATE_CALL_TIMEOUT_SEC=""
 NO_READY_GATE="0"
 PROC_COUNT="1"
 INIT_CONCURRENCY_PER_PROC="12"
+USE_ASYNC_SHARED="0"
 
 usage() {
   cat <<'EOF'
@@ -57,6 +58,7 @@ Options:
   --no-ready-gate                # ready gate無効化
   --proc-count N                 # drone-service プロセス数(初期化バッチ自動計算用)
   --init-concurrency-per-proc N  # 1プロセスあたりの初期化同時実行数
+  --use-async-shared
   --land
   --serial
   -h, --help
@@ -87,6 +89,7 @@ while [[ $# -gt 0 ]]; do
     --no-ready-gate) NO_READY_GATE="1"; shift 1 ;;
     --proc-count) PROC_COUNT="$2"; shift 2 ;;
     --init-concurrency-per-proc) INIT_CONCURRENCY_PER_PROC="$2"; shift 2 ;;
+    --use-async-shared) USE_ASYNC_SHARED="1"; shift 1 ;;
     --land) DO_LAND="1"; shift 1 ;;
     --serial) SERIAL_MODE="1"; shift 1 ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
@@ -134,6 +137,7 @@ echo "[show-runner] batch_size=${BATCH_SIZE}"
 [[ "${NO_READY_GATE}" == "1" ]] && echo "[show-runner] ready_gate=off"
 echo "[show-runner] proc_count=${PROC_COUNT}"
 echo "[show-runner] init_concurrency_per_proc=${INIT_CONCURRENCY_PER_PROC}"
+[[ "${USE_ASYNC_SHARED}" == "1" ]] && echo "[show-runner] use_async_shared=1"
 
 CMD=(
   python3 "${SCRIPT_DIR}/show_runner.py"
@@ -184,6 +188,9 @@ if [[ "${DO_LAND}" == "1" ]]; then
 fi
 if [[ "${SERIAL_MODE}" == "1" ]]; then
   CMD+=(--serial)
+fi
+if [[ "${USE_ASYNC_SHARED}" == "1" ]]; then
+  CMD+=(--use-async-shared)
 fi
 
 "${CMD[@]}"

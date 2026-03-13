@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import threading
-import time
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from pathlib import Path
 
+from fleet_rpc_async_shared import AsyncSharedFleetRpcController
 from hakosim_rpc import DEFAULT_SERVICE_CONFIG_PATH, HakoniwaRpcDroneClient
 
 
@@ -25,7 +25,7 @@ class DroneStateSnapshot:
     yaw_deg: float
 
 
-class FleetRpcController:
+class _SyncFleetRpcController:
     def __init__(
         self,
         drone_names: list[str],
@@ -60,7 +60,7 @@ class FleetRpcController:
         self.stop_monitoring()
         self._executor.shutdown(wait=True)
 
-    def __enter__(self) -> "FleetRpcController":
+    def __enter__(self) -> "_SyncFleetRpcController":
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -76,6 +76,9 @@ class FleetRpcController:
 
     def _submit(self, drone_name: str, func) -> Future:
         return self._executor.submit(self._call_with_lock, drone_name, func)
+
+    def prepare_basic_services(self) -> None:
+        return None
 
     def set_ready_async(self, drone_name: str) -> Future:
         return self._submit(drone_name, lambda client: client.set_ready())
@@ -215,17 +218,43 @@ class FleetRpcController:
         *,
         return_exceptions: bool = False,
     ):
-        start = time.time()
+        done, _not_done = wait(futures, timeout=timeout_sec)
         results = []
         for future in futures:
-            remaining = None
-            if timeout_sec is not None:
-                remaining = max(timeout_sec - (time.time() - start), 0.0)
-            try:
-                results.append(future.result(timeout=remaining))
-            except Exception as e:
+            if future in done:
+                try:
+                    results.append(future.result())
+                except Exception as e:
+                    if return_exceptions:
+                        results.append(e)
+                    else:
+                        raise
+            else:
+                e = TimeoutError()
                 if return_exceptions:
                     results.append(e)
                 else:
-                    raise
+                    raise e
         return results
+
+
+def FleetRpcController(
+    drone_names: list[str],
+    service_config_path: Path | str = DEFAULT_SERVICE_CONFIG_PATH,
+    *,
+    max_workers: int | None = None,
+    monitor_interval_sec: float = 0.1,
+    use_async_shared: bool = False,
+):
+    if use_async_shared:
+        return AsyncSharedFleetRpcController(
+            drone_names=drone_names,
+            service_config_path=service_config_path,
+            monitor_interval_sec=monitor_interval_sec,
+        )
+    return _SyncFleetRpcController(
+        drone_names=drone_names,
+        service_config_path=service_config_path,
+        max_workers=max_workers,
+        monitor_interval_sec=monitor_interval_sec,
+    )
