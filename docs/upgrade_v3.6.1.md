@@ -136,7 +136,6 @@ v3.6.1 では、`DroneVisualStatePublisher` も配布バイナリに含まれま
 - `lnx/linux-main_hako_drone_service`
 - `lnx/linux-drone_visual_state_publisher`
 - `win/win-main_hako_drone_service.exe`
-- `win/win-drone_visual_state_publisher.exe`
 
 source build の場合は、以下で package 出力まで行えます。
 
@@ -240,4 +239,3 @@ bash tools/test-client.bash
   [docs/architecture/visual_state_publisher.md](./architecture/visual_state_publisher.md)
 - External RPC Driver:
   [drone_api/external_rpc/README.md](../drone_api/external_rpc/README.md)
-
