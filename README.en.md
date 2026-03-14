@@ -368,10 +368,22 @@ When you unzip the ZIP, it contains binary files like the following:
 
 - `mac-aircraft_service_px4`
 - `mac-drone_service_rc`
+- `mac-main_hako_drone_service`
+- `mac-drone_visual_state_publisher`
 - `hako_service_c` (library)
 - etc.
 
 Please select the necessary files according to the configuration you use.
+
+For large-scale fleet and drone show configurations, the `DroneVisualStatePublisher` binary is also required.
+The release package includes it with the following names for each OS:
+
+- macOS: `mac-drone_visual_state_publisher`
+- Linux: `linux-drone_visual_state_publisher`
+- Windows: `win-drone_visual_state_publisher.exe`
+
+Launcher scripts such as `tools/launch-fleets-scale-perf.bash` use this packaged binary by default.
+If needed, you can override it with `HAKO_VISUAL_STATE_PUBLISHER_BIN`.
 
 > 📁 There are no restrictions on the extraction location, but a **path that does not contain Japanese characters or spaces** is recommended.
 
