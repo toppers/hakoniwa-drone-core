@@ -88,6 +88,22 @@ v3.6.1 では、以下の関連リポジトリも利用します。
 
 `work/` 配下運用、または環境変数での外部配置を前提とします。
 
+## 公開範囲に関する注意
+
+v3.6.1 で追加した機能のうち、以下は OSS 版でも利用できます。
+
+- `async_shared` による Python fleets 制御の高速化
+- `show_asset_runner` による箱庭アセット実行
+- `DroneVisualStatePublisher` の拡張
+- three.js / bridge の `_0 / _1` 対応
+- Mac / Linux 向け `DroneVisualStatePublisher` バイナリ同梱
+
+一方で、Conductor(simple) を使った server/client 分散可視化構成は、
+`hakoniwa-conductor-pro` を前提とするため、OSS 版だけではそのまま再現できません。
+
+分散 Sim 向けの商用版バイナリ配布については、将来的に検討予定です。
+公開する場合は、Hakoniwa Drone PRO と同様のライセンス形態での提供を想定します。
+
 ## v3.6.1 で特に注意すべき互換ポイント
 
 ### 1. visual-state-publisher の設定項目が増えた
