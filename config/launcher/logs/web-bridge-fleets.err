@@ -1,3 +1,0 @@
-[monitor][error] runtime init failed: mux open error=8
-[web_bridge][error] bridge monitor runtime init failed: 8
-Session: Close error: Operation canceled

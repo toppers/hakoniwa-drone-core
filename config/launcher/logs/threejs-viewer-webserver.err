@@ -1,6 +1,0 @@
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:40] "GET /index.html?viewerConfigPath=/config/viewer-config-fleets.json&wsUri=ws://192.168.2.100:8765&wireVersion=v2&dynamicSpawn=true&templateDroneIndex=0&maxDynamicDrones=1024 HTTP/1.1" 200 -
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:43] "GET /config/pdudef-fleets.json HTTP/1.1" 304 -
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:43] "GET /config/pdudef-fleets-pdutypes.json HTTP/1.1" 304 -
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:48] "GET /index.html?viewerConfigPath=/config/viewer-config-fleets.json&wsUri=ws://192.168.2.100:8765&wireVersion=v2&dynamicSpawn=true&templateDroneIndex=0&maxDynamicDrones=1024 HTTP/1.1" 304 -
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:52] "GET /config/pdudef-fleets.json HTTP/1.1" 304 -
-::ffff:192.168.2.100 - - [13/Mar/2026 13:50:52] "GET /config/pdudef-fleets-pdutypes.json HTTP/1.1" 304 -

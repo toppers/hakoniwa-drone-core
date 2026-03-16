@@ -22,39 +22,22 @@
   },
   "assets": [
     {
-      "name": "conductor-server",
-      "activation_timing": "before_start",
-      "command": "bash",
-      "args": [
-        "work/hakoniwa-conductor-pro/srv.bash",
-        "1",
-        "simple",
-        "work/hakoniwa-conductor-pro/eu-config/generated-fleets"
-      ],
-      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 1
-    },
-    {
       "name": "drone-service-1",
       "activation_timing": "before_start",
-      "command": "/Users/tmori/project/oss/hakoniwa-drone-pro/mac/mac-main_hako_drone_service",
+      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
       "args": [
         "config/drone/fleets/api-current-part1.json",
         "config/pdudef/drone-pdudef-current.json",
         "--asset-name",
-        "drone-1",
-        "--disable-conductor"
+        "drone-1"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 2,
-      "depends_on": [
-        "conductor-server"
-      ]
+      "delay_sec": 2
     },
     {
       "name": "drone-service-2",
       "activation_timing": "before_start",
-      "command": "/Users/tmori/project/oss/hakoniwa-drone-pro/mac/mac-main_hako_drone_service",
+      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
       "args": [
         "config/drone/fleets/api-current-part2.json",
         "config/pdudef/drone-pdudef-current.json",
@@ -71,7 +54,7 @@
     {
       "name": "drone-service-3",
       "activation_timing": "before_start",
-      "command": "/Users/tmori/project/oss/hakoniwa-drone-pro/mac/mac-main_hako_drone_service",
+      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
       "args": [
         "config/drone/fleets/api-current-part3.json",
         "config/pdudef/drone-pdudef-current.json",
@@ -88,7 +71,7 @@
     {
       "name": "drone-service-4",
       "activation_timing": "before_start",
-      "command": "/Users/tmori/project/oss/hakoniwa-drone-pro/mac/mac-main_hako_drone_service",
+      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
       "args": [
         "config/drone/fleets/api-current-part4.json",
         "config/pdudef/drone-pdudef-current.json",
@@ -127,11 +110,11 @@
         "--delta-time-msec",
         "20",
         "--final-hold-extra-sec",
-        "10.0",
+        "5.0",
         "--z-offset-m",
         "0.0",
         "--summary-json",
-        "/Users/tmori/project/oss/hakoniwa-drone-pro/logs/perf/show_asset_summary_n100_p4.json"
+        "/root/workspace/logs/perf/show_asset_summary_n100_p4.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "env": {
@@ -149,9 +132,9 @@
     {
       "name": "visual-state-publisher",
       "activation_timing": "before_start",
-      "command": "${HAKO_DRONE_PROJECT_PATH}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher",
+      "command": "/usr/local/bin/hakoniwa/linux-drone_visual_state_publisher",
       "args": [
-        "/Users/tmori/project/oss/hakoniwa-drone-pro/config/assets/visual_state_publisher/visual_state_publisher.runtime.json"
+        "/root/workspace/config/assets/visual_state_publisher/visual_state_publisher.runtime.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "depends_on": [
