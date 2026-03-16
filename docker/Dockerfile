@@ -6,7 +6,6 @@ ARG HAKO_PDU_ENDPOINT_REF="main"
 ARG HAKO_PDU_BRIDGE_CORE_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-bridge-core.git"
 ARG HAKO_PDU_BRIDGE_CORE_REF="main"
 ARG HAKO_THREEJS_DRONE_REPO="https://github.com/hakoniwalab/hakoniwa-threejs-drone.git"
-ARG HAKO_THREEJS_DRONE_REF="main"
 ARG CMAKE_BUILD_JOBS=4
 
 ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
@@ -76,7 +75,7 @@ RUN git clone --depth 1 --branch "${HAKO_PDU_BRIDGE_CORE_REF}" "${HAKO_PDU_BRIDG
  && rm -rf /tmp/hakoniwa-pdu-bridge-core
 
 # threejs viewer（fleets web 配信用）
-RUN git clone --depth 1 --branch "${HAKO_THREEJS_DRONE_REF}" "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone
+RUN git clone --recursive "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone
 
 # Python（>= のクォートを忘れずに）
 RUN pip3 install --no-cache-dir --break-system-packages numpy scipy \

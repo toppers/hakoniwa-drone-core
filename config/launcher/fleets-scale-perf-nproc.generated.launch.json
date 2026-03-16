@@ -24,66 +24,13 @@
     {
       "name": "drone-service-1",
       "activation_timing": "before_start",
-      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
+      "command": "/root/workspace/lnx/linux-main_hako_drone_service",
       "args": [
-        "config/drone/fleets/api-current-part1.json",
-        "config/pdudef/drone-pdudef-current.json",
-        "--asset-name",
-        "drone-1"
+        "config/drone/fleets/api-current.json",
+        "config/pdudef/drone-pdudef-current.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "delay_sec": 2
-    },
-    {
-      "name": "drone-service-2",
-      "activation_timing": "before_start",
-      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
-      "args": [
-        "config/drone/fleets/api-current-part2.json",
-        "config/pdudef/drone-pdudef-current.json",
-        "--asset-name",
-        "drone-2",
-        "--disable-conductor"
-      ],
-      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 1,
-      "depends_on": [
-        "drone-service-1"
-      ]
-    },
-    {
-      "name": "drone-service-3",
-      "activation_timing": "before_start",
-      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
-      "args": [
-        "config/drone/fleets/api-current-part3.json",
-        "config/pdudef/drone-pdudef-current.json",
-        "--asset-name",
-        "drone-3",
-        "--disable-conductor"
-      ],
-      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 1,
-      "depends_on": [
-        "drone-service-2"
-      ]
-    },
-    {
-      "name": "drone-service-4",
-      "activation_timing": "before_start",
-      "command": "/usr/local/bin/hakoniwa/linux-main_hako_drone_service",
-      "args": [
-        "config/drone/fleets/api-current-part4.json",
-        "config/pdudef/drone-pdudef-current.json",
-        "--asset-name",
-        "drone-4",
-        "--disable-conductor"
-      ],
-      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 1,
-      "depends_on": [
-        "drone-service-3"
-      ]
     },
     {
       "name": "show-asset-runner",
@@ -100,7 +47,7 @@
         "--asset-name",
         "ShowRunnerAsset",
         "--proc-count",
-        "4",
+        "1",
         "--assign-mode",
         "nearest",
         "--speed",
@@ -114,7 +61,7 @@
         "--z-offset-m",
         "0.0",
         "--summary-json",
-        "/root/workspace/logs/perf/show_asset_summary_n100_p4.json"
+        "/root/workspace/logs/perf/show_asset_summary_n100_p1.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "env": {
@@ -125,14 +72,14 @@
         }
       },
       "depends_on": [
-        "drone-service-4"
+        "drone-service-1"
       ],
       "delay_sec": 1
     },
     {
       "name": "visual-state-publisher",
       "activation_timing": "before_start",
-      "command": "/usr/local/bin/hakoniwa/linux-drone_visual_state_publisher",
+      "command": "/root/workspace/lnx/linux-drone_visual_state_publisher",
       "args": [
         "/root/workspace/config/assets/visual_state_publisher/visual_state_publisher.runtime.json"
       ],
