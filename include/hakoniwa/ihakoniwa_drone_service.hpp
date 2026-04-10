@@ -23,6 +23,7 @@ public:
     virtual bool stopService() = 0;
 
     virtual bool isStarted() = 0;
+    virtual void setRealSleepMsec(uint32_t sleep_msec) = 0;
 
     virtual void setPduIdMap(service::ServicePduDataIdType pdu_id, int channel_id) = 0;
 };

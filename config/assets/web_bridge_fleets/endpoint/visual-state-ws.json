@@ -1,0 +1,6 @@
+{
+  "name": "visual-state-ws-ep",
+  "pdu_def_path": "../pdu/drone-visual-state.json",
+  "cache": "../cache/latest.json",
+  "comm": "../comm/visual-state-websocket-server.json"
+}

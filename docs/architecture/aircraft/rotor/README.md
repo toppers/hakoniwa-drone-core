@@ -1,5 +1,10 @@
 # Rotor Component Specification
 
+## Related Documents
+
+- [MuJoCo / Hakoniwa / PX4 Coordinate System Integration](../coordinate-system-integration.md)
+- [Thrust Component Specification](../thruster/README.md)
+
 ## Overview
 
 The `RotorDynamics` component simulates the behavior of individual rotors on the drone, converting control inputs into rotor speed, thrust, and torque. It accounts for battery voltage effects and provides parameters for tuning rotor performance.
@@ -31,6 +36,87 @@ The `RotorDynamics` component simulates the behavior of individual rotors on the
 -   **`K`**: Back electromotive force constant.
 -   **`D`**: Drag constant.
 -   **`J`**: Moment of inertia of the rotor.
+
+### Meaning and Units
+
+- **`Ct`**
+  - Thrust coefficient
+  - Unit: `N s^2 / rad^2`
+  - Used in `T = Ct * omega^2`
+- **`Cq`**
+  - Anti-torque coefficient
+  - Unit: `N m s^2 / rad^2`
+  - Used in the main term of anti-torque
+- **`K`**
+  - Motor torque / back-EMF constant
+  - Unit: `N m / A`
+- **`D`**
+  - Rotor viscous damping coefficient
+  - Unit: `N m s / rad`
+- **`J`**
+  - Rotor inertia
+  - Unit: `kg m^2`
+- **`R`**
+  - Electric resistance
+  - Unit: `Ohm`
+
+## About Air Resistance
+
+The `D` parameter in the rotor model is **not** the air drag of the whole aircraft.
+
+- `D`
+  - rotor-axis damping term
+  - used only in the rotor angular-speed dynamics
+  - belongs to motor/propeller rotational dynamics
+
+Aircraft-level aerodynamic drag is handled separately in the body dynamics layer.
+
+## Governing Equations
+
+### 1st-order lag approximation
+
+Rotor angular speed `omega` can be approximated by:
+
+`d(omega)/dt = (Kr * duty - omega) / Tr`
+
+This is the simple model used when battery dynamics are not considered.
+
+### Battery-voltage-based rotor dynamics
+
+When battery dynamics are enabled, the implementation uses:
+
+`d(omega)/dt = (K * Vbat * duty - (K^2 + D R) * omega - Cq R * omega^2) / (J R)`
+
+and the motor current:
+
+`i = (Vbat * duty - K * omega) / R`
+
+### Thrust
+
+`T = Ct * omega^2`
+
+In the implementation, thrust is returned with NED sign convention, so the rotor API returns negative Z thrust.
+
+### Anti-torque
+
+`tau = Cq * omega^2 + J * d(omega)/dt`
+
+The sign is determined by `rotationDirection` / `ccw`.
+
+## Responsibility Boundary
+
+The `rotor` component is responsible only for **one rotor**.
+
+It handles:
+
+- PWM duty input
+- battery-voltage-aware angular speed update
+- single-rotor thrust
+- single-rotor anti-torque
+- motor current
+
+It does **not** calculate the total body thrust/torque of the aircraft.
+That responsibility belongs to the `thruster` component.
 
 ## Operational Details
 

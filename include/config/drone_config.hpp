@@ -413,6 +413,7 @@ public:
         return "";
     }
     std::string getControllerServiceMode() const;
+    std::string getControllerApiServiceMode() const;
     std::string getControllerModuleFilePath() const;
     std::string getControllerParamFilePath() const;
     std::string getControllerParamText() const
@@ -455,7 +456,12 @@ public:
             info.vendor = configJson["controller"]["mixer"]["vendor"];
             info.enableDebugLog = configJson["controller"]["mixer"]["enableDebugLog"];
             info.enableErrorLog = configJson["controller"]["mixer"]["enableErrorLog"];
-            info.enable = true;
+            if (configJson["controller"]["mixer"].contains("enable")) {
+                info.enable = configJson["controller"]["mixer"]["enable"].get<bool>();
+            }
+            else {
+                info.enable = true;
+            }
             return true;
         }
         else {

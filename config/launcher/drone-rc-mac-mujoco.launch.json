@@ -1,0 +1,60 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": [
+          "/usr/local/hakoniwa/lib"
+        ],
+        "PATH": [
+          "/usr/local/hakoniwa/bin"
+        ]
+      }
+    },
+    "start_grace_sec": 1,
+    "delay_sec": 3
+  },
+  "assets": [
+    {
+      "name": "drone-service",
+      "activation_timing": "before_start",
+      "command": "mac/mac-main_hako_drone_service",
+      "args": [
+        "config/drone/mujoco",
+        "config/pdudef/drone-pdudef-1.json",
+        "--mujoco-viewer",
+        "--real-sleep-msec",
+        "1"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "delay_sec": 2
+    },
+    {
+      "name": "remote_controller",
+      "activation_timing": "after_start",
+      "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
+      "args": [
+        "-m",
+        "rc-custom",
+        "../../config/pdudef/drone-pdudef-1.json",
+        "rc_config/ps4-control.json"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api/rc",
+      "depends_on": [
+        "drone-service"
+      ]
+    }
+  ],
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": [
+      "${asset}",
+      "asset_exit",
+      "${timestamp}"
+    ]
+  }
+}

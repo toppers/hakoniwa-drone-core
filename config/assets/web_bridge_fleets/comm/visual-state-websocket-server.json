@@ -1,0 +1,17 @@
+{
+  "protocol": "websocket",
+  "name": "visual_state_websocket_server",
+  "direction": "inout",
+  "role": "server",
+  "comm_raw_version": "v2",
+  "local": {
+    "port": 8765
+  },
+  "options": {
+    "connect_timeout_ms": 5000,
+    "read_timeout_ms": 5000,
+    "write_timeout_ms": 5000,
+    "ping_interval_sec": 30,
+    "handshake_timeout_ms": 5000
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "rc_endpoint_client",
+  "pdu_def_path": "../pdudef/webavatar.json",
+  "cache": "cache/latest.json",
+  "comm": "comm/drone-game-websocket-client.json"
+}

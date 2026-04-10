@@ -1,0 +1,14 @@
+[
+  {
+    "channel_id": 0,
+    "pdu_size": 32768,
+    "name": "drone_visual_state_array_0",
+    "type": "hako_msgs/DroneVisualStateArray"
+  },
+  {
+    "channel_id": 1,
+    "pdu_size": 32768,
+    "name": "drone_visual_state_array_1",
+    "type": "hako_msgs/DroneVisualStateArray"
+  }
+]

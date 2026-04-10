@@ -51,6 +51,16 @@ public:
             throw std::runtime_error("Parameter not found: " + paramName);
         }
     }
+    double getParameterOrDefault(const std::string& paramName, double defaultValue) const {
+        auto it = parameters.find(paramName);
+        if (it != parameters.end()) {
+#ifdef HAKO_DEBUG_LOG
+            std::cout << paramName << ": " << it->second << std::endl;
+#endif
+            return it->second;
+        }
+        return defaultValue;
+    }
     int getParameterInteger(const std::string& paramName) const {
         auto it = parameters.find(paramName);
         if (it != parameters.end()) {
@@ -62,6 +72,16 @@ public:
             std::cerr << "Parameter not found: " << paramName << std::endl;
             return -1;
         }
+    }
+    int getParameterIntegerOrDefault(const std::string& paramName, int defaultValue) const {
+        auto it = parameters.find(paramName);
+        if (it != parameters.end()) {
+#ifdef HAKO_DEBUG_LOG
+            std::cout << paramName << ": " << it->second << std::endl;
+#endif
+            return static_cast<int>(std::round(it->second));
+        }
+        return defaultValue;
     }
 
 

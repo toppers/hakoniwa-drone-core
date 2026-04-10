@@ -1,0 +1,19 @@
+[
+  {
+    "nodeId": "web_bridge_fleets_node1",
+    "endpoints": [
+      {
+        "id": "bridge-shm-ep",
+        "mode": "local",
+        "config_path": "visual-state-shm.json",
+        "direction": "input"
+      },
+      {
+        "id": "bridge-ws-ep",
+        "mode": "local",
+        "config_path": "visual-state-ws.json",
+        "direction": "output"
+      }
+    ]
+  }
+]

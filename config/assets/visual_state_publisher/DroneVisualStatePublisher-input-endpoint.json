@@ -2,5 +2,5 @@
   "cache": "endpoints/cache/latest.json",
   "comm": "endpoints/comm/input_shm_callback.json",
   "name": "drone_visual_state_input",
-  "pdu_def_path": "../../pdudef/drone-pdudef-current.json"
+  "pdu_def_path": "../../pdudef/drone-pdudef-1.json"
 }

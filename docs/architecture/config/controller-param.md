@@ -34,6 +34,7 @@
 - `POS_CONTROL_CYCLE`: 水平位置制御の実行周期（秒）。0の場合は毎周期実行。
 - `SPD_CONTROL_CYCLE`: 水平速度制御の実行周期（秒）。0の場合は毎周期実行。
 - `PID_POS_MAX_SPD`: 目標位置へ移動する際の最大速度（m/s）。
+- `POS_DIST_CONTROL`: 水平位置制御で位置差を直接使うかどうかのフラグ（1: 有効, 0: 無効）。`1` の場合は位置偏差ベースの水平位置制御を有効化し、`0` の場合は水平速度系を主に使う。
 
 ### 水平位置制御のPIDパラメータ
 
@@ -101,10 +102,12 @@
 - `ANGLE_CONTROL_ENABLE`: 角度制御を有効にするかどうかのフラグ（1:有効, 0:無効）。
 - `ALT_SPD_CONTROL_ENABLE`: 高度速度制御を有効にするかどうかのフラグ（1:有効, 0:無効）。
 - `ANGLE_RATE_CONTROL_ENABLE`: 角速度制御を有効にするかどうかのフラグ（1:有効, 0:無効）。
+- `CTRLMODE_START_IN_HOVERING`: 起動直後に hover mode で開始するかどうかのフラグ（1: hover mode で開始, 0: 通常起動）。
+- `CTRLMODE_STARTUP_SETTLE_TIME_SEC`: 起動直後の安定化待ち時間（秒）。hover mode で開始する場合の初期 settle 用に使う。
 
 ## フリップコントロール
 
-- `FLIP_CONTROL_ENABLE`: フリップ（宙返り）制御を有効にするかどうかのフラグ（1:有効, 0:無効）。
+- `FLIP_CONTROL_ENABLE`: フリップ（宙返り）制御を有効にするかどうかのフラグ（1:有効, 0:無効）。省略時は `0` として扱われるため、現在のパラメータファイルでは未記載のことがある。
 - `FLIP_STICK_CHECK_TIME_SEC`: フリップ操作を検出するためのスティック入力のチェック間隔（秒）。
 - `FLIP_STICK_VALUE`: フリップ操作とみなされるスティック入力の閾値。
 - `FLIP_TARGET_TIME_SEC`: フリップ動作全体の目標時間（秒）。

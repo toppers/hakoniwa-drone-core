@@ -113,6 +113,19 @@ public:
      * Get internal state for the drone service
      */
     virtual int get_internal_state() const = 0;
+
+    /*
+     * Tuning helpers
+     */
+    virtual void set_position(const aircraft::DronePositionType& pos) = 0;
+    virtual void set_velocity(const aircraft::DroneVelocityType& vel) = 0;
+    virtual void set_direct_thrust_override(bool enabled, double thrust) = 0;
+    virtual void set_target_roll_deg(double roll_deg) = 0;
+    virtual void set_target_pitch_deg(double pitch_deg) = 0;
+    virtual void set_target_yaw_deg(double yaw_deg) = 0;
+    virtual void set_target_altitude_m(double altitude_m) = 0;
+    virtual void set_target_position_xy_m(double x_m, double y_m) = 0;
+    virtual void set_target_velocity_xy_m_s(double vx_m_s, double vy_m_s) = 0;
 };
 
 }

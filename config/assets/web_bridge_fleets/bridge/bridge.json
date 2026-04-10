@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "transferPolicies": {
+    "ticker_20ms": { "type": "ticker", "intervalMs": 20 }
+  },
+  "nodes": [
+    { "id": "web_bridge_fleets_node1" }
+  ],
+  "endpoints_config_path": "../endpoint/endpoint_container.json",
+  "endpoints": [
+    {
+      "nodeId": "web_bridge_fleets_node1",
+      "endpoints": [
+        {
+          "id": "bridge-shm-ep",
+          "mode": "local",
+          "config_path": "../endpoint/visual-state-shm.json",
+          "direction": "input"
+        },
+        {
+          "id": "bridge-ws-ep",
+          "mode": "local",
+          "config_path": "../endpoint/visual-state-ws.json",
+          "direction": "output"
+        }
+      ]
+    }
+  ],
+  "wireLinks": [],
+  "pduKeyGroups": {
+    "visual_state_array_single": [
+      {
+        "id": "DroneVisualStatePublisher.drone_visual_state_array_0",
+        "robot_name": "DroneVisualStatePublisher",
+        "pdu_name": "drone_visual_state_array_0"
+      }
+    ]
+  },
+  "connections": [
+    {
+      "id": "conn_visual_state_shm_to_ws",
+      "nodeId": "web_bridge_fleets_node1",
+      "source": { "endpointId": "bridge-shm-ep" },
+      "destinations": [
+        { "endpointId": "bridge-ws-ep" }
+      ],
+      "transferPdus": [
+        { "pduKeyGroupId": "visual_state_array_single", "policyId": "ticker_20ms" }
+      ]
+    }
+  ]
+}

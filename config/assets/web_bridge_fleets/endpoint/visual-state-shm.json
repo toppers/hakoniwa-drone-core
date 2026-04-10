@@ -1,0 +1,6 @@
+{
+  "name": "visual-state-shm-ep",
+  "pdu_def_path": "../pdu/drone-visual-state.json",
+  "cache": "../cache/latest.json",
+  "comm": "../comm/visual-state-shm-callback.json"
+}

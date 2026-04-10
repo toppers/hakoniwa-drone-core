@@ -50,6 +50,15 @@ EXPORT int drone_service_rc_get_controls(int index, double* c1, double* c2, doub
 EXPORT int drone_service_rc_get_body_velocity(int index, double* x, double* y, double* z);
 EXPORT int drone_service_rc_get_body_angular_velocity(int index, double* x, double* y, double* z);
 EXPORT int drone_service_rc_get_propeller_wind(int index, double* x, double* y, double* z);
+EXPORT int drone_service_rc_set_position(int index, double x, double y, double z);
+EXPORT int drone_service_rc_set_velocity(int index, double x, double y, double z);
+EXPORT int drone_service_rc_set_direct_thrust_override(int index, int enabled, double thrust);
+EXPORT int drone_service_rc_set_target_roll_deg(int index, double roll_deg);
+EXPORT int drone_service_rc_set_target_pitch_deg(int index, double pitch_deg);
+EXPORT int drone_service_rc_set_target_yaw_deg(int index, double yaw_deg);
+EXPORT int drone_service_rc_set_target_altitude_m(int index, double altitude_m);
+EXPORT int drone_service_rc_set_target_position_xy_m(int index, double x_m, double y_m);
+EXPORT int drone_service_rc_set_target_velocity_xy_m_s(int index, double vx_m_s, double vy_m_s);
 
 /*
  * Battery

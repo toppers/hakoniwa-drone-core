@@ -1,0 +1,7 @@
+{
+  "type": "buffer",
+  "name": "web_bridge_fleets_latest_buffer",
+  "store": {
+    "mode": "latest"
+  }
+}

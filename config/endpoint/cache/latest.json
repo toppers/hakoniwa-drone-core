@@ -1,0 +1,7 @@
+{
+  "type": "buffer",
+  "name": "rc_endpoint_latest_buffer",
+  "store": {
+    "mode": "latest"
+  }
+}

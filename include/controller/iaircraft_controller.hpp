@@ -63,6 +63,13 @@ public:
     virtual int get_internal_state() = 0;
 
     virtual bool is_flip_control_enabled() = 0;
+
+    virtual void set_target_roll_deg(double roll_deg) = 0;
+    virtual void set_target_pitch_deg(double pitch_deg) = 0;
+    virtual void set_target_yaw_deg(double yaw_deg) = 0;
+    virtual void set_target_altitude_m(double altitude_m) = 0;
+    virtual void set_target_position_xy_m(double x_m, double y_m) = 0;
+    virtual void set_target_velocity_xy_m_s(double vx_m_s, double vy_m_s) = 0;
 };
 
 class IAircraftControllerContainer {

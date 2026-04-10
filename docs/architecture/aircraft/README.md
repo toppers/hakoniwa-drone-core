@@ -2,6 +2,10 @@
 
 [architecture](architecture.md) 
 
+## 関連ドキュメント
+
+- [MuJoCo / Hakoniwa / PX4 座標系統合メモ](/docs/architecture/aircraft/coordinate-system-integration.md)
+
 # Aircraft API ドキュメント
 
 ## 概要

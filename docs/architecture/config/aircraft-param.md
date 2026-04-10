@@ -99,11 +99,11 @@ path 項目は、次の順で解決する方針とする。
   - **model**: モデルタイプ (`"constant"`など)。
   - **BatteryModelCsvFilePath**: バッテリーモデルのCSVファイルパス。
   - **NominalVoltage**: 公称電圧 (V)。
-  - **NominalCapacity**: 公称容量 (mAh)。
+  - **NominalCapacity**: 公称容量 (Ah)。内部実装でも容量は hour 系で扱われるため、current config の `4.0` は 4Ah を意味する。
   - **EODVoltage**: 放電終止電圧 (V)。
   - **VoltageLevelGreen**: 電圧レベル（緑）の閾値 (V)。
   - **VoltageLevelYellow**: 電圧レベル（黄）の閾値 (V)。
-  - **CapacityLevelYellow**: 容量レベル（黄）の閾値 (%)。
+  - **CapacityLevelYellow**: 容量レベル（黄）の閾値 (Ah)。
 - **thruster**: スラスターの設定。
   - **vendor**: ベンダ名。現状は`None`。
   - **rotorPositions**: ローターの位置と回転方向。
@@ -125,8 +125,18 @@ path 項目は、次の順で解決する方針とする。
 - **moduleName**: (オプション) 使用するフライトコントローラーモジュール名。
 - **paramFilePath**: (オプション) コントローラのパラメータファイルへのパス。
 - **paramText**: (オプション) コントローラのパラメータをテキスト形式で直接記述。
+- **serviceMode**: (オプション) 制御サービスの動作モード。
+  - `rc`: RC/ゲームパッド入力で機体を操作する。
+  - `api`: 外部 API から機体を操作する。
+  - `legacy`: 明示指定されない legacy 挙動。controller 種別に応じて `rc` または `api` として解決される。
+  - 後方互換のため、既存の `rpc` 指定は `api` として扱われる。
+- **apiServiceMode**: (オプション) `serviceMode = api` のときの API 公開方式。
+  - `rpc`: 新しい箱庭 RPC service を使う。
+  - `legacy-api`: 従来の箱庭 PDU ベース API を使う。
+  - 未指定時は `legacy-api` として扱われる。
 - **direct_rotor_control**: ローターの直接制御を有効にする場合は`true`。
 - **mixer**: (オプション) ドローンのミキサー設定。未設定の場合は、推力とトルクが直接物理モデルに入力されます。
+  - **enable**: ミキサーを有効にするかどうか。未指定時は `true` として扱われる。
   - **vendor**: ミキサーのベンダ名 (`"None"`, `"linear"`など)。
   - **enableDebugLog**: デバッグログを有効にする場合は`true`。
   - **enableErrorLog**: エラーログを有効にする場合は`true`。
@@ -149,6 +159,26 @@ path 項目は、次の順で解決する方針とする。
 - `moduleDirectory` は config ファイル基準の相対パスを正規仕様とする
 - `paramFilePath` も config ファイル基準の相対パスを正規仕様とする
 - 後方互換のため、config ファイル基準で見つからない場合のみ、カレントディレクトリ基準でも解決を試みる
+
+### controller service mode の仕様
+
+- `serviceMode = rc`
+  - RC/ゲームパッド入力を使う
+  - 箱庭 RPC service は作成しない
+- `serviceMode = api` かつ `apiServiceMode = rpc`
+  - 新しい箱庭 RPC service を使う
+- `serviceMode = api` かつ `apiServiceMode = legacy-api`
+  - 従来の PDU ベース API を使う
+
+後方互換:
+
+- `serviceMode = rpc`
+  - `serviceMode = api`
+  - `apiServiceMode = rpc`
+  と同義として扱う
+- `serviceMode` 未指定時は内部的に `legacy` として扱う
+  - radio control controller の場合は `rc`
+  - それ以外は `api + legacy-api`
 
 
 ## 機体パラメータの設定例

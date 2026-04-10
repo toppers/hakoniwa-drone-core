@@ -10,21 +10,109 @@ HAKONIWA_TOP_DIR="$(pwd)"
 IMAGE_NAME="$(cat "${SCRIPT_DIR}/image_name.txt")"
 IMAGE_TAG="$(cat "${SCRIPT_DIR}/latest_version.txt")"
 DOCKER_IMAGE="toppersjp/${IMAGE_NAME}:${IMAGE_TAG}"
+CONTAINER_NAME="${IMAGE_NAME}"
+RUN_DETACHED=0
 
-# --- 1) -p オプション（PRO 資材のパス） --------------------------------------
 PRO_PATH=""
-if [[ "${1:-}" == "-p" ]]; then
-  PRO_PATH="${2:-}"
-  # 追加：相対パスを絶対パスに変換
-  PRO_PATH="$(cd "$(dirname "${PRO_PATH}")" && pwd)/$(basename "${PRO_PATH}")"
-  shift 2
-fi
+LAUNCHER_SCRIPT=""
+LAUNCHER_ARGS=()
+DOCKER_TTY_MODE="${DOCKER_TTY_MODE:-auto}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  bash docker/run.bash [-p PRO_PATH] [--launcher SCRIPT] [-- launcher_args...]
+
+Examples:
+  bash docker/run.bash
+  bash docker/run.bash -p /path/to/lnx.zip
+  bash docker/run.bash --launcher tools/launch-mujoco-web-bridge-ubuntu.bash
+  bash docker/run.bash --launcher tools/launch-fleets-scale-perf.bash -- 100 "" 4
+
+Env:
+  DOCKER_TTY_MODE=auto|always|never
+EOF
+}
+
+map_launcher_path_for_container() {
+  local launcher_path="$1"
+  if [[ "${launcher_path}" = /* ]]; then
+    case "${launcher_path}" in
+      "${HOST_WORKDIR}"/*)
+        printf "%s\n" "${DOCKER_DIR}${launcher_path#${HOST_WORKDIR}}"
+        ;;
+      *)
+        echo "[run] Error: absolute launcher path must be under HOST_WORKDIR: ${launcher_path}" >&2
+        exit 1
+        ;;
+    esac
+  else
+    printf "%s\n" "${launcher_path}"
+  fi
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p)
+      PRO_PATH="${2:-}"
+      if [[ -z "${PRO_PATH}" ]]; then
+        echo "[run] Error: -p requires a path" >&2
+        exit 1
+      fi
+      PRO_PATH="$(cd "$(dirname "${PRO_PATH}")" && pwd)/$(basename "${PRO_PATH}")"
+      shift 2
+      ;;
+    --launcher)
+      LAUNCHER_SCRIPT="${2:-}"
+      if [[ -z "${LAUNCHER_SCRIPT}" ]]; then
+        echo "[run] Error: --launcher requires a script path" >&2
+        exit 1
+      fi
+      shift 2
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      LAUNCHER_ARGS=("$@")
+      break
+      ;;
+    *)
+      echo "[run] Error: unsupported option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
 
 # --- 2) 共通フラグ（ここに PRO の -v/-e も後段で積む） -----------------------
+TTY_FLAGS=(--rm)
+case "${DOCKER_TTY_MODE}" in
+  auto)
+    if [[ -t 0 && -t 1 ]]; then
+      TTY_FLAGS=(-it --rm)
+    else
+      RUN_DETACHED=1
+    fi
+    ;;
+  always)
+    TTY_FLAGS=(-it --rm)
+    ;;
+  never)
+    RUN_DETACHED=1
+    ;;
+  *)
+    echo "[run] Error: invalid DOCKER_TTY_MODE: ${DOCKER_TTY_MODE}" >&2
+    exit 1
+    ;;
+esac
+
 RUN_FLAGS=(
-  -it --rm
+  "${TTY_FLAGS[@]}"
   -w "${DOCKER_DIR}"
-  --name "${IMAGE_NAME}"
+  --name "${CONTAINER_NAME}"
   -e TZ=Asia/Tokyo
   -v "${HOST_WORKDIR}:${DOCKER_DIR}"
 )
@@ -93,5 +181,36 @@ else
   RUN_FLAGS+=(-e HAKO_USE_XVFB=1)
 fi
 
+CONTAINER_COMMAND=()
+if [[ -n "${LAUNCHER_SCRIPT}" ]]; then
+  CONTAINER_LAUNCHER_SCRIPT="$(map_launcher_path_for_container "${LAUNCHER_SCRIPT}")"
+  CONTAINER_COMMAND=(bash "${CONTAINER_LAUNCHER_SCRIPT}" "${LAUNCHER_ARGS[@]}")
+  echo "[run] LAUNCHER=${CONTAINER_LAUNCHER_SCRIPT}"
+  if [[ ${#LAUNCHER_ARGS[@]} -gt 0 ]]; then
+    echo "[run] LAUNCHER_ARGS=${LAUNCHER_ARGS[*]}"
+  fi
+fi
+
+cleanup_container() {
+  docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+}
+
+on_signal() {
+  local sig="$1"
+  echo "[run] ${sig} received -> stopping container ${CONTAINER_NAME}"
+  cleanup_container
+  exit 130
+}
+
+trap 'on_signal SIGINT' INT
+trap 'on_signal SIGTERM' TERM
+trap 'cleanup_container' EXIT
+
 # --- 5) 実行 -------------------------------------------------------------------
-docker run "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}"
+if [[ "${RUN_DETACHED}" == "1" ]]; then
+  echo "[run] MODE=detached"
+  docker run -d "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}" "${CONTAINER_COMMAND[@]}" >/dev/null
+  docker wait "${CONTAINER_NAME}" >/dev/null
+else
+  docker run "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}" "${CONTAINER_COMMAND[@]}"
+fi

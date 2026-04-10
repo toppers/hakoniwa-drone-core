@@ -1,0 +1,20 @@
+{
+  "protocol": "websocket",
+  "name": "rc_endpoint_websocket_client",
+  "direction": "inout",
+  "role": "client",
+  "comm_raw_version": "v2",
+  "remote": {
+    "host": "127.0.0.1",
+    "port": 8765,
+    "path": "/",
+    "secure": false
+  },
+  "options": {
+    "connect_timeout_ms": 5000,
+    "read_timeout_ms": 5000,
+    "write_timeout_ms": 5000,
+    "ping_interval_sec": 30,
+    "handshake_timeout_ms": 5000
+  }
+}
