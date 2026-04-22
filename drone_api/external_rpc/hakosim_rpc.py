@@ -143,6 +143,9 @@ class HakoniwaRpcDroneClient:
         if self.trace_enabled:
             print(f"TRACE_RPC: {message}")
 
+    def _restart_pdu_read_service(self) -> None:
+        pass  # No explicit restart method available; rely on service checks and retries in get_raw_pdu()
+
     def _ensure_initialized(self) -> None:
         if self._initialized:
             return
@@ -225,16 +228,19 @@ class HakoniwaRpcDroneClient:
             f"retry_interval_sec={self.register_retry_interval_sec})"
         )
 
-    def _call(self, service_type: str, request):
+    def _call(self, service_type: str, request, *, timeout_msec: int | None = None):
         t0 = time.time()
         self._trace(
             "call_start "
             f"drone={self.drone_name} service={service_type}"
         )
         client = self._get_protocol_client(service_type)
+        effective_timeout_msec = (
+            self.timeout_msec if timeout_msec is None else timeout_msec
+        )
         response = client.call(
             request,
-            timeout_msec=self.timeout_msec,
+            timeout_msec=effective_timeout_msec,
             poll_interval=self.poll_interval_sec,
         )
         if response is None:
@@ -267,6 +273,46 @@ class HakoniwaRpcDroneClient:
         req.drone_name = self.drone_name
         return self._call("DroneGetState", req)
 
+    def get_raw_pdu(self, pdu_name: str):
+        self._ensure_initialized()
+        assert self._pdu_manager is not None
+        last_error = None
+        for attempt in range(3):
+            try:
+                if not self._pdu_manager.is_service_enabled():
+                    if not self._pdu_manager.start_service_nowait():
+                        raise RuntimeError("Failed to start PDU read service")
+                self._pdu_manager.run_nowait()
+                raw_data = self._pdu_manager.read_pdu_raw_data(
+                    self.drone_name, pdu_name
+                )
+                if raw_data:
+                    return raw_data
+                self._pdu_manager.run_nowait()
+                raw_data = self._pdu_manager.read_pdu_raw_data(
+                    self.drone_name, pdu_name
+                )
+                if raw_data:
+                    return raw_data
+                last_error = RuntimeError(
+                    f"Failed to read PDU raw data: drone={self.drone_name} pdu={pdu_name}"
+                )
+            except Exception as e:
+                last_error = e
+            if attempt < 2:
+                self._restart_pdu_read_service()
+                time.sleep(0.05)
+        raise RuntimeError(
+            f"Failed to read PDU raw data: drone={self.drone_name} pdu={pdu_name}"
+        ) from last_error
+
+    def get_status(self):
+        from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_conv_DroneStatus import (
+            pdu_to_py_DroneStatus,
+        )
+
+        return pdu_to_py_DroneStatus(self.get_raw_pdu("status"))
+
     def goto(
         self,
         x: float,
@@ -290,10 +336,11 @@ class HakoniwaRpcDroneClient:
         req.timeout_sec = timeout_sec
         return self._call("DroneGoTo", req)
 
-    def land(self):
+    def land(self, timeout_sec: float = 0.0):
         req = DroneLandRequest()
         req.drone_name = self.drone_name
-        return self._call("DroneLand", req)
+        timeout_msec = int(timeout_sec * 1000) if timeout_sec > 0 else None
+        return self._call("DroneLand", req, timeout_msec=timeout_msec)
 
 
 def print_response_elapsed(prefix: str, start_time: float) -> None:

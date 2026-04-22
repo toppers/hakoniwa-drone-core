@@ -197,12 +197,17 @@ class AsyncSharedHakoniwaRpcDroneClient:
             ]
         )
 
-    def _call_async(self, service_type: str, request) -> RpcCallFuture:
+    def _call_async(
+        self, service_type: str, request, *, timeout_msec: int | None = None
+    ) -> RpcCallFuture:
         self._trace(f"call_async_start drone={self.drone_name} service={service_type}")
         handle = self._get_handle(service_type)
+        effective_timeout_msec = (
+            self.timeout_msec if timeout_msec is None else timeout_msec
+        )
         future = handle.call_async(
             request,
-            timeout_msec=self.timeout_msec,
+            timeout_msec=effective_timeout_msec,
             poll_interval=max(self.poll_interval_sec, 0.0),
         )
         self._trace(
@@ -212,8 +217,8 @@ class AsyncSharedHakoniwaRpcDroneClient:
         )
         return future
 
-    def _call(self, service_type: str, request):
-        future = self._call_async(service_type, request)
+    def _call(self, service_type: str, request, *, timeout_msec: int | None = None):
+        future = self._call_async(service_type, request, timeout_msec=timeout_msec)
         start = time.monotonic()
         polls = 0
         while not future.done():
@@ -234,6 +239,9 @@ class AsyncSharedHakoniwaRpcDroneClient:
 
     def poll_once(self) -> int:
         return self._runtime.poll_once()
+
+    def _restart_pdu_read_service(self) -> None:
+        pass # No-op for async shared runtime, as it should be always running
 
     def set_ready_async(self) -> RpcCallFuture:
         req = DroneSetReadyRequest()
@@ -266,6 +274,44 @@ class AsyncSharedHakoniwaRpcDroneClient:
         req = DroneGetStateRequest()
         req.drone_name = self.drone_name
         return self._call("DroneGetState", req)
+
+    def get_raw_pdu(self, pdu_name: str):
+        last_error = None
+        for attempt in range(3):
+            try:
+                if not self._runtime.manager.is_service_enabled():
+                    if not self._runtime.manager.start_service_nowait():
+                        raise RuntimeError("Failed to start PDU read service")
+                self._runtime.manager.run_nowait()
+                raw_data = self._runtime.manager.read_pdu_raw_data(
+                    self.drone_name, pdu_name
+                )
+                if raw_data:
+                    return raw_data
+                self._runtime.manager.run_nowait()
+                raw_data = self._runtime.manager.read_pdu_raw_data(
+                    self.drone_name, pdu_name
+                )
+                if raw_data:
+                    return raw_data
+                last_error = RuntimeError(
+                    f"Failed to read PDU raw data: drone={self.drone_name} pdu={pdu_name}"
+                )
+            except Exception as e:
+                last_error = e
+            if attempt < 2:
+                self._restart_pdu_read_service()
+                time.sleep(0.05)
+        raise RuntimeError(
+            f"Failed to read PDU raw data: drone={self.drone_name} pdu={pdu_name}"
+        ) from last_error
+
+    def get_status(self):
+        from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_conv_DroneStatus import (
+            pdu_to_py_DroneStatus,
+        )
+
+        return pdu_to_py_DroneStatus(self.get_raw_pdu("status"))
 
     def goto_async(
         self,
@@ -313,15 +359,17 @@ class AsyncSharedHakoniwaRpcDroneClient:
         req.timeout_sec = timeout_sec
         return self._call("DroneGoTo", req)
 
-    def land_async(self) -> RpcCallFuture:
+    def land_async(self, timeout_sec: float = 0.0) -> RpcCallFuture:
         req = DroneLandRequest()
         req.drone_name = self.drone_name
-        return self._call_async("DroneLand", req)
+        timeout_msec = int(timeout_sec * 1000) if timeout_sec > 0 else None
+        return self._call_async("DroneLand", req, timeout_msec=timeout_msec)
 
-    def land(self):
+    def land(self, timeout_sec: float = 0.0):
         req = DroneLandRequest()
         req.drone_name = self.drone_name
-        return self._call("DroneLand", req)
+        timeout_msec = int(timeout_sec * 1000) if timeout_sec > 0 else None
+        return self._call("DroneLand", req, timeout_msec=timeout_msec)
 
 
 __all__ = ["AsyncSharedHakoniwaRpcDroneClient"]

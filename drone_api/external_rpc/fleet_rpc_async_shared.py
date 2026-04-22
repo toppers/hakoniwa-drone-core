@@ -1,13 +1,61 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import threading
 import time
+import hakopy
 from pathlib import Path
 
 from hakosim_async_shared_rpc import AsyncSharedHakoniwaRpcDroneClient
 from hakosim_rpc import DEFAULT_SERVICE_CONFIG_PATH
+from hakoniwa_pdu.impl.pdu_channel_config import PduChannelConfig
+from hakoniwa_pdu.pdu_msgs.hako_msgs.pdu_conv_DroneStatus import pdu_to_py_DroneStatus
 from hakoniwa_pdu.rpc.async_shared import RpcCallFuture
+from service_config_loader import create_runtime_service_config
+
+
+class _FleetStatusReader:
+    def __init__(self, service_config_path: Path | str, ensure_initialized) -> None:
+        self.service_config_path = Path(service_config_path).resolve()
+        self._ensure_initialized = ensure_initialized
+        runtime_service_config_path = create_runtime_service_config(
+            self.service_config_path
+        )
+        runtime_service = json.loads(runtime_service_config_path.read_text())
+        pdu_config_path = runtime_service.get("pdu_config_path")
+        if not pdu_config_path:
+            raise RuntimeError(
+                f"pdu_config_path is missing in runtime service config: {runtime_service_config_path}"
+            )
+        self.pdu_config_path = Path(pdu_config_path).resolve()
+        self._pdu_config = PduChannelConfig(str(self.pdu_config_path))
+        self._read_lock = threading.Lock()
+
+    def get_raw_pdu(self, drone_name: str, pdu_name: str) -> bytearray:
+        self._ensure_initialized()
+        channel_id = self._pdu_config.get_pdu_channel_id(drone_name, pdu_name)
+        pdu_size = self._pdu_config.get_pdu_size(drone_name, pdu_name)
+        if channel_id < 0 or pdu_size <= 0:
+            raise RuntimeError(
+                f"PDU channel is not defined: drone={drone_name} pdu={pdu_name}"
+            )
+        last_error = None
+        with self._read_lock:
+            for _ in range(5):
+                try:
+                    raw_data = hakopy.pdu_read(drone_name, channel_id, pdu_size)
+                    if raw_data:
+                        return raw_data
+                except Exception as e:
+                    last_error = e
+                time.sleep(0.01)
+        raise RuntimeError(
+            f"Failed to read PDU raw data directly: drone={drone_name} pdu={pdu_name}"
+        ) from last_error
+
+    def get_status(self, drone_name: str):
+        return pdu_to_py_DroneStatus(self.get_raw_pdu(drone_name, "status"))
 
 
 class AsyncSharedFleetRpcController:
@@ -28,6 +76,9 @@ class AsyncSharedFleetRpcController:
             )
             for drone_name in self.drone_names
         }
+        self._status_reader = _FleetStatusReader(
+            self.service_config_path, self._ensure_external_initialized
+        )
         self._locks = {
             drone_name: threading.Lock() for drone_name in self.drone_names
         }
@@ -49,6 +100,9 @@ class AsyncSharedFleetRpcController:
                 return func(self._clients[drone_name])
             except Exception as e:
                 raise RuntimeError(f"[{drone_name}] {e}") from e
+
+    def _ensure_external_initialized(self) -> None:
+        AsyncSharedHakoniwaRpcDroneClient._ensure_external_initialized()
 
     def _register_future_runtime(self, future: RpcCallFuture, drone_name: str) -> RpcCallFuture:
         runtime = getattr(self._clients[drone_name], "_runtime", None)
@@ -153,12 +207,18 @@ class AsyncSharedFleetRpcController:
             ),
         )
 
-    def land_async(self, drone_name: str) -> RpcCallFuture:
-        future = self._call_with_lock(drone_name, lambda client: client.land_async())
+    def land_async(
+        self, drone_name: str, timeout_sec: float = 0.0
+    ) -> RpcCallFuture:
+        future = self._call_with_lock(
+            drone_name, lambda client: client.land_async(timeout_sec=timeout_sec)
+        )
         return self._register_future_runtime(future, drone_name)
 
-    def land(self, drone_name: str):
-        return self._call_with_lock(drone_name, lambda client: client.land())
+    def land(self, drone_name: str, timeout_sec: float = 0.0):
+        return self._call_with_lock(
+            drone_name, lambda client: client.land(timeout_sec=timeout_sec)
+        )
 
     def get_state(self, drone_name: str):
         return self._call_with_lock(drone_name, lambda client: client.get_state())
@@ -168,6 +228,20 @@ class AsyncSharedFleetRpcController:
             drone_name, lambda client: client.get_state_async()
         )
         return self._register_future_runtime(future, drone_name)
+
+    def get_raw_pdu(self, drone_name: str, pdu_name: str):
+        return self._status_reader.get_raw_pdu(drone_name, pdu_name)
+
+    def get_status(self, drone_name: str):
+        return self._status_reader.get_status(drone_name)
+
+    def get_status_async(self, drone_name: str):
+        future = RpcCallFuture(service_id=-1, client_id=-1, request_id=-1)
+        try:
+            future.set_result(self._status_reader.get_status(drone_name))
+        except Exception as e:
+            future.set_exception(e)
+        return future
 
     def start_monitoring(self) -> None:
         return None

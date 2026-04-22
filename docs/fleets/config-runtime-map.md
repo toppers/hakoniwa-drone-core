@@ -75,10 +75,16 @@
 - 既定:
   - `config/drone/fleets/services/api-current-service.json`
 - 実行スクリプト:
-  - `drone_api/external_rpc/run_single_mission.bash`
-  - `drone_api/external_rpc/run_square_mission.bash`
+  - `drone_api/external_rpc/apps/run_single_mission.bash`
+  - `drone_api/external_rpc/apps/run_square_mission.bash`
 - 詳細:
   - `drone_api/external_rpc/README.md`
+- tutorial:
+  - `docs/fleets/external-rpc-tutorial.md`
+
+MuJoCo 用 runtime の具体的な生成手順は次を参照:
+
+- [MuJoCo Runtime Generation](mujoco-runtime-generation.md)
 
 ## 迷ったときの基準
 

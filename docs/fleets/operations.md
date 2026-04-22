@@ -52,7 +52,7 @@ http://SIM_IP:8000/index.html?viewerConfigPath=/config/viewer-config-fleets.json
 複数機体 square mission（位相ずらし対応）:
 
 ```bash
-bash drone_api/external_rpc/run_square_mission.bash --drone-count <N> --phase-step 1
+bash drone_api/external_rpc/apps/run_square_mission.bash --drone-count <N> --phase-step 1
 ```
 
 詳細オプションは以下を参照:

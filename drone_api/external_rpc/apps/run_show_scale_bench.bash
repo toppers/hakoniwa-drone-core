@@ -10,12 +10,12 @@ PROC_COUNT="${2:-4}"
 if [[ -z "${DRONE_COUNT}" ]]; then
   cat <<'EOF' >&2
 Usage:
-  bash drone_api/external_rpc/run_show_scale_bench.bash DRONE_COUNT [PROC_COUNT] [extra run_show.bash args...]
+  bash drone_api/external_rpc/apps/run_show_scale_bench.bash DRONE_COUNT [PROC_COUNT] [extra run_show.bash args...]
 
 Examples:
-  bash drone_api/external_rpc/run_show_scale_bench.bash 100 4
-  bash drone_api/external_rpc/run_show_scale_bench.bash 200 4 --speed 14.0
-  bash drone_api/external_rpc/run_show_scale_bench.bash 512 8 --timeout-sec 240
+  bash drone_api/external_rpc/apps/run_show_scale_bench.bash 100 4
+  bash drone_api/external_rpc/apps/run_show_scale_bench.bash 200 4 --speed 14.0
+  bash drone_api/external_rpc/apps/run_show_scale_bench.bash 512 8 --timeout-sec 240
 EOF
   exit 1
 fi

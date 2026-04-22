@@ -1,0 +1,66 @@
+<mujoco>
+  <option timestep="0.001" density="1.204" viscosity="0.05" integrator="Euler" gravity="0 0 -9.81"/>
+  <size nstack="4000000" nconmax="50000"/>
+  <visual>
+    <global elevation="-10"/>
+  </visual>
+
+  <default>
+    <tendon limited="true" width="0.003" rgba="1 1 1 1"/>
+    <geom friction=".2"/>
+    <default class="weight">
+      <geom rgba=".8 .4 .8 1"/>
+      <site rgba=".8 .4 .8 1"/>
+    </default>
+    <default class="drone">
+      <geom density="0.167" fluidshape="ellipsoid" friction="0.5 0.5 0.5"/>
+      <default class="pink">
+        <geom rgba="1 .6 .7 1"/>
+        <site rgba="1 .6 .7 1"/>
+      </default>
+      <default class="blue">
+        <geom rgba=".3 .7 .9 1"/>
+        <site rgba=".3 .7 .9 1"/>
+      </default>
+      <default class="black">
+        <geom rgba="0 0 0 1"/>
+        <site rgba="0 0 0 1"/>
+      </default>
+      <default class="gray">
+        <geom rgba=".5 .5 .5 1"/>
+        <site rgba=".5 .5 .5 1"/>
+      </default>
+      <default class="green">
+        <geom rgba=".4 .9 .5 1"/>
+        <site rgba=".4 .9 .5 1"/>
+      </default>
+      <default class="orange">
+        <geom rgba="1 .4 0 1"/>
+        <site rgba="1 .4 0 1"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1="1 1 1" rgb2="1 1 1"/>
+    <material name="white_ground" texture="grid" reflectance="0"/>
+  </asset>
+
+  <worldbody>
+    <light diffuse="1 1 1" specular="0.5 0.5 0.5" pos="0 0 5"/>
+    <geom name="ground" type="plane" size="20 20 .01" pos="0 0 0" material="white_ground"/>
+
+    <!-- Example landmarks for depth perception -->
+    <body name="landmark_box_1" pos="3 0 0.75">
+      <geom name="landmark_box_1_geom" type="box" size="0.5 0.5 0.75" rgba="0.8 0.2 0.2 1"/>
+    </body>
+    <body name="landmark_box_2" pos="-3 2 1.0">
+      <geom name="landmark_box_2_geom" type="box" size="0.6 0.6 1.0" rgba="0.2 0.2 0.8 1"/>
+    </body>
+    <body name="landmark_pole" pos="0 -4 1.5">
+      <geom name="landmark_pole_geom" type="cylinder" size="0.1 1.5" rgba="0.2 0.6 0.2 1"/>
+    </body>
+
+__DRONE_BODIES__
+  </worldbody>
+</mujoco>

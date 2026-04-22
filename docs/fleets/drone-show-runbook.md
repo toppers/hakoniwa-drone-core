@@ -1,11 +1,11 @@
 # fleets Drone Show Runbook
 
-このページは、`run_show.bash` を使った fleets ドローンショー実行の運用手順をまとめたものです。
+このページは、`apps/run_show.bash` を使った fleets ドローンショー実行の運用手順をまとめたものです。
 
 ## 何をやっているか（デモの意図）
 
 - `show` JSON でフォーメーション遷移（文字/図形）を定義する
-- `run_show.bash` が `show_runner.py` を呼び、複数機体へ `set_ready -> takeoff -> goto` を発行する
+- `apps/run_show.bash` が `apps/show_runner.py` を呼び、複数機体へ `set_ready -> takeoff -> goto` を発行する
 - 実行中ログ（`wait_start/wait_done`, `ok/message`）で各ステップ成否を追跡する
 
 ## 構成
@@ -26,28 +26,28 @@
 - `tools/drone-show/plot_show.py`
 
 3. **実行ランナー**
-- `drone_api/external_rpc/run_show.bash`
-- `drone_api/external_rpc/show_runner.py`
+- `drone_api/external_rpc/apps/run_show.bash`
+- `drone_api/external_rpc/apps/show_runner.py`
 
 ## 実行までの流れ
 
 1. フォーメーション生成（必要時）
 2. `load_show_config.py` で JSON 整合チェック
 3. `plot_show.py` で 2D 事前確認
-4. `run_show.bash` で本実行
+4. `apps/run_show.bash` で本実行
 
 ## 実行コマンド（代表）
 
 200機・3ステップ（`HAKONIWA -> DRONE_ICON -> DRONE_SHOW!`）:
 
 ```bash
-bash drone_api/external_rpc/run_show.bash \
+bash drone_api/external_rpc/apps/run_show.bash \
   --show-config config/drone-show-config/show-hakoniwa-drone-icon-drone-show-3step-200-ref.json \
   --drone-count 200 \
   --assign-mode nearest
 ```
 
-`run_show.bash` の `--show-config` は `--show-json` の alias。
+`apps/run_show.bash` の `--show-config` は `--show-json` の alias。
 
 ## 実績プリセット（2026-03-08）
 
@@ -58,7 +58,7 @@ HAKO_RPC_TRACE=1 \
 HAKO_RPC_TRACE_VERBOSE=0 \
 HAKO_RPC_REGISTER_RETRY_COUNT=180 \
 HAKO_RPC_REGISTER_RETRY_INTERVAL_SEC=0.2 \
-/usr/bin/time -p bash drone_api/external_rpc/run_show.bash \
+/usr/bin/time -p bash drone_api/external_rpc/apps/run_show.bash \
   --show-config config/drone-show-config/show-hakoniwa-drone-icon-drone-show-3step-200-ref.json \
   --drone-count 200 \
   --assign-mode nearest \

@@ -4,14 +4,21 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace hako::config {
+
+struct DroneInstanceMuJoCoConfig {
+    std::string modelName;
+    std::vector<std::string> propNames;
+};
 
 struct DroneInstanceConfig {
     std::string name;
     std::string type;
     std::array<double, 3> position_meter;
     std::array<double, 3> angle_degree;
+    std::optional<DroneInstanceMuJoCoConfig> mujoco;
 };
 
 struct DroneFleetConfig {

@@ -2,11 +2,17 @@
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
+
+EXTERNAL_RPC_DIR = Path(__file__).resolve().parents[1]
+if str(EXTERNAL_RPC_DIR) not in sys.path:
+    sys.path.insert(0, str(EXTERNAL_RPC_DIR))
 
 from hakosim_rpc import (
     DEFAULT_SERVICE_CONFIG_PATH,
     HakoniwaRpcDroneClient,
+    print_response_elapsed,
 )
 
 
@@ -25,8 +31,10 @@ def main() -> int:
         service_config_path=service_config_path,
     )
 
-    print(f"INFO: request set-ready drone={drone_name}")
-    res = client.set_ready()
+    print(f"INFO: request land drone={drone_name}")
+    start_time = time.time()
+    res = client.land()
+    print_response_elapsed("land call", start_time)
     print(f"INFO: response ok={res.ok} message={res.message}")
     return 0
 

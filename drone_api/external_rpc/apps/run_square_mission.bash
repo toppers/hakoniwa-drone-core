@@ -2,7 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+OBSOLETE_DIR="${SCRIPT_DIR}/../obsolete"
 
 SERVICE_CONFIG="${REPO_ROOT}/config/drone/fleets/services/api-current-service.json"
 DRONE_NAME="Drone-1"
@@ -125,13 +126,13 @@ fi
 
 echo "[square-mission] drone=${DRONE_NAME}"
 
-python3 "${SCRIPT_DIR}/set_ready_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
-python3 "${SCRIPT_DIR}/takeoff_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}" "${ALT_M}"
+python3 "${OBSOLETE_DIR}/set_ready_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
+python3 "${OBSOLETE_DIR}/takeoff_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}" "${ALT_M}"
 
 goto_point() {
   local x="$1"
   local y="$2"
-  python3 "${SCRIPT_DIR}/goto_client.py" \
+  python3 "${OBSOLETE_DIR}/goto_client.py" \
     --service-config "${SERVICE_CONFIG}" \
     --drone "${DRONE_NAME}" \
     --speed "${SPEED_M_S}" \
@@ -147,7 +148,7 @@ goto_point "${P4_X}" "${P4_Y}"
 goto_point "${P1_X}" "${P1_Y}"
 
 if [[ "${DO_LAND}" == "1" ]]; then
-  python3 "${SCRIPT_DIR}/land_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
+  python3 "${OBSOLETE_DIR}/land_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
 fi
 
 echo "[square-mission] done"

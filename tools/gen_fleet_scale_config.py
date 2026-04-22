@@ -42,9 +42,19 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--type-name", default="api", help="Drone type name in fleet json")
     p.add_argument(
+        "--type-config-path",
+        default="config/drone/fleets/types/api.json",
+        help="Type config path written into fleet json",
+    )
+    p.add_argument(
         "--drone-name-prefix",
         default="Drone-",
         help="Drone name prefix. Names become '<prefix><ID>' (ID starts from 1).",
+    )
+    p.add_argument(
+        "--enable-mujoco-overrides",
+        action="store_true",
+        help="Emit per-instance MuJoCo modelName/propNames overrides using d<ID>_* naming.",
     )
     p.add_argument(
         "--ring-capacity",
@@ -147,18 +157,22 @@ def build_fleet_json(args: argparse.Namespace) -> dict[str, Any]:
     drones: list[dict[str, Any]] = []
     for i in range(args.drone_count):
         drone_id = i + 1
-        drones.append(
-            {
-                "name": f"{args.drone_name_prefix}{drone_id}",
-                "type": args.type_name,
-                "position_meter": positions[i],
-                "angle_degree": [normalize_number(v) for v in args.angle_degree],
+        drone: dict[str, Any] = {
+            "name": f"{args.drone_name_prefix}{drone_id}",
+            "type": args.type_name,
+            "position_meter": positions[i],
+            "angle_degree": [normalize_number(v) for v in args.angle_degree],
+        }
+        if args.enable_mujoco_overrides:
+            drone["mujoco"] = {
+                "modelName": f"d{drone_id}_b_drone_base",
+                "propNames": [f"d{drone_id}_b_prop{prop_id}" for prop_id in range(1, 5)],
             }
-        )
+        drones.append(drone)
     return {
         "serviceConfigPath": args.service_config_path,
         "types": {
-            args.type_name: "config/drone/fleets/types/api.json",
+            args.type_name: args.type_config_path,
         },
         "drones": drones,
     }

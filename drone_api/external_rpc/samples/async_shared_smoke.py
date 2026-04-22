@@ -7,8 +7,11 @@ import sys
 import time
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
+EXTERNAL_RPC_DIR = Path(__file__).resolve().parents[1]
 HAKO_PDU_PYTHON_SRC = REPO_ROOT / "work" / "hakoniwa-pdu-python" / "src"
+if str(EXTERNAL_RPC_DIR) not in sys.path:
+    sys.path.insert(0, str(EXTERNAL_RPC_DIR))
 if str(HAKO_PDU_PYTHON_SRC) not in sys.path:
     sys.path.insert(0, str(HAKO_PDU_PYTHON_SRC))
 

@@ -10,7 +10,7 @@
 
 1. `show.json` を読み込む
 2. `show_sim.py` でオフライン点群シミュレーション
-3. 検証OKなら `show_runner.py` で fleets 実行
+3. 検証OKなら `apps/show_runner.py` で fleets 実行
 4. threejs で可視化・ログ計測
 
 ## コンポーネント
@@ -100,8 +100,8 @@
 ## 推奨実装ステップ
 
 1. `show_sim.py` を実装（JSON読込 + 補間 + 可視化）
-2. `show_runner.py` を実装（`FleetRpcController` 連携）
-3. `run_show.bash` を追加（CLI統一）
+2. `apps/show_runner.py` を実装（`FleetRpcController` 連携）
+3. `apps/run_show.bash` を追加（CLI統一）
 4. `H -> A` の2フォーメーションで 100 機体検証
 5. issue に受け入れ結果を反映
 

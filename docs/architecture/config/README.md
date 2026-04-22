@@ -105,12 +105,15 @@ sequenceDiagram
 -   [新 config スキーマ (fleet-schema.md)](fleet-schema.md)
 -   [新 config データ構造 (fleet-data-structures.md)](fleet-data-structures.md)
 -   [新 config 内部設計 (fleet-internal-design.md)](fleet-internal-design.md)
+-   [fleet + MuJoCo runtime 設計 (fleet-mujoco-runtime-design.md)](fleet-mujoco-runtime-design.md)
 -   [新 config path resolver 方針 (fleet-path-resolver.md)](fleet-path-resolver.md)
 -   [新 config resolver 方針 (fleet-resolver.md)](fleet-resolver.md)
 -   [新 config validator C API (fleet-validator-api.md)](fleet-validator-api.md)
 -   [新 config validator checklist (fleet-validator-checklist.md)](fleet-validator-checklist.md)
 -   [新 config validation ルール (fleet-validation-rules.md)](fleet-validation-rules.md)
 -   [新 config validator 方針 (fleet-validator.md)](fleet-validator.md)
+-   [MuJoCo runtime 生成手順 (../../fleets/mujoco-runtime-generation.md)](../../fleets/mujoco-runtime-generation.md)
+-   [external_rpc tutorial (../../fleets/external-rpc-tutorial.md)](../../fleets/external-rpc-tutorial.md)
 
 ## 新方式の入口
 

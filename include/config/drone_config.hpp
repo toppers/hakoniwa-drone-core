@@ -437,6 +437,7 @@ public:
     void setRoboName(const std::string& name);
     void setCompDroneDynamicsPosition(const std::array<double, 3>& position);
     void setCompDroneDynamicsAngle(const std::array<double, 3>& angle);
+    void setCompDroneDynamicsMuJoCoOverride(const std::string& model_name, const std::vector<std::string>& prop_names);
     struct MixerInfo {
         bool enable;
         std::string vendor;

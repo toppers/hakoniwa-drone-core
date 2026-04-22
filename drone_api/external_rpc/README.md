@@ -1,63 +1,68 @@
 # external_rpc
 
-`hakoniwa-pdu-python` の `ShmPduServiceClientManager + ProtocolClientImmediate` を使う external service client です。
+`external_rpc` は、Hakoniwa drone service を Python から操作するための RPC client 群です。
 
-共通処理は [hakosim_rpc.py](hakosim_rpc.py) の `HakoniwaRpcDroneClient` に集約しています。各 script は thin wrapper です。
-並行して、shared runtime ベースの試験実装 [hakosim_async_shared_rpc.py](hakosim_async_shared_rpc.py) も追加しています。
+主な利用対象は次の 2 つです。
 
-複数機体を同時に扱うための最小 controller:
-
-- [fleet_rpc.py](fleet_rpc.py)
+- 1 機を直接操作する
+  - `HakoniwaRpcDroneClient`
+- 複数機をまとめて扱う
   - `FleetRpcController`
-  - `1 drone = 1 client instance`
-  - `ThreadPoolExecutor` で deferred command を非同期投入
-  - `GetState` の定期監視と latest state 保持
 
-最小 demo:
+## 3 軸の整理
 
-- [multi_goto_demo.py](multi_goto_demo.py)
-  - `goto_async()` を複数機体へ投入
-  - `latest_state` を監視表示
+`external_rpc` は、次の 3 軸で整理すると見通しがよい。
 
-ドローンショー（formation JSON 駆動）:
+1. 機体数
+   - 単機
+   - 複数機
+2. 実行方式
+   - 同期
+   - 非同期 shared runtime
+3. 実行コンテキスト
+   - external
+   - asset
 
-- 実行入口: [run_show.bash](run_show.bash) -> [show_runner.py](show_runner.py)
-- 箱庭アセット版: [run_show_asset.bash](run_show_asset.bash) -> [show_asset_runner.py](show_asset_runner.py)
-- データ仕様/設計: [docs/fleets/drone-show-design.md](../../docs/fleets/drone-show-design.md)
-- 実行手順（運用）: [docs/fleets/drone-show-runbook.md](../../docs/fleets/drone-show-runbook.md)
+対応関係は次のとおりである。
 
-構成:
+| 機体数 | 実行方式 | 実行コンテキスト | 実体 |
+|---|---|---|---|
+| 単機 | 同期 | external | `hakosim_rpc.py` / `HakoniwaRpcDroneClient` |
+| 単機 | 非同期 shared runtime | external | `hakosim_async_shared_rpc.py` / `AsyncSharedHakoniwaRpcDroneClient` |
+| 単機 | 非同期 shared runtime | asset | `hakosim_async_shared_asset_rpc.py` / `AssetAsyncSharedHakoniwaRpcDroneClient` |
+| 複数機 | 同期 | external | `fleet_rpc.py` / `FleetRpcController(use_async_shared=False)` |
+| 複数機 | 非同期 shared runtime | external | `fleet_rpc_async_shared.py` / `FleetRpcController(use_async_shared=True)` |
+| 複数機 | 非同期 shared runtime | asset | `apps/show_asset_runner.py` / `AssetAsyncSharedFleet` |
 
-1. [hakosim_rpc.py](hakosim_rpc.py)
-   - `HakoniwaRpcDroneClient`
-   - `1 drone = 1 client instance`
-   - `SetReady` / `TakeOff` / `GetState` / `GoTo` / `Land`
-2. [hakosim_async_shared_rpc.py](hakosim_async_shared_rpc.py)
-   - `AsyncSharedHakoniwaRpcDroneClient`
-   - `1 process = 1 SharedRpcRuntime`
-   - `1 drone = lightweight facade`
-   - 呼び出し元主導の `poll_once()` を前提にした shared runtime 試験実装
-   - service 定義の PDU 反映は runtime 初期化時に 1 回だけ行う
-   - client registration ごとに PDU 定義を再生成しない
-3. [hakosim_async_shared_asset_rpc.py](hakosim_async_shared_asset_rpc.py)
-   - `AssetAsyncSharedHakoniwaRpcDroneClient`
-   - asset 登録経路向けの wrapper
-   - `hakopy.init_for_external()` を呼ばない
-4. [show_asset_runner.py](show_asset_runner.py)
-   - 箱庭アセットとして動く show runner
-   - `on_manual_timing_control` で `poll_once()` と phase state machine を前進
-   - callback 側で `hakopy.usleep()` を呼び、箱庭時刻を進める
-5. [fleet_rpc.py](fleet_rpc.py)
-   - `FleetRpcController`
-   - `drone_name -> HakoniwaRpcDroneClient`
-   - deferred command を `Future` で非同期実行
-   - `GetState` の監視結果を `latest_state` として保持
-6. 各 `*_client.py`
-   - 単一 command 用の thin wrapper
-7. [multi_goto_demo.py](multi_goto_demo.py)
-   - fleet controller の最小利用例
+### どれを使えばよいか
 
-最初の確認対象:
+- 普通に 1 機を触る:
+  - `HakoniwaRpcDroneClient`
+- 普通に複数機を触る:
+  - `FleetRpcController(..., use_async_shared=True)`
+- 台数が多く、client 登録コストを下げたい:
+  - `FleetRpcController(..., use_async_shared=True)`
+- 箱庭時刻に同期する asset として動かしたい:
+  - `apps/show_asset_runner.py`
+
+### `use_async_shared` について
+
+- `FleetRpcController` の `use_async_shared` のデフォルトは `False`
+- これは後方互換のためであり、推奨値ではない
+- `use_async_shared=False` の場合、内部実装は同期 RPC を `ThreadPoolExecutor` で並列実行する
+- 1 process / 1 thread に近い軽量な複数機制御を行いたい場合は、`use_async_shared=True` を使う
+- 新規の複数機サンプルや MuJoCo 利用では、原則として `use_async_shared=True` を推奨する
+
+## 前提
+
+この Python client が前提とするもの:
+
+- 箱庭側で drone service が起動済みであること
+- fleet config 側で `serviceConfigPath` が設定されていること
+- type config 側で RPC service が有効になっていること
+- Python 環境で `hakoniwa_pdu` を import できること
+
+代表的な service は次の 5 つです。
 
 - `DroneSetReady`
 - `DroneTakeOff`
@@ -65,176 +70,185 @@
 - `DroneGoTo`
 - `DroneLand`
 
-実行例:
+典型的な呼び出し順は次のとおりです。
+
+1. `SetReady`
+2. `TakeOff`
+3. `GetState`
+4. `GoTo`
+5. `Land`
+
+## 主な構成
+
+1. [hakosim_rpc.py](hakosim_rpc.py)
+   - `HakoniwaRpcDroneClient`
+   - 1 機を直接操作する同期 client
+2. [fleet_rpc.py](fleet_rpc.py)
+   - `FleetRpcController`
+   - 複数機をまとめて扱う controller
+   - `ThreadPoolExecutor` で複数機へ同時投入できる
+   - `GetState` の定期監視と latest state 保持を行える
+3. [hakosim_async_shared_rpc.py](hakosim_async_shared_rpc.py)
+   - shared runtime を使う試験実装
+   - `AsyncSharedHakoniwaRpcDroneClient`
+4. [hakosim_async_shared_asset_rpc.py](hakosim_async_shared_asset_rpc.py)
+   - asset 版 shared runtime client
+   - `AssetAsyncSharedHakoniwaRpcDroneClient`
+5. `obsolete/*.py`
+   - 単一 command を送る thin wrapper
+6. [samples/multi_goto_demo.py](samples/multi_goto_demo.py)
+   - fleet controller の最小利用例
+7. `apps/*.py`, `apps/*.bash`
+   - show / mission 系の実行アプリ
+
+## 最小 API
+
+### `HakoniwaRpcDroneClient`
+
+主なメソッド:
+
+- `set_ready()`
+- `takeoff(alt_m)`
+- `get_state()`
+- `get_status()`
+- `goto(x, y, z, yaw_deg=0.0, speed_m_s=1.0, tolerance_m=0.5, timeout_sec=30.0)`
+- `land()`
+
+### `FleetRpcController`
+
+主なメソッド:
+
+- `set_ready(drone_name)`
+- `takeoff(drone_name, alt_m)`
+- `goto(drone_name, x, y, z, yaw_deg=0.0, speed_m_s=1.0, tolerance_m=0.5, timeout_sec=30.0)`
+- `land(drone_name)`
+- `land_async(drone_name, timeout_sec=0.0)`
+- `get_state(drone_name)`
+- `get_status(drone_name)`
+- `*_async(...)`
+- `start_monitoring()`
+- `get_latest_state(drone_name)`
+- `wait_for_all(futures, timeout_sec=...)`
+
+## まず読むべき文書
+
+- MuJoCo 2 機を最短で通す:
+  - [MuJoCo external_rpc Quickstart](../../docs/fleets/mujoco-external-rpc-quickstart.md)
+- 1 機 / 2 機の最小手順:
+  - [external-rpc tutorial](../../docs/fleets/external-rpc-tutorial.md)
+- API 一覧:
+  - [external-rpc API reference](../../docs/fleets/external-rpc-api-reference.md)
+- MuJoCo runtime 生成:
+  - [MuJoCo Runtime Generation](../../docs/fleets/mujoco-runtime-generation.md)
+
+## 単体 command の実行例
 
 ```bash
-python3 drone_api/external_rpc/set_ready_client.py
-python3 drone_api/external_rpc/takeoff_client.py
-python3 drone_api/external_rpc/get_state_client.py
-python3 drone_api/external_rpc/goto_client.py 1.0 0.0 3.0
-python3 drone_api/external_rpc/land_client.py
-python3 drone_api/external_rpc/set_ready_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/takeoff_client.py config/drone/fleets/services/api-1-service.json Drone 3.0
-python3 drone_api/external_rpc/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
-python3 drone_api/external_rpc/land_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/multi_goto_demo.py --drones DroneA DroneB --x 1.0 --y 0.0 --z 3.0
-bash drone_api/external_rpc/run_single_mission.bash
-bash drone_api/external_rpc/run_single_mission.bash --drone Drone --alt 3.0 --x 2.0 --y 1.0 --z 0.1 --yaw -45.0
-bash drone_api/external_rpc/run_single_mission.bash --drone-count 10 --alt 0.8 --x 3.0 --y 0.0 --z 0.2 --yaw 0
-bash drone_api/external_rpc/run_single_mission.bash --drones Drone-1,Drone-2,Drone-3 --alt 0.8 --x 3.0 --y 0.0 --z 0.2 --yaw 0
-bash drone_api/external_rpc/run_square_mission.bash --drone Drone --side 4.0 --z 0.5
-bash drone_api/external_rpc/run_square_mission.bash --drone-count 10 --side 4.0 --z 0.5
-bash drone_api/external_rpc/run_square_mission.bash --drones Drone-1,Drone-2,Drone-3 --side 4.0 --z 0.5
-bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
-bash drone_api/external_rpc/run_show.bash --show-json config/drone-show-config/show-hello-world-100-ref.json --drone-count 100
-bash drone_api/external_rpc/run_show_asset.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
-bash drone_api/external_rpc/run_show_scale_bench.bash 100 4
-bash drone_api/external_rpc/run_show_scale_bench.bash 200 4
-bash drone_api/external_rpc/run_show_scale_bench.bash 400 4
-bash drone_api/external_rpc/run_show_scale_bench.bash 512 8
-bash tools/launch-show-asset-scale-bench.bash 100 4
+python3 drone_api/external_rpc/obsolete/set_ready_client.py
+python3 drone_api/external_rpc/obsolete/takeoff_client.py
+python3 drone_api/external_rpc/obsolete/get_state_client.py
+python3 drone_api/external_rpc/obsolete/goto_client.py 1.0 0.0 3.0
+python3 drone_api/external_rpc/obsolete/land_client.py
 ```
 
-引数:
-
-1. `service_config_path` は省略可
-2. `drone_name` は省略可
-3. `takeoff_client.py` は `alt_m` を省略可
-4. `goto_client.py` は通常 `x y z [yaw]` のみ指定すればよい
-5. `goto_client.py` の追加オプション:
-   - `--service-config`
-   - `--drone`
-   - `--speed`
-   - `--tolerance`
-   - `--timeout-sec`
-6. `run_single_mission.bash` の追加オプション:
-   - `--service-config`
-   - `--drone`
-   - `--drone-count`（`Drone-1..N` を自動生成）
-   - `--drones`（`,` 区切り。指定時は複数機体同時実行）
-   - `--alt`
-   - `--x`
-   - `--y`
-   - `--z`
-   - `--yaw`
-   - `--speed`
-   - `--tolerance`
-   - `--timeout-sec`
-   - `--land`
-   - `--serial`（複数機体時に直列実行へ切り替え）
-7. `run_square_mission.bash` の追加オプション:
-   - `--service-config`
-   - `--drone`
-   - `--drone-count`（`Drone-1..N` を自動生成）
-   - `--drones`（`,` 区切り。指定時は複数機体同時実行）
-   - `--alt`
-   - `--center-x`
-   - `--center-y`
-   - `--side`
-   - `--z`
-   - `--layer-size`（何機体ごとに高度レイヤを切るか。既定: `8`）
-   - `--layer-step`（レイヤごとの高度加算[m]。既定: `1.0`）
-   - `--phase-step`（機体インデックスごとの waypoint 位相ずらし。既定: `0`）
-   - `--speed`
-   - `--tolerance`
-   - `--timeout-sec`
-   - `--yaw`
-   - `--land`（最後に着陸）
-   - `--serial`（複数機体時に直列実行へ切り替え）
-8. `run_show.bash` の追加オプション:
-   - `--service-config`
-   - `--show-json`
-   - `--show-config`（`--show-json` の alias）
-   - `--drone-count`（`Drone-1..N` を自動生成）
-   - `--drones`（`,` 区切り）
-   - `--assign-mode`（`index|nearest`）
-   - `--takeoff-alt`
-   - `--z-offset-m`
-   - `--speed`
-   - `--tolerance`
-   - `--timeout-sec`
-   - `--batch-size`
-   - `--batch-init`
-   - `--batch-goto`
-   - `--batch-land`
-   - `--init-retry-max`
-   - `--init-retry-interval-sec`
-   - `--ready-gate-timeout-sec`
-   - `--ready-gate-interval-sec`
-   - `--ready-gate-call-timeout-sec`
-   - `--no-ready-gate`
-   - `--proc-count`
-   - `--init-concurrency-per-proc`
-   - `--use-async-shared`
-   - `--land`
-   - `--serial`
-9. `run_show_asset.bash` の追加オプション:
-   - `--service-config`
-   - `--show-json`
-   - `--show-config`（`--show-json` の alias）
-   - `--pdu-config`
-   - `--drone-count`（`Drone-1..N` を自動生成）
-   - `--drones`（`,` 区切り）
-   - `--asset-name`
-   - `--assign-mode`（`index|nearest`）
-   - `--takeoff-alt`
-   - `--speed`
-   - `--tolerance`
-   - `--timeout-sec`
-   - `--delta-time-msec`
-   - `--final-hold-extra-sec`
-   - `--land`
-10. `run_show_scale_bench.bash`:
-   - `DRONE_COUNT` と `PROC_COUNT` だけで、代表的な show config と推奨引数を自動選択
-   - 対応機体数: `100`, `200`, `400`, `512`
-   - 追加引数はそのまま `run_show.bash` に引き渡す
-   - ログは既定で `tmp/show-scale-bench/show_scale_n<drone>_p<proc>.log` に保存
+明示的に service config と drone 名を渡す例:
 
 ```bash
-bash drone_api/external_rpc/run_show_scale_bench.bash 100 4
-bash drone_api/external_rpc/run_show_scale_bench.bash 200 4 --speed 14.0
-bash drone_api/external_rpc/run_show_scale_bench.bash 512 8 --timeout-sec 240
+python3 drone_api/external_rpc/obsolete/set_ready_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/obsolete/takeoff_client.py config/drone/fleets/services/api-1-service.json Drone 3.0
+python3 drone_api/external_rpc/obsolete/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/obsolete/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
+python3 drone_api/external_rpc/obsolete/land_client.py config/drone/fleets/services/api-1-service.json Drone
 ```
 
-11. 箱庭アセットとして launcher から show を起動する場合:
-   - `launch-show-asset-scale-bench.bash` は `DRONE_COUNT` と `PROC_COUNT` だけで `SHOW_ASSET_JSON` を自動選択する
-   - 実行結果の summary は既定で `logs/perf/show_asset_summary_n<drone>_p<proc>.json` に保存される
+## 複数機の最小例
 
 ```bash
-bash tools/launch-show-asset-scale-bench.bash 100 4
-bash tools/launch-show-asset-scale-bench.bash 200 4
-bash tools/launch-show-asset-scale-bench.bash 512 8
+python3 drone_api/external_rpc/samples/multi_goto_demo.py --drones DroneA DroneB --x 1.0 --y 0.0 --z 3.0
 ```
 
-12. 箱庭アセットのスケール検証を一括実行する場合:
-   - `run-show-asset-bench-matrix.bash` は `drone_count x proc_count` を順に実行し、summary CSV を作る
+mission script の例:
 
 ```bash
-bash tools/run-show-asset-bench-matrix.bash
-bash tools/run-show-asset-bench-matrix.bash 100,200 1,2,4,8
+bash drone_api/external_rpc/apps/run_single_mission.bash
+bash drone_api/external_rpc/apps/run_single_mission.bash --drone Drone --alt 3.0 --x 2.0 --y 1.0 --z 0.1 --yaw -45.0
+bash drone_api/external_rpc/apps/run_single_mission.bash --drone-count 10 --alt 0.8 --x 3.0 --y 0.0 --z 0.2 --yaw 0
+bash drone_api/external_rpc/apps/run_single_mission.bash --drones Drone-1,Drone-2,Drone-3 --alt 0.8 --x 3.0 --y 0.0 --z 0.2 --yaw 0
 ```
 
-前提:
+```bash
+bash drone_api/external_rpc/apps/run_square_mission.bash --drone Drone --side 4.0 --z 0.5
+bash drone_api/external_rpc/apps/run_square_mission.bash --drone-count 10 --side 4.0 --z 0.5
+bash drone_api/external_rpc/apps/run_square_mission.bash --drones Drone-1,Drone-2,Drone-3 --side 4.0 --z 0.5
+```
 
-- 箱庭側で `api-1` の service が起動済みであること
-- fleet file 側で `serviceConfigPath` が設定され、type 側で `controller.serviceMode = "rpc"` が設定されていること
-- Python 環境で `hakoniwa_pdu` が import できること
-- `TakeOff` の前に `SetReady` を実行すること
-- `GoTo` の前に `SetReady` と `TakeOff` を実行すること
-- `Land` の前に `SetReady` と `TakeOff` を実行すること
+## ドローンショー関連
 
-補足:
+- 実行入口:
+  - [apps/run_show.bash](apps/run_show.bash) -> [apps/show_runner.py](apps/show_runner.py)
+  - [apps/run_show_asset.bash](apps/run_show_asset.bash) -> [apps/show_asset_runner.py](apps/show_asset_runner.py)
+- 設計:
+  - [docs/fleets/drone-show-design.md](../../docs/fleets/drone-show-design.md)
+- 実行手順:
+  - [docs/fleets/drone-show-runbook.md](../../docs/fleets/drone-show-runbook.md)
 
-- 返却される `GetState` 本体は quaternion だが、client 側では angle(deg) も表示する
-- ROS 座標系で request を与える前提
-  - `GoTo` の `x y z yaw`
-  - `GetState` の `position` / `angle_deg`
-- deferred command は blocking call だが、`FleetRpcController` では `ThreadPoolExecutor` を使って複数機体へ同時投入できる
-- 100台同時制御の入口は `HakoniwaRpcDroneClient` ではなく `FleetRpcController` を想定している
-- `--use-async-shared` では shared runtime を使うため、client registration の固定処理が大幅に減る
-- `run_show_asset.bash` / `show_asset_runner.py` は箱庭アセットの manual timing control を使う
-- asset 版では callback 内で `hakopy.usleep()` を呼ばないと時刻が進まない
-- profiling が必要な場合:
-  - `HAKO_RPC_PROFILE_PREPARE=1`: Python 側 registration path を usec 出力
-  - `HAKO_PROFILE_SERVICE_CLIENT=1`: core 側 service client registration を usec 出力
+代表例:
+
+```bash
+bash drone_api/external_rpc/apps/run_show.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
+bash drone_api/external_rpc/apps/run_show_asset.bash --show-json config/drone-show-config/show-h-a-100-ref.json --drone-count 100
+bash drone_api/external_rpc/apps/run_show_scale_bench.bash 100 4
+```
+
+## MuJoCo 2 機の最小サンプル
+
+`api-current-service.json` などで `Drone-1` / `Drone-2` が起動していれば、次で 2 機同時制御を確認できる。
+
+```bash
+python3 drone_api/external_rpc/samples/mujoco_two_drone_demo.py
+```
+
+このサンプルは、あえて汎用化せずに次だけをそのまま書いている。
+
+1. `set_ready_async()` を 2 回呼ぶ
+2. `wait_for_all()` で待つ
+3. `takeoff_async()` を 2 回呼ぶ
+4. `wait_for_all()` で待つ
+5. `goto_async()` を 2 回呼ぶ
+6. `wait_for_all()` で待つ
+7. `land_async()` を 2 回呼ぶ
+8. `wait_for_all()` で待つ
+
+API の最小利用例として読むためのサンプルである。
+
+## 衝突結果の読み方
+
+`GetState` の RPC 応答には衝突情報は含まれない。
+衝突回数を見たい場合は `status` PDU を読む。
+
+```python
+from fleet_rpc import FleetRpcController
+
+with FleetRpcController(["Drone-1", "Drone-2"]) as fleet:
+    status1 = fleet.get_status("Drone-1")
+    status2 = fleet.get_status("Drone-2")
+    print(status1.collided_counts, status2.collided_counts)
+```
+
+`get_status()` は `hako_msgs/DroneStatus` を返す。
+典型的には `collided_counts` を見る。
+
+`land_async()` / `land()` には `timeout_sec` を付けられる。
+`timeout_sec > 0` の場合、`DroneLand` RPC の timeout として扱われ、時間内に応答しなければ `TimeoutError` になる。
+
+## 補足
+
+- `GetState` の返却本体は quaternion を含むが、client 側では angle(deg) にも直して扱う
+- `GoTo` / `GetState` の座標は、この client では ROS 由来の表現を前提にしている
+- 複数機同時制御の入口は `HakoniwaRpcDroneClient` より `FleetRpcController` を想定している
+- `use_async_shared=True` では shared runtime を使うため、client registration の固定コストを減らせる
+
+profiling 用環境変数:
+
+- `HAKO_RPC_PROFILE_PREPARE=1`
+- `HAKO_PROFILE_SERVICE_CLIENT=1`

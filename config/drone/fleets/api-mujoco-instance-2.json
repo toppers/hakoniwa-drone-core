@@ -1,5 +1,5 @@
 {
-  "serviceConfigPath": "config/drone/fleets/services/api-current-service.json",
+  "serviceConfigPath": "config/drone/fleets/services/api-mujoco-instance-2-service.json",
   "types": {
     "api-mujoco": "config/drone/fleets/types/api-mujoco.json"
   },

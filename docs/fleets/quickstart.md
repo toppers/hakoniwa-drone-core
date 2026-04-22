@@ -24,7 +24,7 @@ http://127.0.0.1:8000/index.html?viewerConfigPath=/config/viewer-config-fleets.j
 ## 3. ミッション実行（別ターミナル）
 
 ```bash
-bash drone_api/external_rpc/run_square_mission.bash --drone-count 10 --phase-step 1
+bash drone_api/external_rpc/apps/run_square_mission.bash --drone-count 10 --phase-step 1
 ```
 
 ## 4. 動作確認ポイント

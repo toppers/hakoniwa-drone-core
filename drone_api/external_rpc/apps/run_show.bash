@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 SERVICE_CONFIG="${REPO_ROOT}/config/drone/fleets/services/api-current-service.json"
 SHOW_JSON="${REPO_ROOT}/config/drone-show-config/show-h-a-100-ref.json"
@@ -33,7 +33,7 @@ USE_ASYNC_SHARED="0"
 usage() {
   cat <<'EOF'
 Usage:
-  bash drone_api/external_rpc/run_show.bash [options]
+  bash drone_api/external_rpc/apps/run_show.bash [options]
 
 Options:
   --service-config PATH

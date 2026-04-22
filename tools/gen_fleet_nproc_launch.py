@@ -208,7 +208,7 @@ def build_launch(args: argparse.Namespace) -> dict[str, Any]:
 
     if args.show_asset_json:
         show_asset_args = [
-            "drone_api/external_rpc/run_show_asset.bash",
+            "drone_api/external_rpc/apps/run_show_asset.bash",
             "--service-config",
             "config/drone/fleets/services/api-current-service.json",
             "--show-json",

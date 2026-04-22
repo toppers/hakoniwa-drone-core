@@ -1,0 +1,64 @@
+<body name="__DRONE_BASE_NAME__" pos="0 0 0.0" childclass="gray">
+  <freejoint name="__FREEJOINT_NAME__"/>
+  <geom name="__BASE_GEOM_NAME__" type="box" size="0.07 0.07 0.015" density="810" friction="0.001 0.001 0.001"/>
+
+  <body name="__ARM1_BODY_NAME__" pos="0.13 -0.13 0" childclass="black">
+    <geom name="__ARM1_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+    <body name="__P1_BODY_NAME__" pos="0.05 -0.05 0.02" childclass="blue">
+      <geom name="__PROP1_DISK_GEOM_NAME__" type="cylinder" size="0.076 0.0025" density="200"/>
+    </body>
+  </body>
+  <body name="__PROP1_BODY_NAME__" pos="0.18 -0.18 0.02" childclass="black">
+    <geom name="__PROP1_BODY_GEOM_NAME__" type="box" size="0.007 0.007 0.007" density="500"/>
+  </body>
+
+  <body name="__ARM2_BODY_NAME__" pos="-0.13 0.13 0" childclass="black">
+    <geom name="__ARM2_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="90 45 0" density="500"/>
+    <body name="__P2_BODY_NAME__" pos="-0.05 0.05 0.02" childclass="green" gravcomp="0.0">
+      <geom name="__PROP2_DISK_GEOM_NAME__" type="cylinder" size="0.076 0.0025" density="200"/>
+    </body>
+  </body>
+  <body name="__PROP2_BODY_NAME__" pos="-0.18 0.18 0.02" childclass="black">
+    <geom name="__PROP2_BODY_GEOM_NAME__" type="box" size="0.007 0.007 0.007" density="500"/>
+  </body>
+
+  <body name="__ARM3_BODY_NAME__" pos="0.13 0.13 0" childclass="black">
+    <geom name="__ARM3_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+    <body name="__P3_BODY_NAME__" pos="0.05 0.05 0.02" childclass="pink">
+      <geom name="__PROP3_DISK_GEOM_NAME__" type="cylinder" size="0.076 0.0025" density="200"/>
+    </body>
+  </body>
+  <body name="__PROP3_BODY_NAME__" pos="0.18 0.18 0.02" childclass="black">
+    <geom name="__PROP3_BODY_GEOM_NAME__" type="box" size="0.007 0.007 0.007" density="500"/>
+  </body>
+
+  <body name="__ARM4_BODY_NAME__" pos="-0.13 -0.13 0" childclass="black">
+    <geom name="__ARM4_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="90 -45 0" density="500"/>
+    <body name="__P4_BODY_NAME__" pos="-0.05 -0.05 0.02" childclass="orange">
+      <geom name="__PROP4_DISK_GEOM_NAME__" type="cylinder" size="0.076 0.0025" density="200"/>
+    </body>
+  </body>
+  <body name="__PROP4_BODY_NAME__" pos="-0.18 -0.18 0.02" childclass="black">
+    <geom name="__PROP4_BODY_GEOM_NAME__" type="box" size="0.007 0.007 0.007" density="500"/>
+  </body>
+
+  <body name="__REG1_BODY_NAME__" pos="-0.1 0.1 -0.10" childclass="black">
+    <geom name="__REG1_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+  </body>
+  <body name="__REG2_BODY_NAME__" pos="0.1 0.1 -0.10" childclass="black">
+    <geom name="__REG2_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="20 0 0" density="500"/>
+  </body>
+  <body name="__REG3_BODY_NAME__" pos="-0.1 -0.1 -0.10" childclass="black">
+    <geom name="__REG3_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+  </body>
+  <body name="__REG4_BODY_NAME__" pos="0.1 -0.1 -0.10" childclass="black">
+    <geom name="__REG4_GEOM_NAME__" type="cylinder" size="0.008 0.077" euler="-20 0 0" density="500"/>
+  </body>
+
+  <body name="__REG_BOTTOM1_BODY_NAME__" pos="0.0 -0.13 -0.18" childclass="pink">
+    <geom name="__REG_BOTTOM1_GEOM_NAME__" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+  </body>
+  <body name="__REG_BOTTOM2_BODY_NAME__" pos="0.0 0.13 -0.18" childclass="pink">
+    <geom name="__REG_BOTTOM2_GEOM_NAME__" type="cylinder" size="0.008 0.13" euler="0 90 0" density="500"/>
+  </body>
+</body>

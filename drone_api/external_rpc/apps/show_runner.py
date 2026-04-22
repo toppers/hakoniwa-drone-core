@@ -7,10 +7,14 @@ import sys
 import time
 from pathlib import Path
 
+EXTERNAL_RPC_DIR = Path(__file__).resolve().parents[1]
+if str(EXTERNAL_RPC_DIR) not in sys.path:
+    sys.path.insert(0, str(EXTERNAL_RPC_DIR))
+
 from fleet_rpc import FleetRpcController
 from hakosim_rpc import DEFAULT_SERVICE_CONFIG_PATH
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SHOW_TOOL_DIR = REPO_ROOT / "tools" / "drone-show"
 if str(SHOW_TOOL_DIR) not in sys.path:
     sys.path.insert(0, str(SHOW_TOOL_DIR))
