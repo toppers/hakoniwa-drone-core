@@ -1,6 +1,8 @@
 FROM ubuntu:24.04 AS hakoniwa-drone-core
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG HAKO_CORE_PRO_REPO="https://github.com/hakoniwalab/hakoniwa-core-pro.git"
+ARG HAKO_CORE_PRO_REF="main"
 ARG HAKO_PDU_ENDPOINT_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-endpoint.git"
 ARG HAKO_PDU_ENDPOINT_REF="main"
 ARG HAKO_PDU_BRIDGE_CORE_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-bridge-core.git"
@@ -8,7 +10,9 @@ ARG HAKO_PDU_BRIDGE_CORE_REF="main"
 ARG HAKO_THREEJS_DRONE_REPO="https://github.com/hakoniwalab/hakoniwa-threejs-drone.git"
 ARG CMAKE_BUILD_JOBS=4
 
-ENV PATH="/usr/local/bin/hakoniwa:${PATH}" \
+ENV PATH="/usr/local/hakoniwa/bin:/usr/local/bin/hakoniwa:${PATH}" \
+    PYTHONPATH="/usr/local/lib/python3.12/dist-packages" \
+    LD_LIBRARY_PATH="/usr/local/hakoniwa/lib" \
     HAKO_BINARY_PATH="/usr/share/hakoniwa/offset" \
     HAKO_PRO_PACKAGE="/opt/pro/lnx.zip" \
     HAKO_PRO_DIR="/opt/pro/lnx"
@@ -43,12 +47,24 @@ RUN MUJOCO_VERSION=$(cat MUJOCO_VERSION.txt) && \
     echo "/usr/local/mujoco/lib" > /etc/ld.so.conf.d/mujoco.conf && \
     ldconfig
 
-# hakoniwa-core（OSS）
+# hakoniwa-core（source build）
 WORKDIR /root
-RUN echo "deb [trusted=yes] https://hakoniwalab.github.io/apt stable main" \
- | tee /etc/apt/sources.list.d/hakoniwa.list \
- && apt-get update && apt-get install -y --no-install-recommends hakoniwa-core-full \
- && rm -rf /var/lib/apt/lists/*
+RUN git clone --recursive --branch "${HAKO_CORE_PRO_REF}" "${HAKO_CORE_PRO_REPO}" /tmp/hakoniwa-core-pro \
+ && cd /tmp/hakoniwa-core-pro \
+ && cmake -B cmake-build -DCMAKE_INSTALL_PREFIX=/usr/local/hakoniwa \
+      -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+      -DCMAKE_INSTALL_DATADIR=/usr/share \
+      -DHAKO_DATA_MAX_ASSET_NUM=16 \
+      -DHAKO_SERVICE_MAX=4096 \
+      -DHAKO_RECV_EVENT_MAX=16384 \
+      -DHAKO_SERVICE_CLIENT_MAX=1024 \
+      -DHAKO_PDU_CHANNEL_MAX=8192 \
+ && cmake --build cmake-build -j"${CMAKE_BUILD_JOBS}" \
+ && cmake --install cmake-build \
+ && mkdir -p /var/lib/hakoniwa/mmap/ \
+ && chmod 755 /var/lib/hakoniwa \
+ && chmod 777 /var/lib/hakoniwa/mmap/ \
+ && rm -rf /tmp/hakoniwa-core-pro
 
 # hakoniwa-pdu-endpoint（bridge-core 依存）
 RUN git clone --depth 1 --branch "${HAKO_PDU_ENDPOINT_REF}" "${HAKO_PDU_ENDPOINT_REPO}" /tmp/hakoniwa-pdu-endpoint \
