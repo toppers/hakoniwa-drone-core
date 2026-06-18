@@ -19,6 +19,7 @@ public:
     }
     virtual void run(const DronePositionType& p, const DroneVelocityType& v) = 0;
     virtual DroneGpsDataType sensor_value() = 0;
+    virtual double speed_accuracy_mps() const { return 0.5; }
 };
 
 }

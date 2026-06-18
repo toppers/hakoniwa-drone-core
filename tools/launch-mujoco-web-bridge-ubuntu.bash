@@ -12,8 +12,20 @@ if [[ -z "${HAKO_DRONE_SERVICE_BIN:-}" ]]; then
     export HAKO_DRONE_SERVICE_BIN="${PROJECT_ROOT}/lnx/linux-main_hako_drone_service"
   fi
 fi
-export HAKO_WEB_BRIDGE_RUNNER="${HAKO_WEB_BRIDGE_RUNNER:-/usr/local/hakoniwa/bin/run-web-bridge.bash}"
-export HAKO_WEB_BRIDGE_CONFIG_BASE="${HAKO_WEB_BRIDGE_CONFIG_BASE:-/usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config}"
+if [[ -z "${HAKO_WEB_BRIDGE_RUNNER:-}" ]]; then
+  if [[ -x "${PROJECT_ROOT}/work/hakoniwa-pdu-bridge-core/tools/run-web-bridge.bash" ]]; then
+    export HAKO_WEB_BRIDGE_RUNNER="${PROJECT_ROOT}/work/hakoniwa-pdu-bridge-core/tools/run-web-bridge.bash"
+  else
+    export HAKO_WEB_BRIDGE_RUNNER="/usr/local/hakoniwa/bin/run-web-bridge.bash"
+  fi
+fi
+if [[ -z "${HAKO_WEB_BRIDGE_CONFIG_BASE:-}" ]]; then
+  if [[ -d "${PROJECT_ROOT}/work/hakoniwa-pdu-bridge-core/config" ]]; then
+    export HAKO_WEB_BRIDGE_CONFIG_BASE="${PROJECT_ROOT}/work/hakoniwa-pdu-bridge-core/config"
+  else
+    export HAKO_WEB_BRIDGE_CONFIG_BASE="/usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config"
+  fi
+fi
 
 if [[ -n "${VIRTUAL_ENV:-}" && -x "${VIRTUAL_ENV}/bin/python" ]]; then
   DEFAULT_PYTHON_BIN="${VIRTUAL_ENV}/bin/python"

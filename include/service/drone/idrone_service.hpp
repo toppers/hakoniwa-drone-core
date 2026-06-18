@@ -15,6 +15,20 @@ namespace impl {
 class IDroneServicePort;
 }
 
+struct DroneServiceEkfStatus {
+    bool enabled{false};
+    bool estimate_ready{false};
+    bool in_air{false};
+    bool at_rest{true};
+    int flight_phase{0};
+};
+
+struct DroneServiceEkfFlightStateOverride {
+    bool enabled{false};
+    bool in_air{false};
+    bool at_rest{true};
+};
+
 
 extern bool drone_pdu_data_deep_copy(const ServicePduDataType& source, ServicePduDataType& dest);
 /*
@@ -115,6 +129,13 @@ public:
     virtual int get_internal_state() const = 0;
 
     /*
+     * Get EKF runtime status for tuning/runtime gating.
+     */
+    virtual DroneServiceEkfStatus get_ekf_status() const = 0;
+    virtual void set_ekf_flight_state_override(
+        const DroneServiceEkfFlightStateOverride& override_state) = 0;
+
+    /*
      * Tuning helpers
      */
     virtual void set_position(const aircraft::DronePositionType& pos) = 0;
@@ -126,6 +147,11 @@ public:
     virtual void set_target_altitude_m(double altitude_m) = 0;
     virtual void set_target_position_xy_m(double x_m, double y_m) = 0;
     virtual void set_target_velocity_xy_m_s(double vx_m_s, double vy_m_s) = 0;
+    virtual void set_target_vertical_speed_m_s(double vz_m_s) = 0;
+    virtual void set_target_roll_rate_rad_s(double p_rad_s) = 0;
+    virtual void set_target_pitch_rate_rad_s(double q_rad_s) = 0;
+    virtual void set_target_yaw_rate_rad_s(double r_rad_s) = 0;
+    virtual void clear_all_target() = 0;
 };
 
 }

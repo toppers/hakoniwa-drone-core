@@ -24,7 +24,7 @@
     {
       "name": "drone-service-1",
       "activation_timing": "before_start",
-      "command": "/root/workspace/lnx/linux-main_hako_drone_service",
+      "command": "${HAKO_DRONE_SERVICE_BIN}",
       "args": [
         "config/drone/fleets/api-current.json",
         "config/pdudef/drone-pdudef-current.json"
@@ -61,7 +61,7 @@
         "--z-offset-m",
         "0.0",
         "--summary-json",
-        "/root/workspace/logs/perf/show_asset_summary_n100_p1.json"
+        "${HAKO_DRONE_PROJECT_PATH}/logs/perf/show_asset_summary_n100_p1.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "env": {
@@ -79,9 +79,9 @@
     {
       "name": "visual-state-publisher",
       "activation_timing": "before_start",
-      "command": "/root/workspace/lnx/linux-drone_visual_state_publisher",
+      "command": "${HAKO_VISUAL_STATE_PUBLISHER_BIN}",
       "args": [
-        "/root/workspace/config/assets/visual_state_publisher/visual_state_publisher.runtime.json"
+        "${HAKO_DRONE_PROJECT_PATH}/config/assets/visual_state_publisher/visual_state_publisher.runtime.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
       "depends_on": [

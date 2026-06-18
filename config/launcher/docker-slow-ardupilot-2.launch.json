@@ -8,9 +8,7 @@
       "prepend": {
         "lib_path": ["/usr/lib/x86_64-linux-gnu"],
         "PATH": ["/usr/bin"],
-        "PYTHONPATH": [
-          "/usr/local/lib/python3.12/dist-packages"
-        ]
+        "PYTHONPATH": []
       }
     },
     "start_grace_sec": 1,
@@ -26,7 +24,7 @@
         "9002", "9003",
         "config/drone/ardupilot-2", 
         "config/pdudef/webavatar-2.json"],
-      "cwd": "/root/workspace/${DIRNAME}"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}"
     },
     {
       "name": "environment",
@@ -34,27 +32,27 @@
       "command": "python3",
       "args": [
         "-m","hakoniwa_envsim.envasset",
-        "../../${DIRNAME}/config/pdudef/webavatar-2.json",
+        "${HAKO_DRONE_PROJECT_PATH}/config/pdudef/webavatar-2.json",
         "20",
         "../examples/datasets/simple_room"
         ],
       "env": {
         "prepend": {
           "PYTHONPATH": [
-            "/root/workspace/hakoniwa-envsim/src"
+            "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-envsim/src"
           ]
         }
       },
-      "cwd": "/root/workspace/hakoniwa-envsim/src"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-envsim/src"
     },
     {
       "name": "webserver",
       "activation_timing": "after_start",
       "command": "python3",
       "args": ["-m","server.main","--asset_name","WebServer",
-               "--config_path","../${DIRNAME}/config/pdudef/webavatar-2.json",
+               "--config_path","${HAKO_DRONE_PROJECT_PATH}/config/pdudef/webavatar-2.json",
                "--delta_time_usec","20000"],
-      "cwd": "/root/workspace/hakoniwa-webserver",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-webserver",
       "depends_on": ["drone"]
     },
     {
@@ -68,11 +66,11 @@
             "--type","ardupilot",
             "--config-path","../../config/pdudef/webavatar-2.json"
       ],
-      "cwd": "/root/workspace/${DIRNAME}/drone_api/pymavlink",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api/pymavlink",
       "env": {
         "prepend": {
           "PYTHONPATH": [
-            "/root/workspace/${DIRNAME}/drone_api/pymavlink"
+            "${HAKO_DRONE_PROJECT_PATH}/drone_api/pymavlink"
           ]
         }
       },
@@ -89,11 +87,11 @@
             "--type","ardupilot",
             "--config-path","../../config/pdudef/webavatar-2.json"
       ],
-      "cwd": "/root/workspace/${DIRNAME}/drone_api/pymavlink",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api/pymavlink",
       "env": {
         "prepend": {
           "PYTHONPATH": [
-            "/root/workspace/${DIRNAME}/drone_api/pymavlink"
+            "${HAKO_DRONE_PROJECT_PATH}/drone_api/pymavlink"
           ]
         }
       },

@@ -15,6 +15,10 @@ For commercial licensing inquiries: tmori@hakoniwa-lab.net
 👉 For the PRO version license (commercial use), see:
 🔗 [Drone PRO License (Japanese)](https://github.com/hakoniwalab/hakoniwa-license/blob/main/licenses/drone-pro-license)
 
+For Hakoniwa Drone PRO option licenses and the corresponding code/build boundaries, see:
+
+- 📘 [Hakoniwa Drone PRO Option Licenses (Japanese)](docs/license/pro-options.md)
+
 # Concept
 
 With the motto "Break out of the simulation world!", we are based on the following three pillars:

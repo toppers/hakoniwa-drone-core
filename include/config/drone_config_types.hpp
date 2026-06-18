@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <cstdint>
 
 namespace hako::config {
     enum class LoggingMode {
@@ -38,5 +39,19 @@ namespace hako::config {
         std::string modelName;
         std::string modelPath;
         std::vector<std::string> propNames;
+    };
+    struct GpsSensorQualityConfig {
+        double sacc_mps{0.5};
+        double eph_m{10.0};
+        double epv_m{10.0};
+        int satellites_visible{10};
+    };
+    struct ControllerEkfConfig {
+        bool enable{false};
+        std::uint64_t imu_interval_usec{3000};
+        std::uint64_t mag_interval_usec{20000};
+        std::uint64_t baro_interval_usec{10000};
+        std::uint64_t gps_interval_usec{100000};
+        std::string param_file_path{};
     };
 }

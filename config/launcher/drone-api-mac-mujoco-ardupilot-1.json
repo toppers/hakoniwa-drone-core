@@ -38,7 +38,7 @@
         "20", 
         "../examples/datasets/simple_room"
       ],
-      "cwd": "/Users/tmori/project/oss/hakoniwa-envsim/src",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-envsim/src",
       "depends_on": ["drone"]
     },
     {
@@ -61,7 +61,7 @@
       "args": ["-m","server.main","--asset_name","WebServer",
                "--config_path","${HAKO_DRONE_PROJECT_PATH}/config/pdudef/webavatar.json",
                "--delta_time_usec","20000"],
-      "cwd": "/Users/tmori/project/oss/hakoniwa-webserver",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-webserver",
       "depends_on": ["api_control"]
     }    
   ],

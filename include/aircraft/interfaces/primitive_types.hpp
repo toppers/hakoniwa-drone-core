@@ -70,6 +70,26 @@ typedef struct DroneVelocity {
     }
 } DroneVelocityType;
 
+/*
+ * Coordinate System: Ground Coordinate System (NED)
+ * Unit: Meters per Second Squared (m/s^2)
+ * x: Acceleration towards the North
+ * y: Acceleration towards the East
+ * z: Acceleration downwards (towards the ground)
+ */
+typedef struct DroneAcceleration {
+    glm::dvec3 data;
+    DroneAcceleration() : data(0.0, 0.0, 0.0) {}
+    DroneAcceleration(const hako::drone_physics::VectorType& rhs) : data(rhs.x, rhs.y, rhs.z) {}
+    DroneAcceleration& operator=(const hako::drone_physics::VectorType& rhs) {
+        this->data = {rhs.x, rhs.y, rhs.z};
+        return *this;
+    }
+    operator hako::drone_physics::VectorType() const {
+        return {data.x, data.y, data.z};
+    }
+} DroneAccelerationType;
+
 
 /*
  * Coordinate System: Body Coordinate System (FRD)
@@ -168,7 +188,7 @@ typedef struct DroneAngularAccelerationBodyFrame {
         this->data = {rhs.x, rhs.y, rhs.z};
         return *this;
     }
-    operator hako::drone_physics::AngularVelocityType() const {
+    operator hako::drone_physics::AngularAccelerationType() const {
         return {data.x, data.y, data.z};
     }
 } DroneAngularAccelerationBodyFrameType;

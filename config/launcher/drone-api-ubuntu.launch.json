@@ -9,11 +9,9 @@
         "lib_path": ["/usr/lib/x86_64-linux-gnu"],
         "PATH": ["/usr/bin"],
         "PYTHONPATH": [
-          "/home/tmori/hakoniwa/hakoniwa-drone-pro/drone_api",
-          "/home/tmori/hakoniwa/hakoniwa-drone-pro/drone_api/assets",
-          "/home/tmori/hakoniwa/hakoniwa-drone-pro/drone_api/assets/lib",
-          "/usr/local/lib/python3.12/dist-packages",
-          "/home/tmori/.pyenv/versions/3.12.3/lib/python3.12/site-packages"
+          "${HAKO_DRONE_PROJECT_PATH}/drone_api",
+          "${HAKO_DRONE_PROJECT_PATH}/drone_api/assets",
+          "${HAKO_DRONE_PROJECT_PATH}/drone_api/assets/lib"
         ]
       }
     },
@@ -26,23 +24,23 @@
       "activation_timing": "before_start",
       "command": "lnx/linux-main_hako_drone_service",
       "args": ["config/drone/api-1", "config/pdudef/webavatar.json"],
-      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-pro"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}"
     },
     {
       "name": "environment",
       "activation_timing": "before_start",
       "command": "python",
       "args": ["-m","hako_env_event","../config/pdudef/webavatar.json","20","assets/config"],
-      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-pro/drone_api"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api"
     },
     {
       "name": "webserver",
       "activation_timing": "after_start",
       "command": "python",
       "args": ["-m","server.main","--asset_name","WebServer",
-               "--config_path","/home/tmori/hakoniwa/hakoniwa-drone-pro/config/pdudef/webavatar.json",
+               "--config_path","${HAKO_DRONE_PROJECT_PATH}/config/pdudef/webavatar.json",
                "--delta_time_usec","20000"],
-      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-pro/../hakoniwa-webserver",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-webserver",
       "depends_on": ["drone"]
     },
     {
@@ -50,7 +48,7 @@
       "activation_timing": "after_start",
       "command": "simulation.exe",
       "args": [],
-      "cwd": "/home/tmori/hakoniwa/hakoniwa-drone-pro/WebAvatar",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/WebAvatar",
       "depends_on": ["webserver"]
     }
   ],

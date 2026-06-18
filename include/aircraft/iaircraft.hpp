@@ -11,6 +11,7 @@
 #include "aircraft/interfaces/isensor_gps.hpp"
 #include "aircraft/interfaces/isensor_gyro.hpp"
 #include "aircraft/interfaces/isensor_mag.hpp"
+#include "aircraft/impl/fault_injection/fault_rotor.hpp"
 
 #include <memory>
 
@@ -33,6 +34,7 @@ protected:
     std::string robo_name;
     int index = 0;
     bool enable_rotor_control = false;
+    impl::RotorFaultInjection rotor_fault_injection;
     double radPerSecToRPM(double rad_per_sec) {
         return rad_per_sec * (60.0 / (2 * M_PI));
     }

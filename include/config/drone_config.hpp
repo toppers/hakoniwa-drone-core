@@ -309,6 +309,12 @@ public:
     int getCompRotorRpmMax() const {
         return configJson["components"]["rotor"]["rpmMax"].get<int>();
     }
+    std::optional<double> getCompRotorMaxRadPerSec() const {
+        if (configJson["components"]["rotor"].contains("max_rad_per_sec")) {
+            return configJson["components"]["rotor"]["max_rad_per_sec"].get<double>();
+        }
+        return std::nullopt;
+    }
     double getCompRotorRadius() const {
         if (!configJson["components"]["rotor"].contains("radius")) {
             std::cerr << "ERROR: Rotor radius is not defined in the configuration." << std::endl;
@@ -378,6 +384,23 @@ public:
     double getCompSensorNoise(const std::string& sensor_name) const {
         return configJson["components"]["sensors"][sensor_name]["noise"].get<double>();
     }
+    hako::config::GpsSensorQualityConfig getCompGpsSensorQualityConfig() const {
+        hako::config::GpsSensorQualityConfig cfg{};
+        const auto& gps = configJson["components"]["sensors"]["gps"];
+        if (gps.contains("sacc")) {
+            cfg.sacc_mps = gps["sacc"].get<double>();
+        }
+        if (gps.contains("eph")) {
+            cfg.eph_m = gps["eph"].get<double>();
+        }
+        if (gps.contains("epv")) {
+            cfg.epv_m = gps["epv"].get<double>();
+        }
+        if (gps.contains("satellitesVisible")) {
+            cfg.satellites_visible = gps["satellitesVisible"].get<int>();
+        }
+        return cfg;
+    }
     bool isExistController(const std::string& param)
     {
         if (!configJson.contains("controller")) {
@@ -403,6 +426,18 @@ public:
             return getRoboName();
         }
     }
+    std::string getControllerBackendType() const
+    {
+        if (configJson["controller"].contains("backendType")) {
+            return configJson["controller"]["backendType"];
+        }
+        if (configJson["controller"].contains("context")) {
+            if (configJson["controller"]["context"].contains("backend")) {
+                return configJson["controller"]["context"]["backend"];
+            }
+        }
+        return "native";
+    }
     std::string getControllerContext(const std::string& param) const
     {
         if (configJson["controller"].contains("context")) {
@@ -411,6 +446,19 @@ public:
             }
         }
         return "";
+    }
+    std::string getControllerBackendConfigPath(const std::string& param) const
+    {
+        if (configJson["controller"].contains("backendConfig")) {
+            if (configJson["controller"]["backendConfig"].contains(param)) {
+                return resolvePath(configJson["controller"]["backendConfig"][param].get<std::string>(), true);
+            }
+        }
+        return "";
+    }
+    std::string getControllerPx4ConfigPath() const
+    {
+        return getControllerBackendConfigPath("px4ConfigPath");
     }
     std::string getControllerServiceMode() const;
     std::string getControllerApiServiceMode() const;
@@ -468,6 +516,46 @@ public:
         else {
             return false;
         }
+    }
+
+    bool getControllerEkfEnabled() const
+    {
+        if (configJson["controller"].contains("ekf")) {
+            if (configJson["controller"]["ekf"].contains("enable")) {
+                return configJson["controller"]["ekf"]["enable"].get<bool>();
+            }
+        }
+        return false;
+    }
+
+    hako::config::ControllerEkfConfig getControllerEkfConfig() const
+    {
+        hako::config::ControllerEkfConfig info{};
+        if (configJson["controller"].contains("ekf")) {
+            const auto& ekf = configJson["controller"]["ekf"];
+            if (ekf.contains("enable")) {
+                info.enable = ekf["enable"].get<bool>();
+            }
+            if (ekf.contains("sensorIntervalUsec")) {
+                info.imu_interval_usec = ekf["sensorIntervalUsec"].get<std::uint64_t>();
+            }
+            if (ekf.contains("imuIntervalUsec")) {
+                info.imu_interval_usec = ekf["imuIntervalUsec"].get<std::uint64_t>();
+            }
+            if (ekf.contains("magIntervalUsec")) {
+                info.mag_interval_usec = ekf["magIntervalUsec"].get<std::uint64_t>();
+            }
+            if (ekf.contains("baroIntervalUsec")) {
+                info.baro_interval_usec = ekf["baroIntervalUsec"].get<std::uint64_t>();
+            }
+            if (ekf.contains("gpsIntervalUsec")) {
+                info.gps_interval_usec = ekf["gpsIntervalUsec"].get<std::uint64_t>();
+            }
+            if (ekf.contains("paramFilePath")) {
+                info.param_file_path = resolvePath(ekf["paramFilePath"].get<std::string>(), true);
+            }
+        }
+        return info;
     }
 
     bool getControllerDirectRotorControl() const

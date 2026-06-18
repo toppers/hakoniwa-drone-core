@@ -161,11 +161,11 @@
     "paramText": "",
     "paramFilePath": "config/controller/param-api-mixer-mujoco.txt",
     "moduleName": "RadioController",
-      "direct_rotor_control": false,
-      "mixer": {
-          "vendor": "None",
-          "enableDebugLog": false,
-          "enableErrorLog": false
-      }
+    "direct_rotor_control": false,
+    "mixer": {
+      "vendor": "None",
+      "enableDebugLog": false,
+      "enableErrorLog": false
+    }
   }
 }

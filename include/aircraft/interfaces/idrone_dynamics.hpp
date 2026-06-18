@@ -41,7 +41,9 @@ public:
 
     virtual DroneVelocityBodyFrameType get_vel_body_frame() const = 0;
     virtual DroneAngularVelocityBodyFrameType get_angular_vel_body_frame() const = 0;
+    virtual DroneAccelerationType get_acc() const = 0;
     virtual DroneAccelerationBodyFrameType get_acc_body_frame() const = 0;
+    virtual DroneAngularAccelerationBodyFrameType get_angular_acc_body_frame() const = 0;
     virtual double get_mass() const = 0;
     virtual void set_mass(double mass) = 0;
     virtual bool has_collision_detection() = 0;

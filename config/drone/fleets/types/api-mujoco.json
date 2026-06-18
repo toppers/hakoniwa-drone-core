@@ -4,7 +4,7 @@
     "lockstep": true,
     "timeStep": 0.001,
     "logging": {
-      "mode": "none"
+      "mode": "csv"
     },
     "logOutputDirectory": ".",
     "logOutput": {
@@ -160,6 +160,10 @@
     "paramText": "",
     "paramFilePath": "config/controller/param-api-mixer-mujoco.txt",
     "moduleName": "FlightController",
+    "backendType": "adapter-hakoniwa",
+    "backendConfig": {
+      "px4ConfigPath": "config/controller/px4-controller-config.json"
+    },
     "direct_rotor_control": false,
     "mixer": {
       "vendor": "None",

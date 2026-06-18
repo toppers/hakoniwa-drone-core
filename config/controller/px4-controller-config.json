@@ -1,0 +1,77 @@
+{
+  "attitude_control": {
+    "parameters": {
+      "MC_PITCHRATE_MAX": 188.49555921538757,
+      "MC_PITCH_P": 2.5,
+      "MC_ROLLRATE_MAX": 188.49555921538757,
+      "MC_ROLL_P": 2.5,
+      "MC_YAWRATE_MAX": 18.84955592153876,
+      "MC_YAW_P": 0.1,
+      "MC_YAW_WEIGHT": 0.4
+    }
+  },
+  "common": {
+    "parameters": {
+      "MPC_THR_HOVER": 0.120311,
+      "MPC_THR_MAX": 0.9,
+      "MPC_THR_MIN": 0.1
+    }
+  },
+  "control_allocation": {
+    "parameters": {
+      "CA_HOVER_DUTY": 0.120311,
+      "CA_METRIC_ALLOCATION": 0.0,
+      "CA_RPY_NORMALIZE": 1.0,
+      "CA_UPDATE_NORMALIZATION_SCALE": 1.0
+    }
+  },
+  "position_control": {
+    "parameters": {
+      "MPC_ACC_DECOUPLE": 0.0,
+      "MPC_THR_XY_MARG": 0.25,
+      "MPC_TILTMAX_AIR": 0.4363323129985824,
+      "MPC_XY_P": 6.0,
+      "MPC_XY_VEL_D_ACC": 0.1,
+      "MPC_XY_VEL_I_ACC": 0.0,
+      "MPC_XY_VEL_MAX": 3.0,
+      "MPC_XY_VEL_P_ACC": 10.0,
+      "MPC_Z_P": 10.0,
+      "MPC_Z_VEL_D_ACC": 10.0,
+      "MPC_Z_VEL_I_ACC": 0.0,
+      "MPC_Z_VEL_MAX_DN": 2.0,
+      "MPC_Z_VEL_MAX_UP": 2.0,
+      "MPC_Z_VEL_P_ACC": 15.0
+    }
+  },
+  "px4_version": {
+    "git_commit": "a1726d316a941af9524f6279eb293a713d8fdcac",
+    "git_describe": "v1.17.0-alpha1-1702-ga1726d316a"
+  },
+  "rate_control": {
+    "parameters": {
+      "MC_PITCHRATE_D": 0.02,
+      "MC_PITCHRATE_FF": 0.1,
+      "MC_PITCHRATE_I": 0.0,
+      "MC_PITCHRATE_P": 1.5,
+      "MC_PR_INT_LIM": 0.3,
+      "MC_ROLLRATE_D": 0.02,
+      "MC_ROLLRATE_FF": 0.1,
+      "MC_ROLLRATE_I": 0.0,
+      "MC_ROLLRATE_P": 1.5,
+      "MC_RR_INT_LIM": 0.3,
+      "MC_YAWRATE_D": 0.0,
+      "MC_YAWRATE_FF": 0.1,
+      "MC_YAWRATE_I": 0.0,
+      "MC_YAWRATE_P": 0.452,
+      "MC_YR_INT_LIM": 0.2
+    }
+  },
+  "runtime": {
+    "altitude_hz": 1000.0,
+    "attitude_hz": 1000.0,
+    "horizontal_hz": 1000.0,
+    "position_hz": 1000.0,
+    "rate_hz": 1000.0
+  },
+  "schema_version": 2
+}

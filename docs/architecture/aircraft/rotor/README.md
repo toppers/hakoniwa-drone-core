@@ -29,6 +29,17 @@ The `RotorDynamics` component simulates the behavior of individual rotors on the
 -   **`param_tr`**: Time constant related to rotor speed response.
 -   **`param_kr`**: Gain constant related to rotor speed response.
 
+### Configured maximum rotor speed
+
+The aircraft config may specify `components.rotor.max_rad_per_sec`.
+
+- If `max_rad_per_sec` is omitted, the simulator keeps the legacy behavior:
+  - `omega_hover = sqrt(mass * g / (Ct * ROTOR_NUM))`
+  - `param_rad_per_sec_max = 2 * omega_hover`
+- If `max_rad_per_sec` is specified, that value is used as `param_rad_per_sec_max`.
+
+In v4.0.0, the first-order lag model still uses the same value as the duty-to-speed scale (`param_kr`) for compatibility. In other words, this value is not yet separated into an independent physical linearization gain.
+
 ### Battery Model Constants (if battery dynamics are enabled)
 -   **`R`**: Resistance of the motor.
 -   **`Cq`**: Torque constant of the motor.

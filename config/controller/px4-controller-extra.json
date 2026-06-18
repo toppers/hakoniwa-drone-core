@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "common": {
+    "extra": {
+      "MPC_THR_HOVER": 0.5,
+      "MPC_THR_MAX": 0.9,
+      "MPC_THR_MIN": 0.1
+    }
+  },
+  "attitude_control": {
+    "extra": {
+      "MC_YAW_WEIGHT": 0.4
+    }
+  },
+  "control_allocation": {
+    "extra": {
+      "CA_HOVER_DUTY": 0.120311,
+      "CA_METRIC_ALLOCATION": 0.0,
+      "CA_RPY_NORMALIZE": 1.0,
+      "CA_UPDATE_NORMALIZATION_SCALE": 1.0
+    }
+  },
+  "position_control": {
+    "extra": {
+      "MPC_ACC_DECOUPLE": 1.0,
+      "MPC_THR_XY_MARG": 0.3
+    }
+  },
+  "rate_control": {
+    "extra": {
+      "MC_PITCHRATE_FF": 0.0,
+      "MC_PITCHRATE_K": 1.0,
+      "MC_PR_INT_LIM": 0.3,
+      "MC_ROLLRATE_FF": 0.0,
+      "MC_ROLLRATE_K": 1.0,
+      "MC_RR_INT_LIM": 0.3,
+      "MC_YAWRATE_FF": 0.0,
+      "MC_YAWRATE_K": 1.0,
+      "MC_YR_INT_LIM": 0.2
+    }
+  }
+}

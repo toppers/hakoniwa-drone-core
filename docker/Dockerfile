@@ -19,6 +19,7 @@ ENV PATH="/usr/local/hakoniwa/bin:/usr/local/bin/hakoniwa:${PATH}" \
 
 # 基本パッケージ（--no-install-recommends で軽量化）
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    sudo \
     build-essential \
     mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev xorg-dev \
     libglfw3-dev libgtest-dev libspdlog-dev \
@@ -32,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     libffi-dev libbz2-dev libncurses5-dev libsqlite3-dev \
     liblzma-dev tk-dev xz-utils vim \
- && rm -rf /var/lib/apt/lists/*
+     && rm -rf /var/lib/apt/lists/*
 
 COPY MUJOCO_VERSION.txt .
 # MuJoCo
@@ -47,48 +48,30 @@ RUN MUJOCO_VERSION=$(cat MUJOCO_VERSION.txt) && \
     echo "/usr/local/mujoco/lib" > /etc/ld.so.conf.d/mujoco.conf && \
     ldconfig
 
+
 # hakoniwa-core（source build）
 WORKDIR /root
-RUN git clone --recursive --branch "${HAKO_CORE_PRO_REF}" "${HAKO_CORE_PRO_REPO}" /tmp/hakoniwa-core-pro \
- && cd /tmp/hakoniwa-core-pro \
- && cmake -B cmake-build -DCMAKE_INSTALL_PREFIX=/usr/local/hakoniwa \
-      -DCMAKE_INSTALL_SYSCONFDIR=/etc \
-      -DCMAKE_INSTALL_DATADIR=/usr/share \
-      -DHAKO_DATA_MAX_ASSET_NUM=16 \
-      -DHAKO_SERVICE_MAX=4096 \
-      -DHAKO_RECV_EVENT_MAX=16384 \
-      -DHAKO_SERVICE_CLIENT_MAX=1024 \
-      -DHAKO_PDU_CHANNEL_MAX=8192 \
- && cmake --build cmake-build -j"${CMAKE_BUILD_JOBS}" \
- && cmake --install cmake-build \
- && mkdir -p /var/lib/hakoniwa/mmap/ \
- && chmod 755 /var/lib/hakoniwa \
- && chmod 777 /var/lib/hakoniwa/mmap/ \
- && rm -rf /tmp/hakoniwa-core-pro
+RUN git clone --recursive "${HAKO_CORE_PRO_REPO}"
+WORKDIR /root/hakoniwa-core-pro
+RUN bash build.bash
+RUN bash install.bash
+WORKDIR /root
 
 # hakoniwa-pdu-endpoint（bridge-core 依存）
-RUN git clone --depth 1 --branch "${HAKO_PDU_ENDPOINT_REF}" "${HAKO_PDU_ENDPOINT_REPO}" /tmp/hakoniwa-pdu-endpoint \
- && cmake -S /tmp/hakoniwa-pdu-endpoint -B /tmp/hakoniwa-pdu-endpoint/build -DCMAKE_BUILD_TYPE=Release \
- && cmake --build /tmp/hakoniwa-pdu-endpoint/build -j"${CMAKE_BUILD_JOBS}" \
- && cmake --install /tmp/hakoniwa-pdu-endpoint/build --prefix /usr/local/hakoniwa \
- && rm -rf /tmp/hakoniwa-pdu-endpoint
+RUN pip3 install --no-cache-dir --break-system-packages cffi
+ENV PYTHONPATH="/usr/local/hakoniwa/share/hakoniwa-pdu-endpoint/python:${PYTHONPATH}"
+RUN git clone --recursive "${HAKO_PDU_ENDPOINT_REPO}"
+WORKDIR /root/hakoniwa-pdu-endpoint
+RUN bash build.bash
+RUN bash install.bash
+WORKDIR /root
 
 # hakoniwa-pdu-bridge-core（web bridge バイナリ）
-RUN git clone --depth 1 --branch "${HAKO_PDU_BRIDGE_CORE_REF}" "${HAKO_PDU_BRIDGE_CORE_REPO}" /tmp/hakoniwa-pdu-bridge-core \
- && cmake -S /tmp/hakoniwa-pdu-bridge-core -B /tmp/hakoniwa-pdu-bridge-core/build \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS="-I/usr/include/hakoniwa" \
-      -DBUILD_TESTING=OFF \
-      -DHAKO_PDU_ENDPOINT_PREFIX=/usr/local/hakoniwa \
-      -DCMAKE_INSTALL_PREFIX=/usr/local/hakoniwa \
- && cmake --build /tmp/hakoniwa-pdu-bridge-core/build \
-      --target hakoniwa-pdu-bridge hakoniwa-pdu-web-bridge hakoniwa-pdu-bridge-monitor \
-      -j"${CMAKE_BUILD_JOBS}" \
- && cmake --install /tmp/hakoniwa-pdu-bridge-core/build --prefix /usr/local/hakoniwa \
- && install -d /usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config \
- && cp -R /tmp/hakoniwa-pdu-bridge-core/config/web_bridge_fleets \
-      /usr/local/hakoniwa/share/hakoniwa-pdu-bridge/config/ \
- && rm -rf /tmp/hakoniwa-pdu-bridge-core
+RUN git clone --recursive "${HAKO_PDU_BRIDGE_CORE_REPO}"
+WORKDIR /root/hakoniwa-pdu-bridge-core
+RUN bash build.bash
+RUN bash install.bash
+WORKDIR /root
 
 # threejs viewer（fleets web 配信用）
 RUN git clone --recursive "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone
@@ -115,5 +98,7 @@ RUN wget -O lnx.zip https://github.com/toppers/hakoniwa-drone-core/releases/late
 COPY docker/entrypoint.sh /usr/local/bin/hako-entry
 RUN chmod +x /usr/local/bin/hako-entry
 
+RUN pip3 install --no-cache-dir --break-system-packages optuna matplotlib
+ENV PYTHONPATH="/root/workspace:${PYTHONPATH}"
 ENTRYPOINT ["/usr/local/bin/hako-entry"]
 CMD ["bash"]

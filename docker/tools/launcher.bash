@@ -10,6 +10,17 @@ if [ ! -f "$1" ]; then
 fi
 launcher_config_path="$1"
 export WSL_IP=`ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'`
-export DIRNAME=$(basename $(pwd))
+if [ -z "${HAKO_DRONE_PROJECT_PATH:-}" ]; then
+    launcher_config_abs="$(cd "$(dirname "$launcher_config_path")" && pwd)/$(basename "$launcher_config_path")"
+    case "$launcher_config_abs" in
+        */config/launcher/*)
+            export HAKO_DRONE_PROJECT_PATH="${launcher_config_abs%%/config/launcher/*}"
+            ;;
+        *)
+            export HAKO_DRONE_PROJECT_PATH="$(pwd)"
+            ;;
+    esac
+fi
+export DIRNAME=$(basename "${HAKO_DRONE_PROJECT_PATH}")
 python3 -m hakoniwa_pdu.apps.launcher.hako_launcher --mode immediate $launcher_config_path
  

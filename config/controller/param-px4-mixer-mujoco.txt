@@ -1,0 +1,104 @@
+# PX4 mixer MuJoCo parameter file
+#
+# This file is used by:
+# - controller.moduleName = RadioController
+# - controller.backendType = adapter-px4
+#
+# Keep only:
+# 1. Hakoniwa PID parameters that overwrite px4-controller-config.json
+# 2. orchestrator runtime parameters still consumed on the Hakoniwa side
+# 3. Radio operation parameters (manual stick / takeoff / landing / flip)
+
+# Runtime / scheduler
+SIMULATION_DELTA_TIME                 0.001
+# GRAVITY is kept for Hakoniwa-side output/log thrust conversion.
+# It is not part of the PX4 parameter overwrite set.
+GRAVITY                              9.81
+PID_ALT_CONTROL_CYCLE                0.02
+POS_CONTROL_CYCLE                    0.02
+SPD_CONTROL_CYCLE                    0.02
+ANGULAR_CONTROL_CYCLE                0.004
+ANGULAR_RATE_CONTROL_CYCLE           0.001
+
+# PX4 overwrite: altitude / vertical velocity PID
+# - PID_ALT_Kp        -> MPC_Z_P
+# - PID_ALT_SPD_Kp    -> MPC_Z_VEL_P_ACC
+# - PID_ALT_SPD_Ki    -> MPC_Z_VEL_I_ACC
+# - PID_ALT_SPD_Kd    -> MPC_Z_VEL_D_ACC
+PID_ALT_Kp                           2.0
+PID_ALT_SPD_Kp                       3.0
+PID_ALT_SPD_Ki                       0.05
+PID_ALT_SPD_Kd                       0.6
+
+# PX4 overwrite: horizontal position / velocity PID
+# - PID_POS_X_Kp,  PID_POS_Y_Kp   -> MPC_XY_P
+# - PID_POS_VX_Kp, PID_POS_VY_Kp  -> MPC_XY_VEL_P_ACC
+# - PID_POS_VX_Ki, PID_POS_VY_Ki  -> MPC_XY_VEL_I_ACC
+# - PID_POS_VX_Kd, PID_POS_VY_Kd  -> MPC_XY_VEL_D_ACC
+# PX4 shares X/Y parameters, so each axis pair must stay symmetric.
+PID_POS_X_Kp                         0.8
+PID_POS_Y_Kp                         0.8
+PID_POS_VX_Kp                        1.2
+PID_POS_VY_Kp                        1.2
+PID_POS_VX_Ki                        0.0
+PID_POS_VY_Ki                        0.0
+PID_POS_VX_Kd                        0.05
+PID_POS_VY_Kd                        0.05
+
+# PX4 overwrite: attitude / rate PID
+# - PID_ROLL_Kp        -> MC_ROLL_P
+# - PID_PITCH_Kp       -> MC_PITCH_P
+# - PID_YAW_Kp         -> MC_YAW_P
+# - PID_ROLL_RATE_*    -> MC_ROLLRATE_{P,I,D}
+# - PID_PITCH_RATE_*   -> MC_PITCHRATE_{P,I,D}
+# - PID_YAW_RATE_*     -> MC_YAWRATE_{P,I,D}
+PID_ROLL_Kp                          1.0
+PID_PITCH_Kp                         1.0
+PID_YAW_Kp                           1.0
+PID_ROLL_RATE_Kp                     1.5
+PID_ROLL_RATE_Ki                     0.0
+PID_ROLL_RATE_Kd                     0.0
+PID_PITCH_RATE_Kp                    1.5
+PID_PITCH_RATE_Ki                    0.0
+PID_PITCH_RATE_Kd                    0.0
+PID_YAW_RATE_Kp                      1.4
+PID_YAW_RATE_Ki                      0.0
+PID_YAW_RATE_Kd                      0.0
+
+# Radio runtime only
+# - PID_POS_MAX_SPD     is used by manual horizontal stick scaling.
+# - PID_POS_MAX_ROLL    and PID_POS_MAX_PITCH are used by manual attitude stick scaling.
+# - PID_YAW_RPM_MAX     is used by manual yaw stick scaling.
+# These are not written back into px4-controller-config.json by the current sync path.
+PID_POS_MAX_SPD                      20.0
+PID_POS_MAX_ROLL                     15.0
+PID_POS_MAX_PITCH                    15.0
+PID_YAW_RPM_MAX                      33.3333333
+ALT_DELTA_VALUE_M                    0.003
+ANGLE_CONTROL_ENABLE                 0.0
+ANGLE_RATE_CONTROL_ENABLE            0.0
+ALT_SPD_CONTROL_ENABLE               1.0
+
+# Flip control
+FLIP_CONTROL_ENABLE                  0
+FLIP_STICK_CHECK_TIME_SEC            0.05
+FLIP_STICK_VALUE                     0.02
+FLIP_TARGET_TIME_SEC                 0.45
+FLIP_CONSTANT_TIME_SEC               0.05
+
+# Takeoff / landing state machine
+CTRLMODE_TAKEOFF_IDLE_THROTTLE_RATE             0.2
+CTRLMODE_TAKEOFF_TRIGGER_THROTTLE_VALUE         0.1
+CTRLMODE_TAKEOFF_TRIGGER_HOLD_SEC               0.1
+CTRLMODE_TAKEOFF_ACTION_TARGET_ALTITUDE_M       0.23
+CTRLMODE_TAKEOFF_ACTION_MAX_SPEED_M_S           0.1
+CTRLMODE_TAKEOFF_COMPLETION_ALTITUDE_ERROR_M    0.03
+CTRLMODE_TAKEOFF_COMPLETION_STABLE_DURATION_SEC 1.0
+CTRLMODE_TAKEOFF_COMPLETION_STABLE_ANGLE_DEG    1.0
+CTRLMODE_LANDING_TRIGGER_ALTITUDE_M             0.2
+CTRLMODE_LANDING_TRIGGER_THROTTLE_VALUE         0.3
+CTRLMODE_LANDING_TRIGGER_HOLD_SEC               0.1
+CTRLMODE_LANDING_ACTION_TARGET_SPEED_M_S        0.1
+CTRLMODE_LANDING_COMPLETION_ALTITUDE_M          0.05
+CTRLMODE_LANDING_COMPLETION_STABLE_ANGLE_DEG    1.0
+CTRLMODE_LANDING_COMPLETION_STABLE_DURATION_SEC 1.0

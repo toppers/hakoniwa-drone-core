@@ -74,10 +74,18 @@ typedef struct {
     double u; /* velocity x in body frame */
     double v; /* velocity y in body frame */
     double w; /* velocity z in body frame */
+    // acceleration
+    double ax; /* acceleration x in world frame (NED), [m/s^2] */
+    double ay; /* acceleration y in world frame (NED), [m/s^2] */
+    double az; /* acceleration z in world frame (NED), [m/s^2] */
     // angular velocity
     double p; /* anglular velocity x in body frame */
     double q; /* anglular velocity y in body frame */
     double r; /* anglular velocity z in body frame */
+    // angular acceleration
+    double p_dot; /* angular acceleration x in body frame (FRD), [rad/s^2] */
+    double q_dot; /* angular acceleration y in body frame (FRD), [rad/s^2] */
+    double r_dot; /* angular acceleration z in body frame (FRD), [rad/s^2] */
 } mi_aircraft_control_in_t;
 
 typedef struct {

@@ -37,9 +37,15 @@ public:
             logger->close();
         }
     }
-    void set_logger(std::shared_ptr<logger::IHakoLogger> logger)
+    virtual void set_logger(std::shared_ptr<logger::IHakoLogger> logger)
     {
         this->logger = logger;
+        if (logger != nullptr) {
+            std::cout << "Logger set successfully for controller index " << index_ << std::endl;
+        }
+        else {
+            std::cout << "Logger is null for controller index " << index_ << std::endl;
+        }
     }
     virtual bool is_radio_control() = 0;
     virtual void reset() = 0;
@@ -70,6 +76,11 @@ public:
     virtual void set_target_altitude_m(double altitude_m) = 0;
     virtual void set_target_position_xy_m(double x_m, double y_m) = 0;
     virtual void set_target_velocity_xy_m_s(double vx_m_s, double vy_m_s) = 0;
+    virtual void set_target_vertical_speed_m_s(double vz_m_s) = 0;
+    virtual void set_target_roll_rate_rad_s(double p_rad_s) = 0;
+    virtual void set_target_pitch_rate_rad_s(double q_rad_s) = 0;
+    virtual void set_target_yaw_rate_rad_s(double r_rad_s) = 0;
+    virtual void clear_all_target() {}
 };
 
 class IAircraftControllerContainer {

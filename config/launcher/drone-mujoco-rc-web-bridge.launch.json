@@ -1,0 +1,104 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "env": {
+      "prepend": {
+        "lib_path": [
+          "/usr/local/hakoniwa/lib"
+        ],
+        "PATH": [
+          "/usr/local/hakoniwa/bin"
+        ]
+      }
+    },
+    "start_grace_sec": 1,
+    "delay_sec": 2
+  },
+  "assets": [
+    {
+      "name": "drone-service",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_SERVICE_BIN}",
+      "args": [
+        "config/drone/mujoco",
+        "config/pdudef/drone-pdudef-1.json",
+        "--mujoco-viewer"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "delay_sec": 2
+    },
+    {
+      "name": "visual-state-publisher",
+      "activation_timing": "before_start",
+      "command": "${HAKO_VISUAL_STATE_PUBLISHER_BIN}",
+      "args": [
+        "${HAKO_VISUAL_STATE_PUBLISHER_CONFIG}"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "drone-service"
+      ],
+      "delay_sec": 2
+    },
+    {
+      "name": "web-bridge-game",
+      "activation_timing": "before_start",
+      "command": "${HAKO_WEB_BRIDGE_RUNNER}",
+      "args": [
+        "--config-root",
+        "${HAKO_WEB_BRIDGE_CONFIG_BASE}/web_bridge_disturb",
+        "--asset-name",
+        "WebBridgeDisturb",
+        "--node-name",
+        "web_bridge_disturb_node1",
+        "--delta-time-step-usec",
+        "20000"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": [
+        "visual-state-publisher"
+      ]
+    },
+    {
+      "name": "remote_controller",
+      "activation_timing": "after_start",
+      "command": "${PYTHON_PATH}",
+      "args": [
+        "-m",
+        "rc-custom",
+        "../../config/pdudef/drone-pdudef-1.json",
+        "rc_config/ps4-control.json"
+      ],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/drone_api/rc",
+      "depends_on": [
+        "drone-service"
+      ]
+    },
+    {
+      "name": "threejs-viewer-webserver",
+      "activation_timing": "after_start",
+      "command": "${PYTHON_PATH}",
+      "args": [
+        "-m",
+        "http.server",
+        "8000"
+      ],
+      "cwd": "${HAKO_THREEJS_VIEWER_PATH}",
+      "depends_on": [
+        "web-bridge-game"
+      ]
+    }
+  ],
+  "notify": {
+    "type": "exec",
+    "command": "scripts/notify_on_fail.sh",
+    "args": [
+      "${asset}",
+      "asset_exit",
+      "${timestamp}"
+    ]
+  }
+}

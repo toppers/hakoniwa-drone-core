@@ -29,7 +29,7 @@
     {
       "name": "environment",
       "activation_timing": "before_start",
-      "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
+      "command": "python",
       "args": [
         "-m",
         "hakoniwa_envsim.envasset",
@@ -37,20 +37,20 @@
         "20", 
         "../examples/datasets/simple_room"
       ],
-      "cwd": "/Users/tmori/project/oss/hakoniwa-envsim/src"
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-envsim/src"
     },
     {
       "name": "Unity",
       "activation_timing": "before_start",
       "command": "avatar-demo/avatar.app/Contents/MacOS/simulation",
       "args": [],
-      "cwd": "/Users/tmori/project/oss/hakoniwa-unity-drone",
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}/../hakoniwa-unity-drone",
       "depends_on": ["drone"]
     },
     {
       "name": "remote_controller",
       "activation_timing": "after_start",
-      "command": "/Users/tmori/.pyenv/versions/3.12.3/bin/python",
+      "command": "python",
       "args": [
         "-m",
         "rc-custom",

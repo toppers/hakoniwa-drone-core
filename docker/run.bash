@@ -7,6 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/env.bash"
 
 HAKONIWA_TOP_DIR="$(pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_NAME="$(basename "${REPO_DIR}")"
 IMAGE_NAME="$(cat "${SCRIPT_DIR}/image_name.txt")"
 IMAGE_TAG="$(cat "${SCRIPT_DIR}/latest_version.txt")"
 DOCKER_IMAGE="toppersjp/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -117,6 +119,17 @@ RUN_FLAGS=(
   -v "${HOST_WORKDIR}:${DOCKER_DIR}"
 )
 
+if [[ "${HOST_WORKDIR}" == "${REPO_DIR}" ]]; then
+  DEFAULT_CONTAINER_PROJECT_PATH="${DOCKER_DIR}"
+else
+  DEFAULT_CONTAINER_PROJECT_PATH="${DOCKER_DIR}/${REPO_NAME}"
+fi
+# HAKO_DRONE_PROJECT_PATH may be set by a host-side launcher.
+# Do not pass that host path into Docker.
+# Inside the container, the project is mounted under DOCKER_DIR.
+CONTAINER_PROJECT_PATH="${DEFAULT_CONTAINER_PROJECT_PATH}"
+RUN_FLAGS+=(-e HAKO_DRONE_PROJECT_PATH="${CONTAINER_PROJECT_PATH}")
+
 # --- 3) -p が指定されていれば存在チェック → マウント + 環境変数 ------------
 if [[ -n "${PRO_PATH}" ]]; then
   if [[ -f "${PRO_PATH}" ]]; then
@@ -142,6 +155,7 @@ echo "[run] ARCH=${ARCH}"
 echo "[run] OS_TYPE=${OS_TYPE}"
 echo "[run] IMAGE=${DOCKER_IMAGE}"
 echo "[run] WORKDIR host=${HOST_WORKDIR} -> container=${DOCKER_DIR}"
+echo "[run] HAKO_DRONE_PROJECT_PATH=${CONTAINER_PROJECT_PATH}"
 
 PLATFORM_FLAG=()
 NET_FLAG=()
@@ -209,8 +223,17 @@ trap 'cleanup_container' EXIT
 # --- 5) 実行 -------------------------------------------------------------------
 if [[ "${RUN_DETACHED}" == "1" ]]; then
   echo "[run] MODE=detached"
-  docker run -d "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}" "${CONTAINER_COMMAND[@]}" >/dev/null
-  docker wait "${CONTAINER_NAME}" >/dev/null
+  CID="$(docker run -d "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}" "${CONTAINER_COMMAND[@]}")"
+  echo "[run] CONTAINER_ID=${CID}"
+
+  docker logs -f "${CID}" &
+  LOGS_PID=$!
+
+  STATUS="$(docker wait "${CID}")"
+  wait "${LOGS_PID}" || true
+
+  echo "[run] container exited: status=${STATUS}"
+  exit "${STATUS}"
 else
   docker run "${PLATFORM_FLAG[@]}" "${RUN_FLAGS[@]}" "${NET_FLAG[@]}" "${DOCKER_IMAGE}" "${CONTAINER_COMMAND[@]}"
 fi

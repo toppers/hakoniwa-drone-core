@@ -19,6 +19,10 @@ For commercial licensing inquiries:
 👉 商用利用可能な PRO 版ライセンスについては以下をご覧ください:  
 🔗 [Drone PRO License (Japanese)](https://github.com/hakoniwalab/hakoniwa-license/blob/main/licenses/drone-pro-license)
 
+箱庭ドローンPROのオプションライセンス、およびコード上・ビルド上の有効範囲については、以下を参照してください。
+
+- 📘 [箱庭ドローンPRO オプションライセンス](docs/license/pro-options.md)
+
 # コンセプト
 
 「シミュレーションの世界を飛び出す！」をモットーに、以下の3つを柱としています：

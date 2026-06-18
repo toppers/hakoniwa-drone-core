@@ -59,6 +59,11 @@ EXPORT int drone_service_rc_set_target_yaw_deg(int index, double yaw_deg);
 EXPORT int drone_service_rc_set_target_altitude_m(int index, double altitude_m);
 EXPORT int drone_service_rc_set_target_position_xy_m(int index, double x_m, double y_m);
 EXPORT int drone_service_rc_set_target_velocity_xy_m_s(int index, double vx_m_s, double vy_m_s);
+EXPORT int drone_service_rc_set_target_vertical_speed_m_s(int index, double vz_m_s);
+EXPORT int drone_service_rc_set_target_roll_rate_rad_s(int index, double p_rad_s);
+EXPORT int drone_service_rc_set_target_pitch_rate_rad_s(int index, double q_rad_s);
+EXPORT int drone_service_rc_set_target_yaw_rate_rad_s(int index, double r_rad_s);
+EXPORT int drone_service_rc_clear_all_target(int index);
 
 /*
  * Battery
@@ -84,6 +89,16 @@ typedef struct {
 typedef HakoVectorType HakoVelocityType;
 typedef HakoVectorType HakoAngularVelocityType;
 typedef HakoVectorType HakoInertiaDiagType;
+
+typedef struct {
+    int enabled;
+    int estimate_ready;
+    int in_air;
+    int at_rest;
+    int flight_phase;
+    unsigned long long time_usec;
+} DroneServiceRcEkfStatus;
+
 EXPORT int drone_service_rc_put_impulse_by_collision(
     int index, 
     int is_target_static,
@@ -102,6 +117,8 @@ EXPORT int drone_service_rc_put_impulse_by_collision(
  */
 EXPORT unsigned long long drone_service_rc_get_time_usec(int index);
 EXPORT int drone_service_rc_get_internal_state(int index, int* state);
+EXPORT int drone_service_rc_get_ekf_status(int index, DroneServiceRcEkfStatus* status);
+EXPORT int drone_service_rc_set_ekf_flight_state_override(int index, int enabled, int in_air, int at_rest);
 
 #ifdef __cplusplus
 }
