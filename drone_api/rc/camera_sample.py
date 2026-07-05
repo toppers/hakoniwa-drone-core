@@ -13,8 +13,12 @@ def main():
     client.enableApiControl(True)
     client.armDisarm(True)
     client.vehicles["Drone"].camera_cmd_request_id = request_id
+    client.run_nowait()
 
-    #image_display_thread(client)
+    # Set camera orientation to look straight down
+    client.simSetCameraOrientation("0",-90)
+
+    # Request an image from the camera
     png_image = client.simGetImage("0", hakosim.ImageType.Scene)
     if png_image:
         print("Image received successfully")
