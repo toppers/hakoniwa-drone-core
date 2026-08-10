@@ -51,6 +51,23 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--timeout-sec", type=float, default=90.0, help="Per-command timeout [sec]")
     p.add_argument("--delta-time-msec", type=int, default=20, help="Asset manual step interval [msec]")
     p.add_argument(
+        "--poll-sleep-msec",
+        type=int,
+        default=10,
+        help=(
+            "Wall-clock sleep when an RPC poll has no response [msec]. "
+            "Use 0 for no wall-clock sleep."
+        ),
+    )
+    p.add_argument(
+        "--real-time-sync",
+        action="store_true",
+        help=(
+            "Pace wall time to Hakoniwa simulation time after each successful "
+            "hakopy.usleep()."
+        ),
+    )
+    p.add_argument(
         "--final-hold-extra-sec",
         type=float,
         default=5.0,
@@ -62,7 +79,10 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Override PDU config path passed to hakopy.asset_register()",
     )
-    return p.parse_args()
+    args = p.parse_args()
+    if args.poll_sleep_msec < 0:
+        p.error("--poll-sleep-msec must be >= 0")
+    return args
 
 
 @dataclass
@@ -174,11 +194,44 @@ class AssetShowStateMachine:
         self.prepare_attempts = 0
         self.fleet: AssetAsyncSharedFleet | None = None
         self.total_t0 = time.perf_counter()
+        self.execution_wall_t0: float | None = None
+        self.simulation_start_usec: int | None = None
+        self.real_time_sync_sleep_count = 0
+        self.real_time_sync_sleep_sec = 0.0
         self.prepare_t0: float | None = None
         self.phase_t0: float | None = None
+        self.phase_simulation_t0_usec: int | None = None
         self.phase_times: dict[str, float] = {}
+        self.phase_simulation_times_sec: dict[str, float] = {}
         self.summary_written = False
         self.phases = self._build_phases()
+
+    def begin_execution_timing(self) -> None:
+        if self.execution_wall_t0 is not None:
+            return
+        # Use the authoritative Hakoniwa Core clock rather than estimating
+        # simulation time from callback counts. Capture the wall clock in the
+        # same execution interval so Real Time Factor has aligned endpoints.
+        self.simulation_start_usec = int(hakopy.simulation_time())
+        self.execution_wall_t0 = time.perf_counter()
+
+    def synchronize_wall_to_simulation_time(self) -> None:
+        if (
+            not self.args.real_time_sync
+            or self.execution_wall_t0 is None
+            or self.simulation_start_usec is None
+        ):
+            return
+        simulation_elapsed_sec = (
+            int(hakopy.simulation_time()) - self.simulation_start_usec
+        ) / 1_000_000.0
+        wall_elapsed_sec = time.perf_counter() - self.execution_wall_t0
+        remaining_sec = simulation_elapsed_sec - wall_elapsed_sec
+        if remaining_sec > 0.0:
+            sleep_t0 = time.perf_counter()
+            time.sleep(remaining_sec)
+            self.real_time_sync_sleep_sec += time.perf_counter() - sleep_t0
+            self.real_time_sync_sleep_count += 1
 
     def _resolve_drones(self) -> list[str]:
         if self.args.drones:
@@ -191,6 +244,29 @@ class AssetShowStateMachine:
         if self.summary_written or self.args.summary_json is None:
             return
         total_sec = time.perf_counter() - self.total_t0
+        wall_elapsed_sec = (
+            time.perf_counter() - self.execution_wall_t0
+            if self.execution_wall_t0 is not None
+            else None
+        )
+        simulation_end_usec = (
+            int(hakopy.simulation_time())
+            if self.simulation_start_usec is not None
+            else None
+        )
+        simulation_elapsed_sec = (
+            (simulation_end_usec - self.simulation_start_usec) / 1_000_000.0
+            if simulation_end_usec is not None
+            and self.simulation_start_usec is not None
+            else None
+        )
+        real_time_factor = (
+            simulation_elapsed_sec / wall_elapsed_sec
+            if simulation_elapsed_sec is not None
+            and wall_elapsed_sec is not None
+            and wall_elapsed_sec > 0.0
+            else None
+        )
         if "total" not in self.phase_times:
             self.phase_times["total"] = total_sec
         payload = {
@@ -203,8 +279,19 @@ class AssetShowStateMachine:
             "proc_count": int(self.args.proc_count),
             "assign_mode": self.args.assign_mode,
             "delta_time_msec": int(self.args.delta_time_msec),
+            "real_time_sync": bool(self.args.real_time_sync),
+            "real_time_sync_sleep_count": self.real_time_sync_sleep_count,
+            "real_time_sync_sleep_sec": self.real_time_sync_sleep_sec,
             "phase_times_sec": self.phase_times,
+            "phase_simulation_times_sec": self.phase_simulation_times_sec,
             "total_sec": total_sec,
+            "wall_elapsed_sec": wall_elapsed_sec,
+            "simulation_time": {
+                "start_usec": self.simulation_start_usec,
+                "end_usec": simulation_end_usec,
+                "elapsed_sec": simulation_elapsed_sec,
+            },
+            "real_time_factor": real_time_factor,
         }
         path = self.args.summary_json.resolve()
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -356,7 +443,8 @@ class AssetShowStateMachine:
             processed = self.fleet.poll_once()
             if not all(f.done() for f in self.pending):
                 if processed == 0:
-                    time.sleep(min(self.args.delta_time_msec / 1000.0, 0.01))
+                    if self.args.poll_sleep_msec > 0:
+                        time.sleep(self.args.poll_sleep_msec / 1000.0)
                 return
             if all(f.done() for f in self.pending):
                 results = [f.result(timeout=0.0) for f in self.pending]
@@ -367,6 +455,17 @@ class AssetShowStateMachine:
                     self.phase_times[phase.name] = sec
                     print(f"INFO: phase_time name={phase.name} sec={sec:.3f}")
                     self.phase_t0 = None
+                if self.phase_simulation_t0_usec is not None:
+                    simulation_sec = (
+                        int(hakopy.simulation_time())
+                        - self.phase_simulation_t0_usec
+                    ) / 1_000_000.0
+                    self.phase_simulation_times_sec[phase.name] = simulation_sec
+                    print(
+                        "INFO: phase_simulation_time "
+                        f"name={phase.name} sec={simulation_sec:.3f}"
+                    )
+                    self.phase_simulation_t0_usec = None
                 phase.on_complete(results)
                 self.pending = []
                 self.phase_index += 1
@@ -404,6 +503,7 @@ class AssetShowStateMachine:
         phase = self.phases[self.phase_index]
         print(f"INFO: asset_phase_start name={phase.name}")
         self.phase_t0 = time.perf_counter()
+        self.phase_simulation_t0_usec = int(hakopy.simulation_time())
         self.pending = phase.submit()
 
 
@@ -422,6 +522,7 @@ def _on_reset(context) -> int:
 def _on_manual_timing_control(context) -> int:
     assert _RUNNER is not None
     try:
+        _RUNNER.begin_execution_timing()
         while not _RUNNER.done:
             _RUNNER.step_once()
             if not hakopy.usleep(_RUNNER.delta_time_usec):
@@ -431,6 +532,7 @@ def _on_manual_timing_control(context) -> int:
                     print("ERROR: hakopy.usleep() failed")
                 _RUNNER._write_summary("failed", "hakopy.usleep() failed")
                 return 0
+            _RUNNER.synchronize_wall_to_simulation_time()
             if _RUNNER.failed:
                 return 0
         return 0
