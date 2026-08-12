@@ -83,7 +83,10 @@ def main() -> int:
         rem = len(drones) % args.parts
         start = 0
         for i in range(args.parts):
-            size = base + (1 if i < rem else 0)
+            # Keep the experimental workload uniform and deterministic: every
+            # process except the last receives the base count, and the last
+            # process owns the indivisible remainder.
+            size = base + (rem if i == args.parts - 1 else 0)
             end = start + size
             parts.append(drones[start:end])
             start = end
