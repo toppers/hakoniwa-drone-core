@@ -78,6 +78,15 @@ def letter_segments(letter: str) -> list[tuple[float, float, float, float]]:
 def allocate_counts(lengths: list[float], total: int, min_points: int) -> list[int]:
     if total <= 0:
         return [0] * len(lengths)
+    if total < len(lengths):
+        # A small fleet cannot cover every stroke. Select strokes from evenly
+        # spaced bins so the available points span the whole word rather than
+        # filling only its first letters.
+        counts = [0] * len(lengths)
+        for index in range(total):
+            segment_index = ((2 * index + 1) * len(lengths)) // (2 * total)
+            counts[segment_index] = 1
+        return counts
     if min_points < 1:
         min_points = 1
     required_min = len(lengths) * min_points
