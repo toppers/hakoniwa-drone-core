@@ -1,0 +1,26 @@
+schema_version: 1
+
+native_distribution:
+  release: v4.0.0
+
+managed_runtimes:
+  mujoco:
+    required: true
+    version_file: MUJOCO_VERSION.txt
+    platforms:
+      Linux:
+        library: vendor/mujoco/lib/libmujoco.so.{version}
+      Darwin:
+        library: vendor/mujoco/lib/libmujoco.{version}.dylib
+
+platforms:
+  Linux:
+    binaries:
+      drone_service: lnx/linux-main_hako_drone_service
+      visual_state_publisher: lnx/linux-drone_visual_state_publisher
+    shared_libraries: ["libOpenGL.so.0"]
+  Darwin:
+    binaries:
+      drone_service: mac/mac-main_hako_drone_service
+      visual_state_publisher: mac/mac-drone_visual_state_publisher
+    shared_libraries: []

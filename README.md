@@ -400,6 +400,13 @@ ZIPを展開すると、以下のようなバイナリファイルが含まれ�
 `tools/launch-fleets-scale-perf.bash` などの launcher 系スクリプトは、既定でこの配布先バイナリを利用します。
 必要に応じて `HAKO_VISUAL_STATE_PUBLISHER_BIN` で上書きできます。
 
+配布バイナリのランタイム契約は
+[`NATIVE_RUNTIME_REQUIREMENTS.yaml`](NATIVE_RUNTIME_REQUIREMENTS.yaml) に定義します。
+このファイルは対象のnative distribution、OSごとの実行バイナリと共有ライブラリ、
+管理対象ランタイムをmachine-readableに宣言します。MuJoCoの具体的なバージョンは
+重複して記載せず、引き続き [`MUJOCO_VERSION.txt`](MUJOCO_VERSION.txt) を唯一の
+version authorityとして参照します。
+
 > 📁 解凍場所に制限はありませんが、**日本語や空白を含まないパス**を推奨します。
 
 
