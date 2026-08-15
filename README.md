@@ -402,8 +402,10 @@ ZIPを展開すると、以下のようなバイナリファイルが含まれ�
 
 配布バイナリのランタイム契約は
 [`NATIVE_RUNTIME_REQUIREMENTS.yaml`](NATIVE_RUNTIME_REQUIREMENTS.yaml) に定義します。
-このファイルは対象のnative distribution、OSごとの実行バイナリと共有ライブラリ、
-管理対象ランタイムをmachine-readableに宣言します。MuJoCoの具体的なバージョンは
+このファイルは配布プロファイルごとに、OS別の実行バイナリの役割と共有ライブラリ、
+管理対象ランタイムをmachine-readableに宣言します。Business PackのCatalogはこの契約を
+共通native runtime schemaでミラーし、Recipeはプロファイルと利用するバイナリ役割だけを
+選択します。MuJoCoの具体的なバージョンは
 重複して記載せず、引き続き [`MUJOCO_VERSION.txt`](MUJOCO_VERSION.txt) を唯一の
 version authorityとして参照します。
 
