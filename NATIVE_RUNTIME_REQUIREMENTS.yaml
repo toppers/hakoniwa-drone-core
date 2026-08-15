@@ -17,7 +17,7 @@ profiles:
         binary_roles:
           drone_service: lnx/linux-main_hako_drone_service
           visual_state_publisher: lnx/linux-drone_visual_state_publisher
-        required_libraries: ["libOpenGL.so.0"]
+        required_libraries: ["libOpenGL.so.0", "libglfw.so.3"]
       macos:
         dependency_inspector: macho
         binary_roles:
