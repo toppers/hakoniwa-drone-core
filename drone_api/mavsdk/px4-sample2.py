@@ -43,7 +43,7 @@ def arm(m, enable=True):
     # Do not block here: the Offboard proof-of-life stream must not pause.
     with suppress(Exception):
         ack = m.recv_match(type='COMMAND_ACK', blocking=False)
-        if ack is not None:
+        if ack is not None and ack.command == mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM:
             print(f"[INFO] ARM ACK: {_ack_name(ack.result)}")
     return True
 
@@ -59,7 +59,7 @@ def set_mode_offboard(m):
     # Do not block here: the next setpoint is sent immediately after this call.
     with suppress(Exception):
         ack = m.recv_match(type='COMMAND_ACK', blocking=False)
-        if ack is not None:
+        if ack is not None and ack.command == mavutil.mavlink.MAV_CMD_DO_SET_MODE:
             print(f"[INFO] OFFBOARD ACK: {_ack_name(ack.result)}")
     return True
 
@@ -132,7 +132,7 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
 
     Local NEDでは上向きが負のZなので、上昇中のvzは負値にする。
     Offboardのsetpoint切れを防ぐため、速度指令を継続送信した後、
-    目標高度の位置setpointを継続送信して高度を保持する。
+    目標高度到達後はzero velocity setpointを継続送信して高度を保持する。
     """
     height_m = abs(float(height_m))
     climb_speed_m_s = abs(float(climb_speed_m_s))
@@ -152,17 +152,20 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
     reached = False
     initial_z = None
     target_z = None
+    last_x = last_y = 0.0
     while time.time() - started < timeout:
         send_vel_ned(m, t0, 0.0, 0.0, -climb_speed_m_s, YAW0)
         msg = m.recv_match(type='LOCAL_POSITION_NED', blocking=False)
         if msg is not None:
             if initial_z is None:
                 initial_z = float(msg.z)
+                last_x, last_y = float(msg.x), float(msg.y)
                 target_z = initial_z - height_m + 0.15
                 print(f"[INFO] Takeoff reference: z0={initial_z:.2f}m target={target_z:.2f}m")
             if time.time() - last_report >= 1.0:
                 print(f"[INFO] Takeoff state: z={msg.z:.2f}m vz={msg.vz:.2f}m/s")
                 last_report = time.time()
+            last_x, last_y = float(msg.x), float(msg.y)
             if target_z is not None and float(msg.z) <= target_z:
                 reached = True
                 break
@@ -171,6 +174,7 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
         raise RuntimeError("Takeoff failed: target altitude was not reached")
     hold_vel(m, t0, 0.0, 0.0, 0.0, YAW0, seconds=2.0, hz=KEEPALIVE_HZ)
     print(f"[INFO] Takeoff complete: target_altitude={height_m:.2f}m")
+    return last_x, last_y
 
 def land(m):
     m.mav.command_long_send(
@@ -186,6 +190,8 @@ def main():
                         help="Connection string (e.g., udp:127.0.0.1:14540)")
     parser.add_argument("--alt", type=float, default=ALT,
                         help=f"Takeoff height relative to the first LOCAL_POSITION_NED z (default: {ALT}m)")
+    parser.add_argument("--demo", choices=("triangle", "step"), default="triangle",
+                        help="Horizontal demo: 5m/s triangle or 1m/s step (default: triangle)")
     args = parser.parse_args()
 
     m = connect(args.udp)
@@ -207,20 +213,28 @@ def main():
 
     try:
         # 4) 速度setpointで離陸し、目標高度を保持
-        takeoff(m, t0, height_m=args.alt, climb_speed_m_s=0.8)
+        origin_x, origin_y = takeoff(m, t0, height_m=args.alt, climb_speed_m_s=0.8)
 
-        # 5) 水平速度デモ（Local NED: vx=North, vy=East, vz=Down）
-        print("[INFO] Triangle leg 1: North 10m")
-        move_vel_to(m, t0, vx=5.0, vy=0.0, target_x=10.0,
-                    timeout=30.0, label="North leg")
-        print("[INFO] Triangle leg 2: 10m at 120deg")
-        move_vel_to(m, t0, vx=-2.5, vy=4.330127,
-                    target_x=5.0, target_y=8.660254,
-                    timeout=30.0, label="East leg")
-        print("[INFO] Triangle leg 3: 10m at 240deg (return to origin)")
-        move_vel_to(m, t0, vx=-2.5, vy=-4.330127,
-                    target_x=0.0, target_y=0.0,
-                    timeout=30.0, label="Return leg")
+        if args.demo == "step":
+            print("[INFO] Step demo: vx=1.0 m/s (North) for 5s")
+            hold_vel(m, t0, vx=1.0, vy=0.0, vz=0.0, yaw_deg=YAW0, seconds=5.0)
+            print("[INFO] Step demo: zero velocity for 2s")
+            hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0, yaw_deg=YAW0, seconds=2.0)
+            print("[INFO] Step demo: vy=1.0 m/s (East) for 5s")
+            hold_vel(m, t0, vx=0.0, vy=1.0, vz=0.0, yaw_deg=YAW0, seconds=5.0)
+        else:
+            # 5) 水平速度デモ（Local NED: vx=North, vy=East, vz=Down）
+            print("[INFO] Triangle leg 1: North 10m")
+            move_vel_to(m, t0, vx=5.0, vy=0.0, target_x=origin_x + 10.0,
+                        timeout=30.0, label="North leg")
+            print("[INFO] Triangle leg 2: 10m at 120deg")
+            move_vel_to(m, t0, vx=-2.5, vy=4.330127,
+                        target_x=origin_x + 5.0, target_y=origin_y + 8.660254,
+                        timeout=30.0, label="Triangle leg 2")
+            print("[INFO] Triangle leg 3: 10m at 240deg (return to origin)")
+            move_vel_to(m, t0, vx=-2.5, vy=-4.330127,
+                        target_x=origin_x, target_y=origin_y,
+                        timeout=30.0, label="Return leg")
         print("[INFO] Triangle complete; zero velocity for 2s")
         hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0,
                  yaw_deg=YAW0, seconds=2.0, hz=10.0)

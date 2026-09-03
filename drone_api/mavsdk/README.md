@@ -326,6 +326,14 @@ hold_vel(m, t0, vx=-2.5, vy=-4.330, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
 各速度ベクトルの大きさは約5m/sです。実装では各頂点に到達するまで送信するため、各辺は10m、
 合計移動距離は約30mです（上記の2秒は理想速度時の目安です）。
 
+標準的な1m/sのステップ応答を確認する場合は、次を実行します。
+
+```bash
+python3 px4-sample2.py --udp udp:127.0.0.1:14540 --demo step
+```
+
+三角形の頂点は離陸完了時の`LOCAL_POSITION_NED.x/y`を原点として計算します。
+
 `MASK_VEL_YAW`はMAVLink `POSITION_TARGET_TYPEMASK`の定義に従い、位置（bits 0--2）、
 加速度/force（bits 6--9）、yaw_rate（bit 11）をignoreし、速度（bits 3--5）とyaw
 （bit 10）だけを有効にする`0x09C7`です。
