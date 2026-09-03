@@ -13,6 +13,10 @@ PRE_OFFBOARD_SETPOINT_HZ = 20.0
 ALT = 5.0
 YAW0 = 0.0
 
+def _ack_name(result):
+    entry = mavutil.mavlink.enums.get('MAV_RESULT', {}).get(result)
+    return entry.name if entry is not None else str(result)
+
 # 正しい type_mask（forceビット=0）
 MASK_POS_YAW = 0x09F8  # 位置+Yawのみ有効（vel/accel/yaw_rate無効, force無効）
 # POSITION_TARGET_TYPEMASK: ignore x/y/z (bits 0..2), acceleration/force
@@ -36,7 +40,11 @@ def arm(m, enable=True):
         1 if enable else 0, 0,0,0, 0,0,0
     )
     with suppress(Exception):
-        m.recv_match(type='COMMAND_ACK', blocking=False, timeout=0.5)
+        ack = m.recv_match(type='COMMAND_ACK', blocking=True, timeout=2.0)
+        if ack is not None:
+            print(f"[INFO] ARM ACK: {_ack_name(ack.result)}")
+            return ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
+    return False
 
 def set_mode_offboard(m):
     PX4_CUSTOM_MAIN_MODE_OFFBOARD = 6
@@ -48,7 +56,11 @@ def set_mode_offboard(m):
         0,0,0,0,0
     )
     with suppress(Exception):
-        m.recv_match(type='COMMAND_ACK', blocking=False, timeout=0.5)
+        ack = m.recv_match(type='COMMAND_ACK', blocking=True, timeout=2.0)
+        if ack is not None:
+            print(f"[INFO] OFFBOARD ACK: {_ack_name(ack.result)}")
+            return ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
+    return False
 
 def _time_boot_ms(t0: float) -> int:
     return int((time.time() - t0) * 1000) & 0xFFFFFFFF
@@ -132,16 +144,19 @@ def main():
 
     # PX4 requires a continuous setpoint stream for more than one second before
     # arming in Offboard or switching to Offboard.  Send a neutral position
-    # stream first, then enter Offboard and arm (the PX4-recommended order).
+    # stream first.  ARM before OFFBOARD is retained for compatibility with
+    # PX4 SITL builds that require the vehicle to be armed before mode change.
     print(f"[INFO] Priming Offboard setpoints for {PRE_OFFBOARD_SETPOINT_SEC:.1f}s")
     hold_pos(m, t0, 0.0, 0.0, -0.2, YAW0,
              seconds=PRE_OFFBOARD_SETPOINT_SEC, hz=PRE_OFFBOARD_SETPOINT_HZ)
 
-    # OFFBOARD -> ARM
-    set_mode_offboard(m)
+    # ARM -> OFFBOARD
+    if not arm(m, True):
+        raise RuntimeError("PX4 rejected ARM; check PX4 pre-arm checks and COMMAND_ACK")
+    print("[INFO] ARM command accepted")
+    if not set_mode_offboard(m):
+        raise RuntimeError("PX4 rejected OFFBOARD; check setpoint stream and COMMAND_ACK")
     print("[INFO] OFFBOARD started")
-    arm(m, True)
-    print("[INFO] ARM command sent")
 
     try:
         # 4) 速度setpointで離陸し、目標高度を保持

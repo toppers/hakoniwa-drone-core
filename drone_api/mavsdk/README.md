@@ -253,8 +253,8 @@ python3 px4-sample2.py --udp udp:127.0.0.1:14540
 
 1. PX4 heartbeat 待ち
 2. Offboard 切り替え前に位置setpointを1.5秒（20Hz）送信
-3. Offboard モード開始
-4. ARM
+3. ARM
+4. Offboard モード開始
 5. 速度setpointによる離陸
 6. `vx=1.0`（North）→ zero → `vy=1.0`（East）→ zero の水平移動
 7. LAND
@@ -306,8 +306,8 @@ takeoff(m, t0, height_m=5.0, climb_speed_m_s=0.8)
 ```
 
 `takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に
-2Hz超のsetpointを1秒超受信する必要があるため、サンプルは1.5秒間の位置setpoint送信
-→ Offboard → ARM → `takeoff()`の順で実行します。
+2Hz超のsetpointを1秒超受信する必要があります。サンプルは互換性を優先し、1.5秒間の
+位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。
 
 ### 速度指令デモの流れ
 
