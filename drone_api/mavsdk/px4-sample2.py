@@ -88,6 +88,26 @@ def hold_vel(m, t0, vx, vy, vz, yaw_deg, seconds, hz=KEEPALIVE_HZ):
         send_vel_ned(m, t0, vx, vy, vz, yaw_deg)
         time.sleep(dt)
 
+def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
+    """PX4 Offboardで離陸し、指定高度を速度指令で保持する。
+
+    Local NEDでは上向きが負のZなので、上昇中のvzは負値にする。
+    Offboardのsetpoint切れを防ぐため、速度指令を継続送信した後、
+    目標高度の位置setpointを継続送信して高度を保持する。
+    """
+    height_m = abs(float(height_m))
+    climb_speed_m_s = abs(float(climb_speed_m_s))
+    if height_m <= 0.0 or climb_speed_m_s <= 0.0:
+        raise ValueError("height_m and climb_speed_m_s must be positive")
+
+    climb_seconds = height_m / climb_speed_m_s
+    print(f"[INFO] Takeoff: height={height_m:.2f}m speed={climb_speed_m_s:.2f}m/s")
+    hold_vel(m, t0, 0.0, 0.0, -climb_speed_m_s,
+             YAW0, seconds=climb_seconds, hz=KEEPALIVE_HZ)
+    hold_pos(m, t0, 0.0, 0.0, -height_m,
+             YAW0, seconds=2.0, hz=KEEPALIVE_HZ)
+    print(f"[INFO] Takeoff complete: target_altitude={height_m:.2f}m")
+
 def land(m):
     m.mav.command_long_send(
         m.target_system, m.target_component,
@@ -116,12 +136,10 @@ def main():
     print("[INFO] OFFBOARD started")
 
     try:
-        # 4) まず速度で確実に上昇（vz<0）
-        hold_vel(m, t0, 0.0, 0.0, -0.8, YAW0, seconds=2.0, hz=10.0)
-        # 5) 目標高度で位置保持
-        hold_pos(m, t0, 0.0, 0.0, -ALT, YAW0, seconds=2.0, hz=10.0)
+        # 4) 速度setpointで離陸し、目標高度を保持
+        takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8)
 
-        # 6) 移動デモ
+        # 5) 移動デモ
         hold_pos(m, t0, 10.0,  0.0, -ALT,   0.0, seconds=5.0)
         hold_pos(m, t0, 10.0, 10.0, -ALT,  90.0, seconds=5.0)
         hold_pos(m, t0,  0.0, 10.0, -ALT, 180.0, seconds=5.0)

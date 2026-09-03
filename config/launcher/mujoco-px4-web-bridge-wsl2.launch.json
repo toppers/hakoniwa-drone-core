@@ -1,0 +1,50 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "start_grace_sec": 1,
+    "delay_sec": 1,
+    "env": {
+      "prepend": {
+        "lib_path": ["/usr/local/hakoniwa/lib"],
+        "PATH": ["/usr/local/hakoniwa/bin"]
+      }
+    }
+  },
+  "assets": [
+    {
+      "name": "drone-service-px4",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_SERVICE_BIN}",
+      "args": ["127.0.0.1", "4560", "config/drone/mujoco-px4-1", "config/pdudef/drone-pdudef-1.json"],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "delay_sec": 3
+    },
+    {
+      "name": "visual-state-publisher",
+      "activation_timing": "before_start",
+      "command": "${HAKO_VISUAL_STATE_PUBLISHER_BIN}",
+      "args": ["config/assets/visual_state_publisher/visual_state_publisher-1.json"],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": ["drone-service-px4"]
+    },
+    {
+      "name": "web-bridge-fleets",
+      "activation_timing": "before_start",
+      "command": "${HAKO_WEB_BRIDGE_RUNNER}",
+      "args": ["--config-root", "${HAKO_WEB_BRIDGE_CONFIG_BASE}/web_bridge_fleets", "--node-name", "web_bridge_fleets_node1", "--delta-time-step-usec", "20000", "--enable-ondemand"],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "depends_on": ["visual-state-publisher"]
+    },
+    {
+      "name": "threejs-viewer-webserver",
+      "activation_timing": "after_start",
+      "command": "python3",
+      "args": ["-m", "http.server", "8000"],
+      "cwd": "${HAKO_THREEJS_VIEWER_PATH}",
+      "depends_on": ["web-bridge-fleets"]
+    }
+  ]
+}
