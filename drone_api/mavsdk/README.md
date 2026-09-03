@@ -256,7 +256,7 @@ python3 px4-sample2.py --udp udp:127.0.0.1:14540
 3. ARM
 4. Offboard モード開始
 5. 速度setpointによる離陸
-6. `vx=1.0`（North）→ zero → `vy=1.0`（East）→ zero の水平移動
+6. `LOCAL_POSITION_NED.x/y`を確認しながら、一辺10m・合計30mの三角移動
 7. LAND
 
 速度指令は `MAV_FRAME_LOCAL_NED` の `vx`, `vy`, `vz` です。`vz < 0` が上昇方向です。
@@ -286,7 +286,7 @@ Offboard では setpoint の継続送信が必要なため、サンプルは一�
 - `takeoff()`
   - 上向きの速度setpointを継続送信して離陸する
   - `LOCAL_POSITION_NED.z`を監視し、目標高度に到達した場合だけ成功扱いにする
-  - 高度に到達しなければ水平速度デモへ進まずエラーにする
+  - 高度に到達しなければ水平速度デモへ進まずエラーにする（lockstepのため最大60秒待機）
 - `land()`
   - `MAV_CMD_NAV_LAND`で着陸させる
 
@@ -304,12 +304,12 @@ vz: Down方向  [m/s]
 離陸処理を別の制御プログラムから再利用する場合は、次のように呼び出します。
 
 ```python
-takeoff(m, t0, height_m=0.5, climb_speed_m_s=0.8)
+takeoff(m, t0, height_m=2.0, climb_speed_m_s=0.8)
 ```
 
 `takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に
 2Hz超のsetpointを1秒超受信する必要があります。サンプルは互換性を優先し、1.5秒間の
-位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。既定の離陸高度は0.5mで、
+位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。既定の離陸高度は2.0mで、
 開始時の`LOCAL_POSITION_NED.z`を基準に判定します。ARM/OFFBOARDのACKは
 非ブロッキングで扱い、setpoint streamを途切れさせません。
 
@@ -318,10 +318,13 @@ takeoff(m, t0, height_m=0.5, climb_speed_m_s=0.8)
 離陸後は位置移動ではなく、`hold_vel()`で速度を継続送信します。
 
 ```python
-hold_vel(m, t0, vx=1.0, vy=0.0, vz=0.0, yaw_deg=0.0, seconds=5.0, hz=10.0)
-hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
-hold_vel(m, t0, vx=0.0, vy=1.0, vz=0.0, yaw_deg=0.0, seconds=5.0, hz=10.0)
+hold_vel(m, t0, vx=5.0, vy=0.0, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
+hold_vel(m, t0, vx=-2.5, vy=4.330, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
+hold_vel(m, t0, vx=-2.5, vy=-4.330, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
 ```
+
+各速度ベクトルの大きさは約5m/sです。実装では各頂点に到達するまで送信するため、各辺は10m、
+合計移動距離は約30mです（上記の2秒は理想速度時の目安です）。
 
 `MASK_VEL_YAW`はMAVLink `POSITION_TARGET_TYPEMASK`の定義に従い、位置（bits 0--2）、
 加速度/force（bits 6--9）、yaw_rate（bit 11）をignoreし、速度（bits 3--5）とyaw

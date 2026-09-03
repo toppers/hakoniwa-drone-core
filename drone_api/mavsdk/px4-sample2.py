@@ -10,8 +10,8 @@ from pymavlink import mavutil
 KEEPALIVE_HZ = 10.0
 PRE_OFFBOARD_SETPOINT_SEC = 1.5
 PRE_OFFBOARD_SETPOINT_HZ = 20.0
-# The bundled model reliably demonstrates a short 0.5 m takeoff.
-ALT = 0.5
+# Relative takeoff height for the velocity trajectory demo.
+ALT = 2.0
 YAW0 = 0.0
 
 def _ack_name(result):
@@ -106,6 +106,27 @@ def hold_vel(m, t0, vx, vy, vz, yaw_deg, seconds, hz=KEEPALIVE_HZ):
         send_vel_ned(m, t0, vx, vy, vz, yaw_deg)
         time.sleep(dt)
 
+def move_vel_to(m, t0, vx, vy, target_x=None, target_y=None,
+                yaw_deg=YAW0, timeout=30.0, hz=KEEPALIVE_HZ, label=""):
+    """Send velocity until the requested Local NED coordinate is reached."""
+    dt = max(0.001, 1.0 / hz)
+    started = time.time()
+    last_report = 0.0
+    while time.time() - started < timeout:
+        send_vel_ned(m, t0, vx, vy, 0.0, yaw_deg)
+        msg = m.recv_match(type='LOCAL_POSITION_NED', blocking=False)
+        if msg is not None:
+            x, y = float(msg.x), float(msg.y)
+            if time.time() - last_report >= 1.0:
+                print(f"[INFO] {label}: x={x:.2f}m y={y:.2f}m")
+                last_report = time.time()
+            reached_x = target_x is None or (x >= target_x if vx >= 0 else x <= target_x)
+            reached_y = target_y is None or (y >= target_y if vy >= 0 else y <= target_y)
+            if reached_x and reached_y:
+                return x, y
+        time.sleep(dt)
+    raise RuntimeError(f"Velocity move timeout: {label}")
+
 def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
     """PX4 Offboardで離陸し、指定高度を速度指令で保持する。
 
@@ -122,7 +143,9 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
     # Keep sending vz while observing LOCAL_POSITION_NED.  A fixed sleep is
     # insufficient because it would advance to the horizontal demo even when
     # PX4 ignored the vertical setpoint.
-    timeout = max(15.0, height_m / climb_speed_m_s * 3.0)
+    # Lockstep SITL can advance more slowly than wall-clock time while the
+    # browser/bridge is active; allow ample time for the requested climb.
+    timeout = max(60.0, height_m / climb_speed_m_s * 10.0)
     dt = 1.0 / KEEPALIVE_HZ
     started = time.time()
     last_report = 0.0
@@ -187,16 +210,18 @@ def main():
         takeoff(m, t0, height_m=args.alt, climb_speed_m_s=0.8)
 
         # 5) 水平速度デモ（Local NED: vx=North, vy=East, vz=Down）
-        print("[INFO] Velocity demo: vx=1.0 m/s (North) for 5s")
-        hold_vel(m, t0, vx=1.0, vy=0.0, vz=0.0,
-                 yaw_deg=YAW0, seconds=5.0, hz=10.0)
-        print("[INFO] Velocity demo: zero velocity for 2s")
-        hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0,
-                 yaw_deg=YAW0, seconds=2.0, hz=10.0)
-        print("[INFO] Velocity demo: vy=1.0 m/s (East) for 5s")
-        hold_vel(m, t0, vx=0.0, vy=1.0, vz=0.0,
-                 yaw_deg=YAW0, seconds=5.0, hz=10.0)
-        print("[INFO] Velocity demo: zero velocity for 2s")
+        print("[INFO] Triangle leg 1: North 10m")
+        move_vel_to(m, t0, vx=5.0, vy=0.0, target_x=10.0,
+                    timeout=30.0, label="North leg")
+        print("[INFO] Triangle leg 2: 10m at 120deg")
+        move_vel_to(m, t0, vx=-2.5, vy=4.330127,
+                    target_x=5.0, target_y=8.660254,
+                    timeout=30.0, label="East leg")
+        print("[INFO] Triangle leg 3: 10m at 240deg (return to origin)")
+        move_vel_to(m, t0, vx=-2.5, vy=-4.330127,
+                    target_x=0.0, target_y=0.0,
+                    timeout=30.0, label="Return leg")
+        print("[INFO] Triangle complete; zero velocity for 2s")
         hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0,
                  yaw_deg=YAW0, seconds=2.0, hz=10.0)
 
