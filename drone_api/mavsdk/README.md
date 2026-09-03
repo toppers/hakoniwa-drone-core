@@ -304,7 +304,7 @@ vz: Down方向  [m/s]
 離陸処理を別の制御プログラムから再利用する場合は、次のように呼び出します。
 
 ```python
-takeoff(m, t0, height_m=5.0, climb_speed_m_s=0.8)
+takeoff(m, t0, height_m=2.0, climb_speed_m_s=0.8)
 ```
 
 `takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に

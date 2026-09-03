@@ -10,7 +10,8 @@ from pymavlink import mavutil
 KEEPALIVE_HZ = 10.0
 PRE_OFFBOARD_SETPOINT_SEC = 1.5
 PRE_OFFBOARD_SETPOINT_HZ = 20.0
-ALT = 5.0
+# 2 m is a reliable, visible takeoff height for the bundled MuJoCo model.
+ALT = 2.0
 YAW0 = 0.0
 
 def _ack_name(result):
