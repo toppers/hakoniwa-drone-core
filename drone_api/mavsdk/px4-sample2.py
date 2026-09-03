@@ -8,12 +8,17 @@ from contextlib import suppress
 from pymavlink import mavutil
 
 KEEPALIVE_HZ = 10.0
+PRE_OFFBOARD_SETPOINT_SEC = 1.5
+PRE_OFFBOARD_SETPOINT_HZ = 20.0
 ALT = 5.0
 YAW0 = 0.0
 
 # 正しい type_mask（forceビット=0）
 MASK_POS_YAW = 0x09F8  # 位置+Yawのみ有効（vel/accel/yaw_rate無効, force無効）
-MASK_VEL_YAW = 0x01C7  # 速度+Yawのみ有効（pos/accel/yaw_rate無効, force無効）
+# POSITION_TARGET_TYPEMASK: ignore x/y/z (bits 0..2), acceleration/force
+# (bits 6..9), and yaw_rate (bit 11).  vx/vy/vz (bits 3..5) and yaw (bit 10)
+# remain enabled, so this is velocity + yaw only.
+MASK_VEL_YAW = 0x09C7
 
 def connect(conn_str: str):
     print(f"[INFO] Connecting: {conn_str}")
@@ -118,31 +123,43 @@ def land(m):
 
 def main():
     parser = argparse.ArgumentParser(description="PX4 single-vehicle offboard (pymavlink)")
-    parser.add_argument("--udp", default="udp:127.0.0.1:14541",
-                        help="Connection string (e.g., udp:127.0.0.1:14541)")
+    parser.add_argument("--udp", default="udp:127.0.0.1:14540",
+                        help="Connection string (e.g., udp:127.0.0.1:14540)")
     args = parser.parse_args()
 
     m = connect(args.udp)
     t0 = time.time()
 
-    # 1) ARM
-    arm(m, True)
+    # PX4 requires a continuous setpoint stream for more than one second before
+    # arming in Offboard or switching to Offboard.  Send a neutral position
+    # stream first, then enter Offboard and arm (the PX4-recommended order).
+    print(f"[INFO] Priming Offboard setpoints for {PRE_OFFBOARD_SETPOINT_SEC:.1f}s")
+    hold_pos(m, t0, 0.0, 0.0, -0.2, YAW0,
+             seconds=PRE_OFFBOARD_SETPOINT_SEC, hz=PRE_OFFBOARD_SETPOINT_HZ)
 
-    # 2) OFFBOARD前に“軽く上方向”の位置SPを先送り（作法）
-    hold_pos(m, t0, 0.0, 0.0, -0.2, YAW0, seconds=0.5, hz=20.0)
-
-    # 3) OFFBOARD
+    # OFFBOARD -> ARM
     set_mode_offboard(m)
     print("[INFO] OFFBOARD started")
+    arm(m, True)
+    print("[INFO] ARM command sent")
 
     try:
         # 4) 速度setpointで離陸し、目標高度を保持
         takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8)
 
-        # 5) 移動デモ
-        hold_pos(m, t0, 10.0,  0.0, -ALT,   0.0, seconds=5.0)
-        hold_pos(m, t0, 10.0, 10.0, -ALT,  90.0, seconds=5.0)
-        hold_pos(m, t0,  0.0, 10.0, -ALT, 180.0, seconds=5.0)
+        # 5) 水平速度デモ（Local NED: vx=North, vy=East, vz=Down）
+        print("[INFO] Velocity demo: vx=1.0 m/s (North) for 5s")
+        hold_vel(m, t0, vx=1.0, vy=0.0, vz=0.0,
+                 yaw_deg=YAW0, seconds=5.0, hz=10.0)
+        print("[INFO] Velocity demo: zero velocity for 2s")
+        hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0,
+                 yaw_deg=YAW0, seconds=2.0, hz=10.0)
+        print("[INFO] Velocity demo: vy=1.0 m/s (East) for 5s")
+        hold_vel(m, t0, vx=0.0, vy=1.0, vz=0.0,
+                 yaw_deg=YAW0, seconds=5.0, hz=10.0)
+        print("[INFO] Velocity demo: zero velocity for 2s")
+        hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0,
+                 yaw_deg=YAW0, seconds=2.0, hz=10.0)
 
     except KeyboardInterrupt:
         print("\n[WARN] Interrupted by user")

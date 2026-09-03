@@ -112,8 +112,9 @@ Windows側にQGroundControlをインストールしておくと、PX4 SITLの状
 - Offboard遷移
 - failsafeやリンク切断の状態
 
-QGCはWindows側で起動し、PX4が使用するUDPポート（1台構成では通常`14540`）を監視します。
-QGCの接続設定や表示ポートは、実際のPX4コンソールに表示されるMAVLink設定を優先してください。
+QGCはWindows側で起動し、GCS用UDP `14550`を監視します。`14540`はこのサンプルの
+Offboard API（pymavlink）が接続するOnboard MAVLinkポートで、QGC用とは役割が異なります。
+接続設定は実際のPX4コンソールに表示されるMAVLink設定を優先してください。
 
 ## 使用する主な設定・プログラム
 
@@ -192,10 +193,12 @@ PX4 のコンソールにシミュレータ接続待ちまたは起動完了が�
 
 | 用途 | 接続先 |
 |---|---|
-| PX4 simulator link | TCP `127.0.0.1:4560` |
-| PX4 Onboard MAVLink | UDP `127.0.0.1:14540` |
+| PX4 simulator link（Drone Serviceが接続） | TCP `127.0.0.1:4560` |
+| PX4 Offboard API（pymavlinkが接続） | UDP `127.0.0.1:14540` |
+| PX4 GCS（QGroundControl） | UDP `127.0.0.1:14550` |
 
-PX4 のログに表示されるポートが異なる場合は、実際のPX4ログを優先してください。
+`14540`はPython側の接続文字列で待ち受けるポート、`14550`はPX4がGCSへ送信する宛先です。
+PX4ログに別のlisten/remoteポートが表示される場合は、実際のログを優先してください。
 
 ## 3. Docker 内の Hakoniwa runtime を起動する
 
@@ -249,11 +252,11 @@ python3 px4-sample2.py --udp udp:127.0.0.1:14540
 このサンプルは次の操作を行います。
 
 1. PX4 heartbeat 待ち
-2. ARM
-3. Offboard 切り替え前の初期 setpoint 送信
-4. Offboard モード開始
-5. `SET_POSITION_TARGET_LOCAL_NED` による速度指令
-6. 位置保持
+2. Offboard 切り替え前に位置setpointを1.5秒（20Hz）送信
+3. Offboard モード開始
+4. ARM
+5. 速度setpointによる離陸
+6. `vx=1.0`（North）→ zero → `vy=1.0`（East）→ zero の水平移動
 7. LAND
 
 速度指令は `MAV_FRAME_LOCAL_NED` の `vx`, `vy`, `vz` です。`vz < 0` が上昇方向です。
@@ -276,7 +279,7 @@ Offboard では setpoint の継続送信が必要なため、サンプルは一�
 - `send_vel_ned()`
   - `SET_POSITION_TARGET_LOCAL_NED`を送る
   - `MAV_FRAME_LOCAL_NED`を使用する
-  - `MASK_VEL_YAW = 0x01C7`で速度とyawだけを有効にする
+  - `MASK_VEL_YAW = 0x09C7`で速度（vx/vy/vz）とyawだけを有効にする
 - `hold_vel()`
   - Offboardのsetpoint切れを防ぐため、指定Hzで速度指令を繰り返す
 - `takeoff()`
@@ -302,8 +305,23 @@ vz: Down方向  [m/s]
 takeoff(m, t0, height_m=5.0, climb_speed_m_s=0.8)
 ```
 
-`takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。現在のサンプルでは、
-離陸前に短い位置setpointを送ってからOffboardへ切り替え、その後に`takeoff()`を実行します。
+`takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に
+2Hz超のsetpointを1秒超受信する必要があるため、サンプルは1.5秒間の位置setpoint送信
+→ Offboard → ARM → `takeoff()`の順で実行します。
+
+### 速度指令デモの流れ
+
+離陸後は位置移動ではなく、`hold_vel()`で速度を継続送信します。
+
+```python
+hold_vel(m, t0, vx=1.0, vy=0.0, vz=0.0, yaw_deg=0.0, seconds=5.0, hz=10.0)
+hold_vel(m, t0, vx=0.0, vy=0.0, vz=0.0, yaw_deg=0.0, seconds=2.0, hz=10.0)
+hold_vel(m, t0, vx=0.0, vy=1.0, vz=0.0, yaw_deg=0.0, seconds=5.0, hz=10.0)
+```
+
+`MASK_VEL_YAW`はMAVLink `POSITION_TARGET_TYPEMASK`の定義に従い、位置（bits 0--2）、
+加速度/force（bits 6--9）、yaw_rate（bit 11）をignoreし、速度（bits 3--5）とyaw
+（bit 10）だけを有効にする`0x09C7`です。
 
 ## 6. Three.js で状態を確認する
 
@@ -312,6 +330,9 @@ Windows 側のブラウザで次のURLを開き、画面の `Connect` を押し�
 ```text
 http://127.0.0.1:8000/index.html?viewerConfigPath=/config/viewer-config-fleets.json&wsUri=ws://127.0.0.1:8765&wireVersion=v2
 ```
+
+1機構成では`dynamicSpawn`、`templateDroneIndex`、`maxDynamicDrones`は不要です。これらは
+複数機を動的生成するfleets quickstart用のオプションです。
 
 使用するポートは次のとおりです。
 
@@ -347,7 +368,7 @@ ss -ltnp | rg '8000|8765'
 ss -lunp | rg '14540|14550'
 ```
 
-`14550` はArduPilot系や別用途の設定で使われることがあるため、PX4接続先として固定しないでください。
+`14550` はQGCなどGCS向けの宛先です。pymavlinkの接続先はこのレシピでは`14540`です。
 
 ### Drone Service が終了する
 
