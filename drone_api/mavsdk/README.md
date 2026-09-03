@@ -304,12 +304,13 @@ vz: Down方向  [m/s]
 離陸処理を別の制御プログラムから再利用する場合は、次のように呼び出します。
 
 ```python
-takeoff(m, t0, height_m=2.0, climb_speed_m_s=0.8)
+takeoff(m, t0, height_m=0.5, climb_speed_m_s=0.8)
 ```
 
 `takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に
 2Hz超のsetpointを1秒超受信する必要があります。サンプルは互換性を優先し、1.5秒間の
-位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。ARM/OFFBOARDのACKは
+位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。既定の離陸高度は0.5mで、
+開始時の`LOCAL_POSITION_NED.z`を基準に判定します。ARM/OFFBOARDのACKは
 非ブロッキングで扱い、setpoint streamを途切れさせません。
 
 ### 速度指令デモの流れ

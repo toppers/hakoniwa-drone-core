@@ -10,8 +10,8 @@ from pymavlink import mavutil
 KEEPALIVE_HZ = 10.0
 PRE_OFFBOARD_SETPOINT_SEC = 1.5
 PRE_OFFBOARD_SETPOINT_HZ = 20.0
-# 2 m is a reliable, visible takeoff height for the bundled MuJoCo model.
-ALT = 2.0
+# The bundled model reliably demonstrates a short 0.5 m takeoff.
+ALT = 0.5
 YAW0 = 0.0
 
 def _ack_name(result):
@@ -122,20 +122,25 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
     # Keep sending vz while observing LOCAL_POSITION_NED.  A fixed sleep is
     # insufficient because it would advance to the horizontal demo even when
     # PX4 ignored the vertical setpoint.
-    target_z = -height_m + 0.5
     timeout = max(15.0, height_m / climb_speed_m_s * 3.0)
     dt = 1.0 / KEEPALIVE_HZ
     started = time.time()
     last_report = 0.0
     reached = False
+    initial_z = None
+    target_z = None
     while time.time() - started < timeout:
         send_vel_ned(m, t0, 0.0, 0.0, -climb_speed_m_s, YAW0)
         msg = m.recv_match(type='LOCAL_POSITION_NED', blocking=False)
         if msg is not None:
+            if initial_z is None:
+                initial_z = float(msg.z)
+                target_z = initial_z - height_m + 0.15
+                print(f"[INFO] Takeoff reference: z0={initial_z:.2f}m target={target_z:.2f}m")
             if time.time() - last_report >= 1.0:
                 print(f"[INFO] Takeoff state: z={msg.z:.2f}m vz={msg.vz:.2f}m/s")
                 last_report = time.time()
-            if float(msg.z) <= target_z:
+            if target_z is not None and float(msg.z) <= target_z:
                 reached = True
                 break
         time.sleep(dt)
@@ -156,6 +161,8 @@ def main():
     parser = argparse.ArgumentParser(description="PX4 single-vehicle offboard (pymavlink)")
     parser.add_argument("--udp", default="udp:127.0.0.1:14540",
                         help="Connection string (e.g., udp:127.0.0.1:14540)")
+    parser.add_argument("--alt", type=float, default=ALT,
+                        help=f"Takeoff height relative to the first LOCAL_POSITION_NED z (default: {ALT}m)")
     args = parser.parse_args()
 
     m = connect(args.udp)
@@ -177,7 +184,7 @@ def main():
 
     try:
         # 4) 速度setpointで離陸し、目標高度を保持
-        takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8)
+        takeoff(m, t0, height_m=args.alt, climb_speed_m_s=0.8)
 
         # 5) 水平速度デモ（Local NED: vx=North, vy=East, vz=Down）
         print("[INFO] Velocity demo: vx=1.0 m/s (North) for 5s")
