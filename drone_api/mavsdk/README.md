@@ -274,6 +274,7 @@ Offboard では setpoint の継続送信が必要なため、サンプルは一�
   - `mavutil.mavlink_connection()`で接続し、heartbeatを待つ
 - `arm()`
   - `MAV_CMD_COMPONENT_ARM_DISARM`を送る
+  - ACKを待ってsetpoint streamを止めない
 - `set_mode_offboard()`
   - `MAV_CMD_DO_SET_MODE`でPX4をOffboardへ切り替える
 - `send_vel_ned()`
@@ -284,7 +285,8 @@ Offboard では setpoint の継続送信が必要なため、サンプルは一�
   - Offboardのsetpoint切れを防ぐため、指定Hzで速度指令を繰り返す
 - `takeoff()`
   - 上向きの速度setpointを継続送信して離陸する
-  - 目標高度に到達した後、位置setpointで高度を保持する
+  - `LOCAL_POSITION_NED.z`を監視し、目標高度に到達した場合だけ成功扱いにする
+  - 高度に到達しなければ水平速度デモへ進まずエラーにする
 - `land()`
   - `MAV_CMD_NAV_LAND`で着陸させる
 
@@ -307,7 +309,8 @@ takeoff(m, t0, height_m=5.0, climb_speed_m_s=0.8)
 
 `takeoff()`はPX4のOffboardモードへ切り替えた後に呼び出します。PX4はOffboardへ入る前に
 2Hz超のsetpointを1秒超受信する必要があります。サンプルは互換性を優先し、1.5秒間の
-位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。
+位置setpoint送信→ ARM → Offboard → `takeoff()`の順で実行します。ARM/OFFBOARDのACKは
+非ブロッキングで扱い、setpoint streamを途切れさせません。
 
 ### 速度指令デモの流れ
 

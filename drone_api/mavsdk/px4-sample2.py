@@ -39,12 +39,12 @@ def arm(m, enable=True):
         mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM, 0,
         1 if enable else 0, 0,0,0, 0,0,0
     )
+    # Do not block here: the Offboard proof-of-life stream must not pause.
     with suppress(Exception):
-        ack = m.recv_match(type='COMMAND_ACK', blocking=True, timeout=2.0)
+        ack = m.recv_match(type='COMMAND_ACK', blocking=False)
         if ack is not None:
             print(f"[INFO] ARM ACK: {_ack_name(ack.result)}")
-            return ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
-    return False
+    return True
 
 def set_mode_offboard(m):
     PX4_CUSTOM_MAIN_MODE_OFFBOARD = 6
@@ -55,12 +55,12 @@ def set_mode_offboard(m):
         PX4_CUSTOM_MAIN_MODE_OFFBOARD,
         0,0,0,0,0
     )
+    # Do not block here: the next setpoint is sent immediately after this call.
     with suppress(Exception):
-        ack = m.recv_match(type='COMMAND_ACK', blocking=True, timeout=2.0)
+        ack = m.recv_match(type='COMMAND_ACK', blocking=False)
         if ack is not None:
             print(f"[INFO] OFFBOARD ACK: {_ack_name(ack.result)}")
-            return ack.result == mavutil.mavlink.MAV_RESULT_ACCEPTED
-    return False
+    return True
 
 def _time_boot_ms(t0: float) -> int:
     return int((time.time() - t0) * 1000) & 0xFFFFFFFF
@@ -117,12 +117,30 @@ def takeoff(m, t0, height_m=ALT, climb_speed_m_s=0.8):
     if height_m <= 0.0 or climb_speed_m_s <= 0.0:
         raise ValueError("height_m and climb_speed_m_s must be positive")
 
-    climb_seconds = height_m / climb_speed_m_s
     print(f"[INFO] Takeoff: height={height_m:.2f}m speed={climb_speed_m_s:.2f}m/s")
-    hold_vel(m, t0, 0.0, 0.0, -climb_speed_m_s,
-             YAW0, seconds=climb_seconds, hz=KEEPALIVE_HZ)
-    hold_pos(m, t0, 0.0, 0.0, -height_m,
-             YAW0, seconds=2.0, hz=KEEPALIVE_HZ)
+    # Keep sending vz while observing LOCAL_POSITION_NED.  A fixed sleep is
+    # insufficient because it would advance to the horizontal demo even when
+    # PX4 ignored the vertical setpoint.
+    target_z = -height_m + 0.5
+    timeout = max(15.0, height_m / climb_speed_m_s * 3.0)
+    dt = 1.0 / KEEPALIVE_HZ
+    started = time.time()
+    last_report = 0.0
+    reached = False
+    while time.time() - started < timeout:
+        send_vel_ned(m, t0, 0.0, 0.0, -climb_speed_m_s, YAW0)
+        msg = m.recv_match(type='LOCAL_POSITION_NED', blocking=False)
+        if msg is not None:
+            if time.time() - last_report >= 1.0:
+                print(f"[INFO] Takeoff state: z={msg.z:.2f}m vz={msg.vz:.2f}m/s")
+                last_report = time.time()
+            if float(msg.z) <= target_z:
+                reached = True
+                break
+        time.sleep(dt)
+    if not reached:
+        raise RuntimeError("Takeoff failed: target altitude was not reached")
+    hold_vel(m, t0, 0.0, 0.0, 0.0, YAW0, seconds=2.0, hz=KEEPALIVE_HZ)
     print(f"[INFO] Takeoff complete: target_altitude={height_m:.2f}m")
 
 def land(m):
@@ -151,11 +169,9 @@ def main():
              seconds=PRE_OFFBOARD_SETPOINT_SEC, hz=PRE_OFFBOARD_SETPOINT_HZ)
 
     # ARM -> OFFBOARD
-    if not arm(m, True):
-        raise RuntimeError("PX4 rejected ARM; check PX4 pre-arm checks and COMMAND_ACK")
-    print("[INFO] ARM command accepted")
-    if not set_mode_offboard(m):
-        raise RuntimeError("PX4 rejected OFFBOARD; check setpoint stream and COMMAND_ACK")
+    arm(m, True)
+    print("[INFO] ARM command sent")
+    set_mode_offboard(m)
     print("[INFO] OFFBOARD started")
 
     try:
