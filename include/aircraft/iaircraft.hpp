@@ -14,6 +14,7 @@
 #include "aircraft/impl/fault_injection/fault_rotor.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace hako::aircraft {
 
@@ -21,8 +22,9 @@ class IAirCraft: public IAirCraftInputAccessor, public std::enable_shared_from_t
 protected:
     bool            enable_disturbance = false;
     IDroneDynamics *drone_dynamics = nullptr;
-    IRotorDynamics *rotor_dynamics[ROTOR_NUM];
-    RotorConfigType rotor_config[ROTOR_NUM];
+    std::vector<IRotorDynamics*> rotor_dynamics;
+    std::vector<RotorConfigType> rotor_config;
+    std::vector<DroneRotorSpeedType> rotor_speed_buffer;
     IThrustDynamics *thrust_dynamics = nullptr;
     IBatteryDynamics *battery_dynamics = nullptr;
 
@@ -57,12 +59,14 @@ public:
     {
         this->delta_time_usec = d_time_usec;
     }
-    void set_rotor_config(const RotorConfigType _rotor_config[ROTOR_NUM])
+    void set_rotor_config(const std::vector<RotorConfigType>& configured_rotors)
     {
-        for (int i = 0; i < ROTOR_NUM; i++) {
-            this->rotor_config[i] = _rotor_config[i];
+        if (!rotor_dynamics.empty() && rotor_dynamics.size() != configured_rotors.size()) {
+            throw std::runtime_error("rotor config and rotor dynamics counts must match");
         }
+        rotor_config = configured_rotors;
     }
+    std::size_t get_rotor_count() const { return rotor_config.size(); }
     uint64_t get_simulation_time_usec()
     {
         return simulation_time_usec;
@@ -108,11 +112,15 @@ public:
     {
         return *drone_dynamics;
     }
-    void set_rotor_dynamics(IRotorDynamics *src[ROTOR_NUM])
+    void set_rotor_dynamics(const std::vector<IRotorDynamics*>& src)
     {
-        for (int i = 0; i < ROTOR_NUM; i++) {
-            this->rotor_dynamics[i] = src[i];
-            this->rotor_dynamics[i]->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
+        if (!rotor_config.empty() && rotor_config.size() != src.size()) {
+            throw std::runtime_error("rotor config and rotor dynamics counts must match");
+        }
+        rotor_dynamics = src;
+        rotor_speed_buffer.resize(rotor_dynamics.size());
+        for (auto* rotor : rotor_dynamics) {
+            rotor->set_aircraft_input_accessor(std::static_pointer_cast<IAirCraftInputAccessor>(shared_from_this()));
         }
     }
     void set_battery_dynamics(IBatteryDynamics *src)
@@ -125,7 +133,7 @@ public:
     }
     double get_rpm_max(int rotor_index)
     {
-        if (rotor_index < ROTOR_NUM) {
+        if (rotor_index >= 0 && static_cast<std::size_t>(rotor_index) < rotor_dynamics.size()) {
             return radPerSecToRPM(this->rotor_dynamics[rotor_index]->get_rad_per_sec_max());
         }
         else {
@@ -134,7 +142,7 @@ public:
     }
     IRotorDynamics *get_rotor_dynamics(int rotor_index)
     {
-        if (rotor_index < ROTOR_NUM) {
+        if (rotor_index >= 0 && static_cast<std::size_t>(rotor_index) < rotor_dynamics.size()) {
             return this->rotor_dynamics[rotor_index];
         }
         else {

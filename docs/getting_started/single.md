@@ -61,6 +61,7 @@ ZIPを展開したディレクトリ内に各バイナリが含まれていま�
 
 * Ardupilotとの双方向UDP通信で制御連携を行います。
 * Mission Plannerと連携して操作可能です。
+* macOS上のMuJoCo QuadとWindows版Mission Plannerを接続する実績確認済みの手順は、[ArduPilot Quad SITL + MuJoCo（箱庭なし）+ Windows Mission Planner](ardupilot-standalone-macos-mission-planner.md)を参照してください。
 
 Ardupilot起動例：
 

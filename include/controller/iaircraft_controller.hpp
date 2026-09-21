@@ -7,6 +7,10 @@
 #include "controller/aircraft_controller_types.h"
 #include "logger.hpp"
 
+namespace hakoniwa::drone::control_adapter {
+class IControlAdapterContext;
+}
+
 namespace hako::controller {
 
 enum class AircraftControlMode {
@@ -23,6 +27,11 @@ struct PwmDuty {
 class IAircraftMixer {
 public:
     virtual ~IAircraftMixer() {}
+    virtual void set_control_adapter_context(
+        const hakoniwa::drone::control_adapter::IControlAdapterContext* context)
+    {
+        (void)context;
+    }
     virtual PwmDuty run(mi_aircraft_control_out_t& in) = 0;
 };
 class IAircraftController: public logger::ILog {
@@ -54,6 +63,13 @@ public:
     }
     virtual void set_mixer(std::unique_ptr<IAircraftMixer> mixer) {
         mixer_ = std::move(mixer);
+    }
+    virtual void set_control_adapter_context(
+        const hakoniwa::drone::control_adapter::IControlAdapterContext* context)
+    {
+        if (mixer_ != nullptr) {
+            mixer_->set_control_adapter_context(context);
+        }
     }
     virtual std::shared_ptr<IAircraftMixer> mixer() {
         return mixer_;

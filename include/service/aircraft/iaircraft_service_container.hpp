@@ -1,6 +1,7 @@
 #pragma once
 
 #include "aircraft/iaircraft.hpp"
+#include "config/drone_config_types.hpp"
 #include "service/iservice_container.hpp"
 #include "mavlink.hpp"
 #include <memory>
@@ -31,15 +32,18 @@ public:
     virtual bool startService(uint64_t deltaTimeUsec) = 0;
     virtual bool startService(bool lockStep, uint64_t deltaTimeUsec) = 0;
     virtual bool setRealTimeStepUsec(uint64_t deltaTimeUsec) = 0;
+    virtual void setSitlConfig(const hako::config::SitlConfig& config) = 0;
     virtual bool setProtocolConfig(const HakoMavLinkProtocolConfigType& config) = 0;
-    virtual void advanceTimeStep(uint32_t index) = 0;
-    virtual void advanceTimeStep() = 0;
+    // IServiceContainer retains advanceTimeStep() for tick-driven services.
+    // Aircraft SITL is receiver-event-driven; its implementation rejects these
+    // calls to prevent a duplicate physics step.
     virtual void stopService() = 0;
     virtual void resetService() = 0;
     virtual uint64_t getSimulationTimeUsec(uint32_t index) = 0;
     virtual uint64_t getSitlTimeUsec(uint32_t index) = 0;
 
     virtual void enableReceiveEvent(uint32_t index) = 0;
+    virtual bool hasReceivedActuator(uint32_t index) const = 0;
 
     virtual bool write_pdu(uint32_t index, ServicePduDataType& pdu) = 0;
     virtual bool read_pdu(uint32_t index, ServicePduDataType& pdu) = 0;
@@ -63,5 +67,3 @@ public:
 };
 
 } // namespace hako::service::aircraft
-
-

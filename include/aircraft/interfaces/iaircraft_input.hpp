@@ -2,11 +2,12 @@
 
 #include "aircraft/interfaces/primitive_types.hpp"
 #include "aircraft/interfaces/idisturbance.hpp"
+#include "rotor_count.hpp"
 
 namespace hako::aircraft {
  
 #define MAX_CONTAT_NUM 10
-#define MAX_ROTOR_NUM  16
+inline constexpr std::size_t MAX_ROTOR_NUM = kMaxRotorCount;
 
 typedef struct {
     bool collision;

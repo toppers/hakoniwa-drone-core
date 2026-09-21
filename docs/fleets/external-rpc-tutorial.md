@@ -34,22 +34,22 @@ MuJoCo を使う場合は、さらに次が揃っていること。
 最小確認:
 
 ```bash
-python3 drone_api/external_rpc/obsolete/set_ready_client.py
-python3 drone_api/external_rpc/obsolete/takeoff_client.py
-python3 drone_api/external_rpc/obsolete/get_state_client.py
-python3 drone_api/external_rpc/obsolete/goto_client.py 1.0 0.0 3.0
-python3 drone_api/external_rpc/obsolete/land_client.py
+python3 drone_api/external_rpc/commands/takeoff_client.py
+python3 drone_api/external_rpc/commands/get_state_client.py
+python3 drone_api/external_rpc/commands/goto_client.py 1.0 0.0 3.0
+python3 drone_api/external_rpc/commands/land_client.py
 ```
 
 明示的に service config と drone 名を指定する場合:
 
 ```bash
-python3 drone_api/external_rpc/obsolete/set_ready_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/obsolete/takeoff_client.py config/drone/fleets/services/api-1-service.json Drone 3.0
-python3 drone_api/external_rpc/obsolete/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/obsolete/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
-python3 drone_api/external_rpc/obsolete/land_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/commands/takeoff_client.py config/drone/fleets/services/api-1-service.json Drone 3.0
+python3 drone_api/external_rpc/commands/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/commands/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
+python3 drone_api/external_rpc/commands/land_client.py config/drone/fleets/services/api-1-service.json Drone
 ```
+
+`takeoff_client.py`は必要に応じて`SetReady`を内部実行する。
 
 ### 2.2 Python から直接使う
 

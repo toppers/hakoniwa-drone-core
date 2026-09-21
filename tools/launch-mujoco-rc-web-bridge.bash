@@ -22,7 +22,9 @@ if [[ -z "${HAKO_DRONE_SERVICE_BIN:-}" ]]; then
       export HAKO_DRONE_SERVICE_BIN="${PROJECT_ROOT}/mac/mac-main_hako_drone_service"
     fi
   else
-    if [[ -x "/usr/local/bin/hakoniwa/linux-main_hako_drone_service" ]]; then
+    if [[ -x "${PROJECT_ROOT}/lnx/linux-main_hako_drone_service" ]]; then
+      export HAKO_DRONE_SERVICE_BIN="${PROJECT_ROOT}/lnx/linux-main_hako_drone_service"
+    elif [[ -x "/usr/local/bin/hakoniwa/linux-main_hako_drone_service" ]]; then
       export HAKO_DRONE_SERVICE_BIN="/usr/local/bin/hakoniwa/linux-main_hako_drone_service"
     else
       export HAKO_DRONE_SERVICE_BIN="${PROJECT_ROOT}/lnx/linux-main_hako_drone_service"
@@ -38,7 +40,11 @@ if [[ -z "${HAKO_VISUAL_STATE_PUBLISHER_BIN:-}" ]]; then
       export HAKO_VISUAL_STATE_PUBLISHER_BIN="${PROJECT_ROOT}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher"
     fi
   else
-    if [[ -x "/usr/local/bin/hakoniwa/linux-drone_visual_state_publisher" ]]; then
+    if [[ -x "${PROJECT_ROOT}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher" ]]; then
+      export HAKO_VISUAL_STATE_PUBLISHER_BIN="${PROJECT_ROOT}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher"
+    elif [[ -x "${PROJECT_ROOT}/lnx/linux-drone_visual_state_publisher" ]]; then
+      export HAKO_VISUAL_STATE_PUBLISHER_BIN="${PROJECT_ROOT}/lnx/linux-drone_visual_state_publisher"
+    elif [[ -x "/usr/local/bin/hakoniwa/linux-drone_visual_state_publisher" ]]; then
       export HAKO_VISUAL_STATE_PUBLISHER_BIN="/usr/local/bin/hakoniwa/linux-drone_visual_state_publisher"
     else
       export HAKO_VISUAL_STATE_PUBLISHER_BIN="${PROJECT_ROOT}/src/cmake-build/assets/visual_state_publisher/drone_visual_state_publisher"

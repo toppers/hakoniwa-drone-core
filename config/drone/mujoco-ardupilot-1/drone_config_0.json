@@ -3,6 +3,9 @@
     "simulation": {
         "lockstep": true,
         "timeStep": 0.003,
+        "sitl": {
+            "actuator_timeout_msec": 300
+        },
         "logOutputDirectory": ".",
         "logOutput": {
             "sensors": {

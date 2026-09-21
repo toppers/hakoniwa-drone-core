@@ -54,4 +54,10 @@ namespace hako::config {
         std::uint64_t gps_interval_usec{100000};
         std::string param_file_path{};
     };
+    struct SitlConfig {
+        std::uint64_t actuator_timeout_msec{300};
+        // Maps an incoming SITL actuator channel to a local rotor index.
+        // An empty mapping preserves the identity channel-to-rotor order.
+        std::vector<std::uint32_t> actuator_to_rotor_index{};
+    };
 }

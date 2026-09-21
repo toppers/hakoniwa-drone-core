@@ -23,6 +23,76 @@ For commercial licensing inquiries:
 
 - 📘 [箱庭ドローンPRO オプションライセンス](docs/license/pro-options.md)
 
+## クロスプラットフォーム・ビルド入口
+
+ネイティブビルドの標準入口は `tools/hako.py` です。Python 3.12 を前提とし、
+ユーザー向け設定 `hakoniwa-build.yaml` を検証してから既存CMakeへ渡します。
+Business Pack環境でのOS別手順は
+[`pro-docs/business-pack/build.md`](pro-docs/business-pack/build.md)を参照してください。
+
+```bash
+export HAKO_FOUNDATION_ROOT=/path/to/business-pack/work/foundation/install
+python3.12 tools/hako.py prepare
+python3.12 tools/hako.py doctor
+python3.12 tools/hako.py build
+python3.12 tools/hako.py test
+python3.12 tools/hako.py install
+python3.12 tools/hako.py package
+```
+
+箱庭ビジネスパックで `python tools/workspace.py enter` を実行した環境では、
+`HAKONIWA_HOME` からFoundationを自動解決するため、`HAKO_FOUNDATION_ROOT` の
+手動指定は不要です。`hako.py` はビジネスパック統合専用の入口であり、既存の
+`tools/build-mac.bash`、`tools/build-ubuntu.bash`、`tools/build-win.ps1` は変更せず、
+従来どおり利用できます。
+
+`prepare`はMuJoCo SDKのOS別準備を吸収します。`install` はReceipt付き成果物を
+`.hako/install`へ配置します。`package` は既存の
+PRO配布物と同じファイル名で、実行したOSに対応するディレクトリへ出力します。
+
+```text
+macOS   -> .hako/package/mac/
+Linux   -> .hako/package/lnx/
+Windows -> .hako/package/win/
+```
+
+Linuxで生成したパッケージは、そのままDockerへ渡せます。
+
+```bash
+bash docker/run.bash -p .hako/package/lnx
+```
+
+1回のビルドで3 OS分を生成するものではありません。各OS上で`build`と`package`を
+実行し、対応するネイティブパッケージを生成します。出力先は
+`hakoniwa-build.yaml`の`build.package_dir`で変更できます。
+
+既定の `general-200` は、一般向けに配布している最大200機体のバイナリと同じ
+Core build limitsを持つBusiness Pack内のローカルFoundationへリンクします。
+`/usr/local/hakoniwa`などのシステムディレクトリへfallbackしません。
+macOSでMuJoCo SDKが未配置の場合も、共通の`python tools/hako.py prepare`を使用します。
+
+200機体を超える研究用ビルドには
+[`config/build/hakoniwa-build-512.yaml`](config/build/hakoniwa-build-512.yaml)
+を使用します。この手順は、**箱庭ドローンPROライセンスと非公開ソースへの
+アクセス権を持つユーザーだけが実施できます**。公開Business Packだけでは
+再ビルドできません。
+
+```bash
+export HAKO_FOUNDATION_ROOT=/path/to/512-profile/foundation/install
+python3.12 tools/hako.py doctor \
+  --config config/build/hakoniwa-build-512.yaml
+python3.12 tools/hako.py build \
+  --config config/build/hakoniwa-build-512.yaml
+python3.12 tools/hako.py test \
+  --config config/build/hakoniwa-build-512.yaml
+python3.12 tools/hako.py install \
+  --config config/build/hakoniwa-build-512.yaml
+```
+
+`research-512` はFoundation Receiptの7つのbuild limitを完全一致で確認します。
+不一致時に別のFoundationやシステムディレクトリへfallbackしません。詳細は
+[fleets向け再ビルド手順](docs/fleets/rebuild-and-restart.md)を参照してください。
+
 # コンセプト
 
 「シミュレーションの世界を飛び出す！」をモットーに、以下の3つを柱としています：
@@ -396,18 +466,10 @@ ZIPを展開すると、以下のようなバイナリファイルが含まれ�
 
 - macOS: `mac-drone_visual_state_publisher`
 - Linux: `linux-drone_visual_state_publisher`
+- Windows: `win-drone_visual_state_publisher.exe`（v4.1.1以降）
 
 `tools/launch-fleets-scale-perf.bash` などの launcher 系スクリプトは、既定でこの配布先バイナリを利用します。
 必要に応じて `HAKO_VISUAL_STATE_PUBLISHER_BIN` で上書きできます。
-
-配布バイナリのランタイム契約は
-[`NATIVE_RUNTIME_REQUIREMENTS.yaml`](NATIVE_RUNTIME_REQUIREMENTS.yaml) に定義します。
-このファイルは配布プロファイルごとに、OS別の実行バイナリの役割と共有ライブラリ、
-管理対象ランタイムをmachine-readableに宣言します。Business PackのCatalogはこの契約を
-共通native runtime schemaでミラーし、Recipeはプロファイルと利用するバイナリ役割だけを
-選択します。MuJoCoの具体的なバージョンは
-重複して記載せず、引き続き [`MUJOCO_VERSION.txt`](MUJOCO_VERSION.txt) を唯一の
-version authorityとして参照します。
 
 > 📁 解凍場所に制限はありませんが、**日本語や空白を含まないパス**を推奨します。
 

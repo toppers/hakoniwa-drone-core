@@ -43,3 +43,20 @@ viewer 配信パスは `/opt/hakoniwa-threejs-drone` を優先して使用する
 
 - `HAKO_CORE_PRO_REPO`
 - `HAKO_CORE_PRO_REF`
+- `HAKO_PDU_ENDPOINT_REPO`
+- `HAKO_PDU_ENDPOINT_REF`
+- `HAKO_PDU_BRIDGE_CORE_REPO`
+- `HAKO_PDU_BRIDGE_CORE_REF`
+- `HAKO_THREEJS_DRONE_REPO`
+- `HAKO_THREEJS_DRONE_REF`
+
+各 `*_REF` は実際に checkout される。既定値は相互に検証したcommitへ固定しており、
+依存を更新する場合はCore、Endpoint、BridgeのCMake package契約をまとめて確認する。
+
+Bridgeは `docker/config/hakoniwa-pdu-bridge-core.yaml` を使って
+`hako.py build/install`する。イメージに必要なWebBridgeだけを有効化し、
+tests、examples、monitor、standalone bridgeはDocker imageのビルド対象に含めない。
+
+このDockerイメージの `/usr/local/hakoniwa` は、コンテナ内で完結する実行環境用prefixである。
+Business Packから利用する場合のFoundationは、Business Packのworking directory配下へ
+`hako.py build/install`で構築する別の契約であり、ホストの`/usr/local/hakoniwa`を前提にしない。

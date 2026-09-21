@@ -2,12 +2,13 @@ FROM ubuntu:24.04 AS hakoniwa-drone-core
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG HAKO_CORE_PRO_REPO="https://github.com/hakoniwalab/hakoniwa-core-pro.git"
-ARG HAKO_CORE_PRO_REF="main"
+ARG HAKO_CORE_PRO_REF="c0b700a744aaa81d3f8ce1c354439d981bc1046d"
 ARG HAKO_PDU_ENDPOINT_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-endpoint.git"
-ARG HAKO_PDU_ENDPOINT_REF="main"
+ARG HAKO_PDU_ENDPOINT_REF="fddc10e6929ac4e75cdc015b53e0b405147cd6bb"
 ARG HAKO_PDU_BRIDGE_CORE_REPO="https://github.com/hakoniwalab/hakoniwa-pdu-bridge-core.git"
-ARG HAKO_PDU_BRIDGE_CORE_REF="main"
+ARG HAKO_PDU_BRIDGE_CORE_REF="957e7fc14119994f2fa2e22f13a1acdf5463ad87"
 ARG HAKO_THREEJS_DRONE_REPO="https://github.com/hakoniwalab/hakoniwa-threejs-drone.git"
+ARG HAKO_THREEJS_DRONE_REF="c31960fb28eaf15e936d4a7b19aa8c5cdcd3c096"
 ARG CMAKE_BUILD_JOBS=4
 
 ENV PATH="/usr/local/hakoniwa/bin:/usr/local/bin/hakoniwa:${PATH}" \
@@ -51,7 +52,9 @@ RUN MUJOCO_VERSION=$(cat MUJOCO_VERSION.txt) && \
 
 # hakoniwa-core（source build）
 WORKDIR /root
-RUN git clone --recursive "${HAKO_CORE_PRO_REPO}"
+RUN git clone "${HAKO_CORE_PRO_REPO}" hakoniwa-core-pro \
+    && git -C hakoniwa-core-pro checkout --detach "${HAKO_CORE_PRO_REF}" \
+    && git -C hakoniwa-core-pro submodule update --init --recursive
 WORKDIR /root/hakoniwa-core-pro
 RUN bash build.bash
 RUN bash install.bash
@@ -60,21 +63,31 @@ WORKDIR /root
 # hakoniwa-pdu-endpoint（bridge-core 依存）
 RUN pip3 install --no-cache-dir --break-system-packages cffi
 ENV PYTHONPATH="/usr/local/hakoniwa/share/hakoniwa-pdu-endpoint/python:${PYTHONPATH}"
-RUN git clone --recursive "${HAKO_PDU_ENDPOINT_REPO}"
+RUN git clone "${HAKO_PDU_ENDPOINT_REPO}" hakoniwa-pdu-endpoint \
+    && git -C hakoniwa-pdu-endpoint checkout --detach "${HAKO_PDU_ENDPOINT_REF}" \
+    && git -C hakoniwa-pdu-endpoint submodule update --init --recursive
 WORKDIR /root/hakoniwa-pdu-endpoint
 RUN bash build.bash
 RUN bash install.bash
 WORKDIR /root
 
 # hakoniwa-pdu-bridge-core（web bridge バイナリ）
-RUN git clone --recursive "${HAKO_PDU_BRIDGE_CORE_REPO}"
+RUN git clone "${HAKO_PDU_BRIDGE_CORE_REPO}" hakoniwa-pdu-bridge-core \
+    && git -C hakoniwa-pdu-bridge-core checkout --detach "${HAKO_PDU_BRIDGE_CORE_REF}" \
+    && git -C hakoniwa-pdu-bridge-core submodule update --init --recursive
+COPY docker/config/hakoniwa-pdu-bridge-core.yaml /opt/hakoniwa-build/hakoniwa-pdu-bridge-core.yaml
 WORKDIR /root/hakoniwa-pdu-bridge-core
-RUN bash build.bash
-RUN bash install.bash
+RUN python3 tools/hako.py build \
+      --config /opt/hakoniwa-build/hakoniwa-pdu-bridge-core.yaml
+RUN python3 tools/hako.py install \
+      --config /opt/hakoniwa-build/hakoniwa-pdu-bridge-core.yaml \
+      --install-dir /usr/local/hakoniwa
 WORKDIR /root
 
 # threejs viewer（fleets web 配信用）
-RUN git clone --recursive "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone
+RUN git clone "${HAKO_THREEJS_DRONE_REPO}" /opt/hakoniwa-threejs-drone \
+    && git -C /opt/hakoniwa-threejs-drone checkout --detach "${HAKO_THREEJS_DRONE_REF}" \
+    && git -C /opt/hakoniwa-threejs-drone submodule update --init --recursive
 
 # Python（>= のクォートを忘れずに）
 RUN pip3 install --no-cache-dir --break-system-packages numpy scipy \

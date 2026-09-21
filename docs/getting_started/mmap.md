@@ -85,6 +85,8 @@ PX4 連携サンプルアプリを使うと箱庭ドローンシミュレータ�
 
 Ardupilot 連携サンプルアプリを使うと箱庭ドローンシミュレータの物理モデルとArdupilotを連携することが可能です。
 
+macOS上のMuJoCo Quad、箱庭時刻同期、Windows版Mission Plannerを使う実績確認済みの手順は、[ArduPilot Quad SITL + MuJoCo（箱庭あり）+ Windows Mission Planner](ardupilot-hakoniwa-macos-mission-planner.md)を参照してください。
+
 実行方法：
 ```bash
 <os名>-main_hako_aircraft_service_ardupilot <ホストPCのIPアドレス> 9002 9003 ./config/drone/ardupilot <path/to/hakoniwa-unity-drone>/simulation/avatar-drone.json
@@ -162,4 +164,3 @@ Pythonスクリプトの実行方法は、[こちら](/drone_api/README-ja.md)�
 2. 箱庭ドローンのサンプルアプリを起動する。
 3. Unityエディタで、STARTボタンを押下する。
 4. フライトプラン操作用のPythonスクリプトを起動する。
-

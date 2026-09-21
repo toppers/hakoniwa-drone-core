@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
-OBSOLETE_DIR="${SCRIPT_DIR}/../obsolete"
+COMMANDS_DIR="${SCRIPT_DIR}/../commands"
 
 SERVICE_CONFIG="${REPO_ROOT}/config/drone/fleets/services/api-current-service.json"
 DRONE_NAME="Drone-1"
@@ -122,9 +122,8 @@ if [[ -n "${DRONES_CSV}" ]]; then
 fi
 
 echo "[single-mission] drone=${DRONE_NAME}"
-python3 "${OBSOLETE_DIR}/set_ready_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
-python3 "${OBSOLETE_DIR}/takeoff_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}" "${ALT_M}"
-python3 "${OBSOLETE_DIR}/goto_client.py" \
+python3 "${COMMANDS_DIR}/takeoff_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}" "${ALT_M}"
+python3 "${COMMANDS_DIR}/goto_client.py" \
   --service-config "${SERVICE_CONFIG}" \
   --drone "${DRONE_NAME}" \
   --speed "${SPEED_M_S}" \
@@ -132,7 +131,7 @@ python3 "${OBSOLETE_DIR}/goto_client.py" \
   --timeout-sec "${TIMEOUT_SEC}" \
   "${TARGET_X}" "${TARGET_Y}" "${TARGET_Z}" "${TARGET_YAW_DEG}"
 if [[ "${DO_LAND}" == "1" ]]; then
-  python3 "${OBSOLETE_DIR}/land_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
+  python3 "${COMMANDS_DIR}/land_client.py" "${SERVICE_CONFIG}" "${DRONE_NAME}"
 fi
 
 echo "[single-mission] done"

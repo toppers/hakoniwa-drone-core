@@ -1,7 +1,7 @@
 schema_version: 1
 profiles:
-  public-v4.0.0:
-    distribution_release: v4.0.0
+  public-v4.1.1:
+    distribution_release: v4.1.1
     managed_runtimes:
       mujoco:
         required: true
@@ -11,6 +11,8 @@ profiles:
             library: vendor/mujoco/lib/libmujoco.so.{version}
           macos:
             library: vendor/mujoco/lib/libmujoco.{version}.dylib
+          windows:
+            library: vendor/mujoco/bin/mujoco.dll
     platforms:
       linux:
         dependency_inspector: elf
@@ -24,3 +26,9 @@ profiles:
           drone_service: mac/mac-main_hako_drone_service
           visual_state_publisher: mac/mac-drone_visual_state_publisher
         required_libraries: ["libglfw.3.dylib"]
+      windows:
+        dependency_inspector: pe
+        binary_roles:
+          drone_service: win/win-main_hako_drone_service.exe
+          visual_state_publisher: win/win-drone_visual_state_publisher.exe
+        required_libraries: ["mujoco.dll", "glfw3.dll"]

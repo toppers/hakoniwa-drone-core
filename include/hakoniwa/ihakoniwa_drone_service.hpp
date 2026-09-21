@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <limits>
+#include <stdexcept>
 #include <string>
 #include <memory>
 #include "service/iservice_container.hpp"
@@ -26,5 +28,17 @@ public:
     virtual void setRealSleepMsec(uint32_t sleep_msec) = 0;
 
     virtual void setPduIdMap(service::ServicePduDataIdType pdu_id, int channel_id) = 0;
+
+    // Appended with a compatibility fallback so existing source-level
+    // implementations that only support millisecond pacing remain valid.
+    virtual void setRealSleepUsec(uint64_t sleep_usec)
+    {
+        if ((sleep_usec % 1000) != 0
+            || (sleep_usec / 1000) > std::numeric_limits<uint32_t>::max()) {
+            throw std::invalid_argument(
+                "This Hakoniwa service implementation only supports whole-millisecond sleep");
+        }
+        setRealSleepMsec(static_cast<uint32_t>(sleep_usec / 1000));
+    }
 };
 } // namespace hako::drone

@@ -61,6 +61,25 @@ public:
     bool getSimLockStep() const {
         return configJson["simulation"]["lockstep"].get<bool>();
     }
+    SitlConfig getSimSitlConfig() const {
+        SitlConfig config;
+        if (!configJson.contains("simulation")) {
+            return config;
+        }
+        const auto& simulation = configJson["simulation"];
+        if (!simulation.contains("sitl") || !simulation["sitl"].is_object()) {
+            return config;
+        }
+        const auto& sitl = simulation["sitl"];
+        if (sitl.contains("actuator_timeout_msec")) {
+            config.actuator_timeout_msec = sitl["actuator_timeout_msec"].get<std::uint64_t>();
+        }
+        if (sitl.contains("actuator_to_rotor_index")) {
+            config.actuator_to_rotor_index =
+                sitl["actuator_to_rotor_index"].get<std::vector<std::uint32_t>>();
+        }
+        return config;
+    }
     LoggingMode getSimLoggingMode() const;
     std::string getSimLogOutputDirectory() const;
     std::string getRoboName() const

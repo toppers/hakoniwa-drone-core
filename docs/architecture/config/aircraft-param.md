@@ -8,6 +8,8 @@
 - **name**: 機体名
 - **lockstep**: シミュレーションのロックステップモード。`true` で同期モードに設定されます。
 - **timeStep**: シミュレーションのタイムステップ間隔。単位は秒(`s`)。例: `0.003`。
+- **sitl**: (オプション) PX4 / ArduPilot などの SITL 連携時の診断設定。
+  - **actuator_timeout_msec**: SITL からの actuator 入力を最後に受信してから timeout と判定するまでの時間。単位はミリ秒(`ms`)。未指定時は `300`。
 - **logging**: ログ採取方式の設定。
   - **mode**: ログ採取方式。
     - `csv`: 現行の CSV ログ出力を行います。
@@ -38,6 +40,135 @@
   - `logOutputDirectory` と `logOutput.*` が有効です
 - `simulation.logging.mode` が未指定の場合:
   - 後方互換のため、`csv` と同等に扱う想定です
+
+### SITL actuator timeout 監視
+
+PX4 / ArduPilot などの外部 SITL と接続する場合、通常は actuator 入力を受信したタイミングで機体の物理更新を行い、Hakoniwa simulation tick 側で sensor データを送信します。
+
+```text
+actuator受信イベント:
+  -> actuator入力を反映
+  -> aircraft->run()
+
+Hakoniwa simulation tick:
+  -> send_sensor_data()
+  -> write_back_pdu()
+```
+
+この構造では、SITL 側から actuator 入力が一定時間届かなくなると、`aircraft->run()` が呼ばれず、機体内部の simulation time が進まなくなります。その結果、`send_sensor_data()` の周期判定に使う時刻も進まず、Hakoniwa 全体の simulation tick は進んでいても sensor 送信が止まる場合があります。
+
+`simulation.sitl.actuator_timeout_msec` は、この状態を検出してログへ出すための閾値です。timeout 検出時に、最後に受信した actuator timestamp、最後に送信した sensor timestamp、外部シミュレーション時刻、機体内部の simulation time を出力します。
+
+設定例:
+
+```json
+{
+  "simulation": {
+    "lockstep": true,
+    "timeStep": 0.003,
+    "sitl": {
+      "actuator_timeout_msec": 300
+    }
+  }
+}
+```
+
+未設定時は、次と同等に扱います。
+
+```text
+actuator_timeout_msec = 300
+```
+
+この監視ログは、SITL 側が actuator 出力を止める根本原因を解決するものではありません。長時間 timeout が継続する場合は、SITL 側の状態、MAVLink/TCP 通信、GCS/mission 操作の影響を確認してください。
+
+### SITL actuator timeout ログ
+
+actuator timeout を検出すると、次のような warning が出力されます。
+
+```text
+WARN: [sitl-lockstep] actuator receive timeout aircraft_index=0 timeout_active=1 actuator_age_sec=2 hako_time_usec=2929014000 last_actuator_sim_usec=1783566165101128 sensor_age_sec=0 last_sensor_sim_usec=1783566165104128 current_sim_usec=823308000
+```
+
+各項目の意味は次のとおりです。
+
+| 項目 | 時刻の種類 | 意味 |
+|---|---|---|
+| `aircraft_index` | index | 対象機体の index |
+| `timeout_active` | 状態 | `1` の場合、actuator timeout を検出中 |
+| `actuator_age_sec` | 実時間 | 最後に actuator 入力を受信してからの経過秒 |
+| `external_time_usec` | 外部 simulation time | 接続先のシミュレーション時刻。箱庭連携時はasset時刻 |
+| `last_actuator_sim_usec` | SITL message timestamp | 最後に受信した actuator message の timestamp |
+| `sensor_age_sec` | 実時間 | 最後に sensor 送信に成功してからの経過秒 |
+| `last_sensor_sim_usec` | MAVLink sensor timestamp | 最後に送信した sensor message の timestamp |
+| `current_sim_usec` | aircraft simulation time | 機体内部の simulation time。`aircraft->run()` で進む |
+
+ログの見方:
+
+- `external_time_usec` が進み、`current_sim_usec` が止まる場合:
+  - 外部シミュレーション時刻は進んでいるが、機体内部の物理更新が止まっています。
+- `actuator_age_sec` が増え続ける場合:
+  - SITL 側から actuator 入力が届いていません。
+- `sensor_age_sec` も増え続ける場合:
+  - sensor 送信も止まっています。`current_sim_usec` が止まっている場合は、sensor 周期判定に使う機体内部時刻が進んでいない可能性があります。
+- `external_time_usec` が進み、`actuator_age_sec` が増え続ける場合:
+  - 外部シミュレーション時刻は進んでいますが、SITL 側から actuator 入力が戻っていません。
+
+timeout 検出後に actuator 入力を再受信すると、次のような復帰ログが出ます。
+
+```text
+INFO: [sitl-lockstep] actuator receive recovered aircraft_index=0 aircraft_sim_usec=824000000 actuator_sim_usec=1783566165401128
+```
+
+### 実験的な外部時刻/SITL時刻バリア
+
+時刻ドメイン、bootstrap、通常時の双方向barrier、マルチ機の動作契約は
+[SITL and Hakoniwa asset time synchronization](../aircraft/sitl-time-sync.md)
+を正本とする。
+
+`hakoniwa-build.yaml`の`features.sitl_asset_time_sync`を`true`にしてビルドすると、従来のtimeout監視に加えて、
+外部シミュレーション時刻と機体内部時刻を相互に待ち合わせる方式が有効になります。
+この機能はデフォルトで`ON`です。従来の非同期方式を明示的に確認する場合だけ`false`を指定してください。
+
+Aircraft Serviceは`IServicePduSyncher`の任意の時刻同期機能だけを使用します。
+通常の`ServicePduSyncher`はNOPなので箱庭なしでは既存経路のままです。箱庭連携時だけ
+`HakoniwaSimulator`が外部時刻の提供・待機・停止通知を実装します。
+
+```yaml
+features:
+  sitl_asset_time_sync: true
+```
+
+この方式では、処理の所有者を次のように分離します。
+
+```text
+SITL actuator受信スレッド:
+  -> 外部シミュレーション時刻が追いつくまで待つ
+  -> actuator入力を反映
+  -> aircraft->run()
+  -> sensor送信
+
+外部シミュレーションstep callback:
+  -> aircraft timeが次の外部tickへ到達するまで待つ
+  -> PDUを書き戻す
+  -> 外部シミュレーション時刻を1 tick進める
+```
+
+待機が診断間隔を超えると、次のいずれかを出力します。
+
+- `event=external_time_waiting_for_sitl`: 外部シミュレーション側はstep callbackへ到達しているが、
+  SITLから次のactuatorが届かず、機体物理時刻が進んでいない。
+- `event=sitl_waiting_for_external_time`: SITLのactuatorは届いているが、
+  外部シミュレーション時刻が進んでいない。
+- `event=external_time_wait_for_sitl_recovered` / `event=sitl_wait_for_external_time_recovered`:
+  対応する待機状態から復帰した。
+
+各ログには`external_time_usec`、`aircraft_time_usec`、`skew_usec`、
+`actuator_count`、`physics_step_count`、`sensor_send_count`を含めます。
+カウンタが止まった位置と待機方向を併せて確認することで、SITL/MAVLink側と
+外部シミュレーションcallback側のどちらから調査すべきかを切り分けられます。
+
+PX4とArduPilotは共通のAircraft Service同期クラスを使用しますが、現時点の
+実SITL確認範囲はPX4です。
 
 ### パス解決の基準
 
@@ -80,9 +211,15 @@ path 項目は、次の順で解決する方針とする。
     - **angular_velocity**: 角速度 [x, y, z] のリセットを有効にするか。
   - **body_boundary_disturbance_power**: (オプション) 地面効果の強さ。デフォルトは `1.0`。
   - **mujoco**: (オプション) MuJoCo連携用の設定。
-    - **modelPath**: MuJoCoモデルファイルのパス。
+    - **modelPath**: MuJoCoモデルファイルのパス。`.xml`は`mj_loadXML()`でコンパイルして読み込み、`.mjb`は`mj_loadModel()`でコンパイル済みモデルを直接読み込む。拡張子の大文字・小文字は区別しない。それ以外の拡張子は設定誤りとして拒否する。
     - **modelName**: モデル名。
     - **propNames**: プロペラ名（複数指定可）。
+
+### MuJoCo XMLとMJB
+
+`.xml`は可搬性と編集性を持つ正本として使用する。大規模なmeshを含むworldでは、起動ごとにXMLをコンパイルすると時間がかかるため、同じMuJoCo versionで事前生成した`.mjb`を`modelPath`へ指定できる。
+
+MJBはMuJoCo version-boundな実行成果物であり、異なるMuJoCo versionで生成したファイルの互換性は保証しない。Drone PRO側のMuJoCoを更新した場合は、正本XMLからMJBを再生成すること。MJBの配布・生成工程では、正本XMLのhash、MJBのhash、生成に使用したMuJoCo versionを併せて記録することを推奨する。
 - **rotor**: ローターの設定。
   - **vendor**: ベンダ名。現状は`None`。
   - **rpmMax**: ローターの最大回転数 (rpm)。

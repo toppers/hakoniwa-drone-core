@@ -11,8 +11,16 @@ INSTANCE=${3:-0}
 
 cd ${ARDUPILOT_DIR}
 
-WSL_IP=`ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'`
-
+if [ `uname` == "Linux" ]
+then
+    WSL_IP=`ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'`
+elif [ `uname` == "Darwin" ]
+then
+    WSL_IP="127.0.0.1"
+else
+    echo "Unsupported OS: `uname`"
+    exit 1
+fi
 # Calculate ports based on instance ID
 MAVLINK_OUT_PORT=$((14550 + 10 * INSTANCE))
 SIM_PORT_IN=9003

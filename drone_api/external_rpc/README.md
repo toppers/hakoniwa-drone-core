@@ -94,7 +94,7 @@
 4. [hakosim_async_shared_asset_rpc.py](hakosim_async_shared_asset_rpc.py)
    - asset 版 shared runtime client
    - `AssetAsyncSharedHakoniwaRpcDroneClient`
-5. `obsolete/*.py`
+5. `commands/*.py`
    - 単一 command を送る thin wrapper
 6. [samples/multi_goto_demo.py](samples/multi_goto_demo.py)
    - fleet controller の最小利用例
@@ -144,22 +144,23 @@
 ## 単体 command の実行例
 
 ```bash
-python3 drone_api/external_rpc/obsolete/set_ready_client.py
-python3 drone_api/external_rpc/obsolete/takeoff_client.py
-python3 drone_api/external_rpc/obsolete/get_state_client.py
-python3 drone_api/external_rpc/obsolete/goto_client.py 1.0 0.0 3.0
-python3 drone_api/external_rpc/obsolete/land_client.py
+python3 drone_api/external_rpc/commands/takeoff_client.py
+python3 drone_api/external_rpc/commands/get_state_client.py
+python3 drone_api/external_rpc/commands/goto_client.py 1.0 0.0 3.0
+python3 drone_api/external_rpc/commands/land_client.py
 ```
 
 明示的に service config と drone 名を渡す例:
 
 ```bash
-python3 drone_api/external_rpc/obsolete/set_ready_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/obsolete/takeoff_client.py config/drone/fleets/services/api-1-service.json Drone 3.0
-python3 drone_api/external_rpc/obsolete/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
-python3 drone_api/external_rpc/obsolete/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
-python3 drone_api/external_rpc/obsolete/land_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/commands/takeoff_client.py 3.0 config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/commands/get_state_client.py config/drone/fleets/services/api-1-service.json Drone
+python3 drone_api/external_rpc/commands/goto_client.py --service-config config/drone/fleets/services/api-1-service.json --drone Drone 3.0 0.0 3.0 45.0
+python3 drone_api/external_rpc/commands/land_client.py config/drone/fleets/services/api-1-service.json Drone
 ```
+
+`takeoff_client.py`は機体が未準備の場合に`SetReady`を内部実行するため、事前の
+ready操作は不要です。
 
 ## 複数機の最小例
 
