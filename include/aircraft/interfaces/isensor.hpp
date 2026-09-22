@@ -13,7 +13,7 @@ protected:
     ISensorNoise *noise;
     void *vendor_model;
     void *context;
-    std::shared_ptr<IAirCraftInputAccessor> aircraft_input_accessor;
+    std::weak_ptr<IAirCraftInputAccessor> aircraft_input_accessor;
 public:
     virtual ~ISensor() {}
     virtual void set_vendor(void *vendor, void *context)
