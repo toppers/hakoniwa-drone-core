@@ -34,6 +34,20 @@ public:
     virtual bool setRealTimeStepUsec(uint64_t deltaTimeUsec) = 0;
     virtual void setSitlConfig(const hako::config::SitlConfig& config) = 0;
     virtual bool setProtocolConfig(const HakoMavLinkProtocolConfigType& config) = 0;
+    // PX4 only (simulation.sitl.sensor_period_msec): sets the HIL_SENSOR period of the default
+    // transmission path and holds each actuator over the physics steps up to the next sensor.
+    // Not called: 3 ms sensors and one physics step per actuator, as before.
+    virtual bool setSitlSensorPeriodUsec(uint32_t index, uint64_t period_usec) = 0;
+    // PX4 HIL sensor update metadata. Zero keeps the historical behavior for that sensor.
+    virtual bool setSitlSensorUpdatePeriodsUsec(
+        uint32_t index,
+        uint64_t baro_period_usec,
+        uint64_t mag_period_usec,
+        uint64_t gps_period_usec) = 0;
+    // Optional: where to record the SITL time base (sitl_time.json) at start, so that a log of the
+    // autopilot (PX4 takes HIL_SENSOR time_usec = simulation time + this base as its clock) can be
+    // put on the service clock exactly. Not called: nothing is written.
+    virtual void setSitlTimeRecordPath(uint32_t index, const std::string& path) = 0;
     // IServiceContainer retains advanceTimeStep() for tick-driven services.
     // Aircraft SITL is receiver-event-driven; its implementation rejects these
     // calls to prevent a duplicate physics step.

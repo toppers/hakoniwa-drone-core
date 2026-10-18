@@ -60,6 +60,8 @@ EXPORT int drone_service_rc_set_target_altitude_m(int index, double altitude_m);
 EXPORT int drone_service_rc_set_target_position_xy_m(int index, double x_m, double y_m);
 EXPORT int drone_service_rc_set_target_velocity_xy_m_s(int index, double vx_m_s, double vy_m_s);
 EXPORT int drone_service_rc_set_target_vertical_speed_m_s(int index, double vz_m_s);
+/* phase: 0 normal, 1 takeoff, 2 landing. */
+EXPORT int drone_service_rc_set_flight_phase(int index, int phase);
 EXPORT int drone_service_rc_set_target_roll_rate_rad_s(int index, double p_rad_s);
 EXPORT int drone_service_rc_set_target_pitch_rate_rad_s(int index, double q_rad_s);
 EXPORT int drone_service_rc_set_target_yaw_rate_rad_s(int index, double r_rad_s);

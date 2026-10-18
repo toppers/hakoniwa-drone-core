@@ -22,6 +22,7 @@ public:
     enum class ApiServiceMode {
         LegacyApi,
         Rpc,
+        Commander,  // controller.apiServiceMode "commander"
     };
 
     static std::shared_ptr<IDroneServiceContainer> create(
@@ -88,6 +89,7 @@ public:
     virtual void set_target_position_xy_m(uint32_t index, double x_m, double y_m) = 0;
     virtual void set_target_velocity_xy_m_s(uint32_t index, double vx_m_s, double vy_m_s) = 0;
     virtual void set_target_vertical_speed_m_s(uint32_t index, double vz_m_s) = 0;
+    virtual void set_flight_phase(uint32_t, hako::controller::FlightPhase) {}
     virtual void set_target_roll_rate_rad_s(uint32_t index, double p_rad_s) = 0;
     virtual void set_target_pitch_rate_rad_s(uint32_t index, double q_rad_s) = 0;
     virtual void set_target_yaw_rate_rad_s(uint32_t index, double r_rad_s) = 0;

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
+#include <optional>
 #include <memory>
 #include <string>
 
@@ -9,9 +12,20 @@
 
 namespace hakoniwa::drone::control_adapter {
 class IControlAdapterContext;
+struct ControlAllocationStatus;
 }
 
 namespace hako::controller {
+
+// The phase of flight a caller requests: the API service from its command state,
+// the tuning runner from its scenario. The 3D position adapter shapes the takeoff and the landing.
+enum class FlightPhase : std::uint8_t {
+    Normal = 0,
+    Takeoff = 1,
+    Landing = 2,
+};
+
+using ControlStageSkip = hako::config::ControlStageSkip;
 
 enum class AircraftControlMode {
     ATTI,
@@ -31,6 +45,23 @@ public:
         const hakoniwa::drone::control_adapter::IControlAdapterContext* context)
     {
         (void)context;
+    }
+    // Receives the allocation status of every run, so the controller can feed
+    // allocation saturation back to RateControl on the next cycle
+    // (AllocationFeedbackPolicy, pro-docs/control-link/interface-spec.md).
+    using AllocationStatusSink =
+        std::function<void(const hakoniwa::drone::control_adapter::ControlAllocationStatus&)>;
+    virtual void set_allocation_status_sink(AllocationStatusSink sink)
+    {
+        (void)sink;
+    }
+    // Receives the body torque [N*m] that each allocation actually produced,
+    // reconstructed from the normalized rotor thrust and the rotor geometry
+    // (adapter-independent; logged in controller.csv).
+    using AllocationTorqueSink = std::function<void(double x_nm, double y_nm, double z_nm)>;
+    virtual void set_allocation_torque_sink(AllocationTorqueSink sink)
+    {
+        (void)sink;
     }
     virtual PwmDuty run(mi_aircraft_control_out_t& in) = 0;
 };
@@ -57,6 +88,25 @@ public:
         }
     }
     virtual bool is_radio_control() = 0;
+    // Whether the vehicle is flying, from the controller's own takeoff/landing
+    // state (RC).  std::nullopt when the controller does not track it.
+    virtual std::optional<bool> is_airborne() const
+    {
+        return std::nullopt;
+    }
+    // Landed state from the operating mode (the same source as the EKF
+    // flight state), passed to RateControl as RateControlInput::landed.
+    // std::nullopt when the operating mode does not know it.
+    virtual void set_landed(std::optional<bool> landed)
+    {
+        (void)landed;
+    }
+    // Clears the control state (PID integrators, previous stage outputs)
+    // without touching logs, configuration or targets.  DroneService calls it
+    // when a flight starts, so a new takeoff does not inherit the last one.
+    virtual void reset_control_state() {}
+    // Skips due stage runs with a seeded probability (timing disturbance); default: never.
+    virtual void set_stage_skip(const ControlStageSkip& skip) { (void)skip; }
     virtual void reset() = 0;
     virtual void set_index(int index) {
         index_ = index;
@@ -97,6 +147,9 @@ public:
     virtual void set_target_pitch_rate_rad_s(double q_rad_s) = 0;
     virtual void set_target_yaw_rate_rad_s(double r_rad_s) = 0;
     virtual void clear_all_target() {}
+    // Kept until the next call (clear_all_target does not reset it). Controllers without a 3D position
+    // stage (radio) ignore it.
+    virtual void set_flight_phase(FlightPhase) {}
 };
 
 class IAircraftControllerContainer {

@@ -23,12 +23,17 @@ For commercial licensing inquiries:
 
 - 📘 [箱庭ドローンPRO オプションライセンス](docs/license/pro-options.md)
 
+# 📘 はじめに読む文書（箱庭ドローンPRO）
+
+箱庭ドローンPROの納品物を受け取った方は、納品物の中の箱庭ドローンPRO ドキュメント（`pro-docs/README.md`）から始めてください。
+目的ごとの通し手順へ案内します。
+
 ## クロスプラットフォーム・ビルド入口
 
 ネイティブビルドの標準入口は `tools/hako.py` です。Python 3.12 を前提とし、
 ユーザー向け設定 `hakoniwa-build.yaml` を検証してから既存CMakeへ渡します。
-Business Pack環境でのOS別手順は
-[`pro-docs/business-pack/build.md`](pro-docs/business-pack/build.md)を参照してください。
+Business Pack環境でのOS別手順は、箱庭ドローンPROの納品物の中の
+`pro-docs/business-pack/build.md`を参照してください。
 
 ```bash
 export HAKO_FOUNDATION_ROOT=/path/to/business-pack/work/foundation/install
@@ -55,6 +60,10 @@ macOS   -> .hako/package/mac/
 Linux   -> .hako/package/lnx/
 Windows -> .hako/package/win/
 ```
+
+全 OS の配布物には、実行に必要な MuJoCo 共有ライブラリと MuJoCo のライセンス文を同梱します。
+Windows の配布物には `glfw3.dll` とそのライセンス文も同梱します。macOS の GLFW は Homebrew のものを使用します。
+実行には、Microsoft の Visual C++ 2015-2022 再頒布可能パッケージ（x64）が必要です。入っていない PC では、Microsoft の配布ページから入れてください。
 
 Linuxで生成したパッケージは、そのままDockerへ渡せます。
 
@@ -404,7 +413,12 @@ v3.6.0での対応:
   * pyenv
     * python: version 3.12.0
       * 3.13以降では動きません。
-* MacOSの場合、homebrewでインストールしたものでは動きません。
+* MacOSの場合、homebrewでインストールしたPythonでは動きません（pyenvのPythonを使ってください）。
+* macOS向けの`mac.zip`を使う場合は、GLFWをHomebrewでインストールしてください。
+
+  ```bash
+  brew install glfw
+  ```
 
 # シミュレータ準備チェックリスト
 

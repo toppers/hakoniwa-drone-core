@@ -25,6 +25,9 @@ public:
     {
         this->noise = n;
     }
+    // Clears the sensor's delay history (components.sensors.<name>.delayMsec) on a simulation reset,
+    // so no pre-reset sample comes out after it. Sensors without a delay do nothing.
+    virtual void reset_delay() {}
     virtual void set_aircraft_input_accessor(std::shared_ptr<IAirCraftInputAccessor> accessor)
     {
         this->aircraft_input_accessor = accessor;

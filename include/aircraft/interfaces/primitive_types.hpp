@@ -2,6 +2,7 @@
 
 #include <glm/vec3.hpp>
 #include <math.h>
+#include <cmath>
 #include "physics/body_physics.hpp"
 
 namespace hako::aircraft {
@@ -337,12 +338,23 @@ typedef struct {
 /*
  * Conversion Macros for GPS DOP Data to MAVLink Format
  *
- * - DOP_TO_UINT16: Converts DOP value in double to MAVLink's uint16_t format.
- *   The DOP value is multiplied by 1 and cast to uint16_t.
+ * - DOP_TO_UINT16: Legacy conversion that places the configured value directly in the MAVLink field.
+ *   It intentionally does not convert metres to centimetres, preserving existing vehicle behaviour.
  *   If the DOP value is unknown, UINT16_MAX is used.
  */
 
 #define DOP_TO_UINT16(dop) ((dop) >= 0 ? static_cast<uint16_t>((dop) * 1) : UINT16_MAX)
+
+// PX4 SITL interprets HIL_GPS eph/epv as centimetres and divides them by 100. This conversion is
+// only for the new components.sensors.gps.accuracy path; the legacy DOP_TO_UINT16 path stays intact.
+inline uint16_t px4_hil_gps_accuracy_m_to_cm(double value_m, double default_m)
+{
+    const double effective = (std::isfinite(value_m) && value_m >= 0.0) ? value_m : default_m;
+    const double centimetres = std::round(effective * 100.0);
+    return centimetres >= static_cast<double>(UINT16_MAX)
+        ? UINT16_MAX
+        : static_cast<uint16_t>(centimetres);
+}
 
 // Example usage:
 // uint16_t mavlink_eph = DOP_TO_UINT16(drone_gps_data.eph);

@@ -57,6 +57,12 @@ angular_acceleration_in_body_frame(
     const TorqueType& torque, /* in body frame */
     const InertiaDiagType& I /* in body frame */);
 
+/* Aerodynamic drag torque around the body yaw axis. */
+double yaw_air_drag_torque(
+    double yaw_rate_rad_per_sec,
+    double linear_coefficient,
+    double quadratic_coefficient);
+
 /* euler angle acceleration(dd phi, dd theta, dd psi) */
 EulerAccelerationType
 euler_acceleration_in_ground_frame(

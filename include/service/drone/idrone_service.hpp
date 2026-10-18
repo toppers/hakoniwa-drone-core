@@ -148,6 +148,7 @@ public:
     virtual void set_target_position_xy_m(double x_m, double y_m) = 0;
     virtual void set_target_velocity_xy_m_s(double vx_m_s, double vy_m_s) = 0;
     virtual void set_target_vertical_speed_m_s(double vz_m_s) = 0;
+    virtual void set_flight_phase(hako::controller::FlightPhase) {}
     virtual void set_target_roll_rate_rad_s(double p_rad_s) = 0;
     virtual void set_target_pitch_rate_rad_s(double q_rad_s) = 0;
     virtual void set_target_yaw_rate_rad_s(double r_rad_s) = 0;

@@ -86,22 +86,11 @@ features:
 
 従来の PX4 固有 option から、PX4 / ArduPilot 共通の SITL 時刻同期へ整理しました。
 
-新しい option は次です。
-
-```text
-HAKO_SITL_ASSET_TIME_SYNC
-```
-
-既定値は `ON` です。
-
-```yaml
-features:
-  sitl_asset_time_sync: true
-```
+この同期は常に有効です。切り替え用のoptionはありません。
 
 SITL actuator 受信を起点に機体物理を進め、箱庭側 asset time との barrier で同期します。これにより、PX4 と ArduPilot を共通の Aircraft Service 同期モデルで扱えるようになりました。
 
-旧 `HAKO_PX4_EVENT_DRIVEN_LOCKSTEP` を独自 build script や manifest から指定している場合は、新しい option へ移行してください。
+旧 `HAKO_PX4_EVENT_DRIVEN_LOCKSTEP` を独自build scriptやmanifestから削除してください。
 
 ### 3. Aircraft / Mixer 周辺を利用する独自コードは再ビルド推奨
 
