@@ -322,7 +322,12 @@ This simulator supports the following diverse configuration patterns, which can 
     *   pyenv
         *   python: version 3.12.0
             *   Does not work with 3.13 or later.
-    *   For macOS, it does not work with the one installed by homebrew.
+    *   For macOS, it does not work with the Python installed by homebrew (use the pyenv Python).
+    *   To use `mac.zip` on macOS, install GLFW with Homebrew:
+
+        ```bash
+        brew install glfw
+        ```
 
 # Simulator Preparation Checklist
 
@@ -367,6 +372,8 @@ To run this simulator, you need to download and unzip the **binary ZIP file for 
 | `mac.zip` | macOS | Supports Arm Macs such as M1/M2/M3 |
 | `lnx.zip` | Ubuntu | Supports Ubuntu 22.04 / 24.04 |
 | `win.zip` | Windows | Supports Windows 11 |
+
+Every OS package includes its MuJoCo shared library and the MuJoCo license texts. The Windows package also includes `glfw3.dll` and its license text; macOS uses GLFW from Homebrew. Windows needs the Microsoft Visual C++ 2015-2022 Redistributable (x64); install it from Microsoft if the PC does not have it.
 
 When you unzip the ZIP, it contains binary files like the following:
 

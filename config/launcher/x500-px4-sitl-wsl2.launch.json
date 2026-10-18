@@ -1,0 +1,26 @@
+{
+  "version": "0.1",
+  "defaults": {
+    "cwd": ".",
+    "stdout": "logs/${asset}.out",
+    "stderr": "logs/${asset}.err",
+    "start_grace_sec": 1,
+    "delay_sec": 1,
+    "env": {
+      "prepend": {
+        "lib_path": ["/usr/local/hakoniwa/lib"],
+        "PATH": ["/usr/local/hakoniwa/bin"]
+      }
+    }
+  },
+  "assets": [
+    {
+      "name": "drone-service-px4",
+      "activation_timing": "before_start",
+      "command": "${HAKO_DRONE_SERVICE_BIN}",
+      "args": ["127.0.0.1", "4560", "config/drone/x500-px4-sitl", "config/pdudef/drone-pdudef-1.json"],
+      "cwd": "${HAKO_DRONE_PROJECT_PATH}",
+      "delay_sec": 3
+    }
+  ]
+}

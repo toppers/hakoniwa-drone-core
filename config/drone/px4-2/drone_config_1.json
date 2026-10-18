@@ -1,5 +1,10 @@
 {
-  "name": "Drone1",
+  "configVersion": "4.2",
+  "validatedWith": {
+    "mujoco": "3.16.0",
+    "droneProVersion": "4.2.0"
+  },
+"name": "Drone1",
   "simulation": {
       "lockstep": true,
       "timeStep": 0.003,

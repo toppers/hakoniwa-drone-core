@@ -4,12 +4,40 @@
 
 各項目の設定内容は以下のとおりです。
 
+## 設定の版と確かめた環境（v4.2.0から）
+
+- **configVersion**: (オプション) 機体設定の形の版。文字列で、Drone PROのマイナー版（例: `"4.2"`）。
+  設定の形を変えた版のときだけ上がり、パッチ版では変わりません。
+  - ない場合: v4.1.2以前の設定として、今までどおり読みます（警告を1行出します）。
+  - `"4.1"`、`"4.2"`: そのまま読みます。
+  - 知らない版（例: `"4.3"`）や形の違う値（`"4"`、`"v4.2"`、数値）: 起動時にエラーで止まります。
+    新しい項目が黙って無視されるのを防ぐためです。
+- **validatedWith**: (オプション) この設定（チューニングした値）を作って確かめた環境の記録。すべての項目は省略できます。
+  - **droneProVersion**、**droneProSha**: Drone PROの版とgitのSHA（作業ツリーが汚れていれば`-dirty`付き）。
+  - **mujoco**: MuJoCoの版（例: `"3.16.0"`）。
+  - **px4Adapter**、**px4Autopilot**: PX4アダプターとPX4-AutopilotのSHA。
+  - **ardupilotAdapter**、**ardupilot**: ArduPilotアダプターとArduPilotのSHA。
+  - **recordedAt**、**by**: 記録した日と、記録したツール。
+
+  ビルドに使う版の正本（`MUJOCO_VERSION.txt`）とは別物です。版を上げても設定は自動では変わりません。
+  起動時には（MuJoCo付きのビルドで）、`mujoco`とリンクしているMuJoCoの版を比べ、違えば警告を1行出して動きます。
+  `validatedWith`がない場合も警告を1行出します。環境変数`HAKO_STRICT_VALIDATED_WITH=1`を付けると、これらを
+  エラーにします。
+
+SITLで飛ばすときの設定は、[SITLで使う設定](#sitlで使う設定)にまとめています。
+
 ## シミュレーション設定
 - **name**: 機体名
 - **lockstep**: シミュレーションのロックステップモード。`true` で同期モードに設定されます。
 - **timeStep**: シミュレーションのタイムステップ間隔。単位は秒(`s`)。例: `0.003`。
+- **randomSeed**: (オプション) センサnoiseを再現するための基準seed。`0`から`4294967295`の整数。省略時は従来の共有乱数系列を使用します。
 - **sitl**: (オプション) PX4 / ArduPilot などの SITL 連携時の診断設定。
   - **actuator_timeout_msec**: SITL からの actuator 入力を最後に受信してから timeout と判定するまでの時間。単位はミリ秒(`ms`)。未指定時は `300`。
+  - **sensor_period_msec**: (オプション、PX4 SITL専用) PX4へセンサー（`HIL_SENSOR`）を送る周期。単位はミリ秒(`ms`)。
+    `timeStep`の整数倍にします。指定すると、PX4の指令1回で、次のセンサーを送るまで物理を進めます
+    （例: `timeStep` 0.001、`sensor_period_msec` 4で、物理1 ms・PX4のIMUと制御4 ms。PX4用Gazeboと同じ形）。
+    未指定時は従来どおり、センサー3 ms、指令1回につき物理1ステップです。ArduPilot SITLでは指定できません
+    （毎ステップセンサーを送る前提のため。指定すると機体サービスがエラーで止まります）。
 - **logging**: ログ採取方式の設定。
   - **mode**: ログ採取方式。
     - `csv`: 現行の CSV ログ出力を行います。
@@ -19,7 +47,8 @@
 - **logOutput**: 各種センサーとMAVLinkのログ出力の有効/無効。
   - **sensors**: 各センサーのログ出力設定。`true` または `false`。
   - **mavlink**: MAVLinkメッセージのログ出力設定。`true` または `false`。
-- **mavlink_tx_period_msec**: MAVLinkメッセージの送信周期。単位はミリ秒(`ms`)。
+- **mavlink_tx_period_msec**: 廃止。機体サービスはこの値を読みません（以前から読まれていませんでした）。
+  書かれていても無視されます。PX4のセンサー周期は`sitl.sensor_period_msec`で指定します。
 - **location**: シミュレーションの地理的位置。
   - **latitude**: 緯度。単位は度(`deg`)。
   - **longitude**: 経度。単位は度(`deg`)。
@@ -28,6 +57,26 @@
     - **intensity_nT**: 地磁気の強度。単位はナノテスラ(`nT`)。
     - **declination_deg**: 地磁気の偏角。単位は度(`deg`)。
     - **inclination_deg**: 地磁気の傾斜角。単位は度(`deg`)。
+
+### センサnoiseの再現性
+
+`simulation.randomSeed`を指定すると、accelerometer、gyroscope、magnetometer、barometer、GPSは、
+基準seed、機体名、機体index、センサー名から導出した独立seedを使用します。
+
+```json
+{
+  "simulation": {
+    "timeStep": 0.001,
+    "randomSeed": 1
+  }
+}
+```
+
+同じ設定、バイナリ、実行順序では同じセンサnoise系列を再現できます。各センサーは乱数生成器を
+共有しないため、別センサーのサンプル回数を変更しても既存センサーの乱数列へ影響しません。
+マルチドローンでは機体名とindexもseed導出に含めるため、機体間で同じnoise系列になりません。
+
+`randomSeed`を省略した場合は後方互換のため従来の`rand()`による共有系列を使用します。
 
 ### logging と logOutput の関係
 
@@ -125,18 +174,11 @@ INFO: [sitl-lockstep] actuator receive recovered aircraft_index=0 aircraft_sim_u
 [SITL and Hakoniwa asset time synchronization](../aircraft/sitl-time-sync.md)
 を正本とする。
 
-`hakoniwa-build.yaml`の`features.sitl_asset_time_sync`を`true`にしてビルドすると、従来のtimeout監視に加えて、
-外部シミュレーション時刻と機体内部時刻を相互に待ち合わせる方式が有効になります。
-この機能はデフォルトで`ON`です。従来の非同期方式を明示的に確認する場合だけ`false`を指定してください。
+外部シミュレーション時刻と機体内部時刻を相互に待ち合わせる方式は常に有効です。
 
 Aircraft Serviceは`IServicePduSyncher`の任意の時刻同期機能だけを使用します。
 通常の`ServicePduSyncher`はNOPなので箱庭なしでは既存経路のままです。箱庭連携時だけ
 `HakoniwaSimulator`が外部時刻の提供・待機・停止通知を実装します。
-
-```yaml
-features:
-  sitl_asset_time_sync: true
-```
 
 この方式では、処理の所有者を次のように分離します。
 
@@ -214,6 +256,28 @@ path 項目は、次の順で解決する方針とする。
     - **modelPath**: MuJoCoモデルファイルのパス。`.xml`は`mj_loadXML()`でコンパイルして読み込み、`.mjb`は`mj_loadModel()`でコンパイル済みモデルを直接読み込む。拡張子の大文字・小文字は区別しない。それ以外の拡張子は設定誤りとして拒否する。
     - **modelName**: モデル名。
     - **propNames**: プロペラ名（複数指定可）。
+    - **yawAirDrag**: (オプション) 機体bodyのヨー軸まわりに作用する空力減衰トルク。省略時は無効。
+      - **linearCoefficient**: 線形係数 `C_linear`。単位は `N*m*s/rad`。既定値は `0.0`。
+      - **quadraticCoefficient**: 二次係数 `C_quadratic`。単位は `N*m*s^2/rad^2`。既定値は `0.0`。
+
+ヨー角速度 `r [rad/s]` に対する空力減衰トルク `Tz [N*m]` は、MuJoCo機体bodyのヨー軸に次式で適用する。
+
+```text
+Tz = -C_linear * r - C_quadratic * r * |r|
+```
+
+設定例:
+
+```json
+"yawAirDrag": {
+  "linearCoefficient": 0.0,
+  "quadraticCoefficient": 0.0012
+}
+```
+
+`0.0012 N*m*s^2/rad^2` は一般的な機体の推奨値ではない。ローター故障試験に使用した機体について、故障後のヨー角速度が約 `12 rad/s` で定常になることを確認した値である（このとき減衰トルクは `0.0012 * 12^2 = 0.1728 N*m` で、残った2ローターの反トルクと釣り合う）。機体形状、慣性、ローター反作用トルクに応じて再同定すること。
+
+同じ定常ヨー角速度で同じ減衰トルクになるよう、線形項を使うこともできる。例: `12 rad/s` で `0.1728 N*m` になる組み合わせは、線形のみ `C_linear = 0.0144`、または `C_linear = 0.0072` と `C_quadratic = 0.0006`。線形項は、静止からの回転の立ち上がりを抑える。
 
 ### MuJoCo XMLとMJB
 
@@ -224,6 +288,10 @@ MJBはMuJoCo version-boundな実行成果物であり、異なるMuJoCo version�
   - **vendor**: ベンダ名。現状は`None`。
   - **rpmMax**: ローターの最大回転数 (rpm)。
   - **max_rad_per_sec**: (オプション) ローターの有効最大角速度。単位は `rad/s`。未指定時は後方互換のため、ホバリング角速度 `omega_hover = sqrt(mass_kg * g / (Ct * ROTOR_NUM))` の 2 倍を使用します。指定時はその値を有効最大角速度として使用します。v4.0.0 では一次遅れモデルの duty-to-speed scale も、この有効最大角速度と同じ値として扱います。
+  - **softDelayMsec**: (オプション) ソフトとしての遅延。飛行制御ソフトの出力が
+    モーターへ届くまでの遅れです（例: PX4 SITLの指令のやり取り。x500の実測で約2 ms）。Drone PROが自分の制御器のDutyを
+    機体へ渡すときだけ効きます（Control Linkのみ）。SITLでは自動操縦の出力をそのまま使うので効きません。モーター自身の
+    応答（ハードの遅れ）はローターのモデル（**dynamics_constants**）が表します。物理の刻みの整数倍に丸めます。未指定は`0`。
   - **radius**: ローターの半径 (m)。
   - **dynamics_constants**: ローターの動力学定数。
     - **R**: 電気抵抗 (Ω)。
@@ -251,6 +319,42 @@ MJBはMuJoCo version-boundな実行成果物であり、異なるMuJoCo version�
 - **sensors**: 各種センサーの設定。
   - **sampleCount**: サンプル数。
   - **noise**: ノイズレベル（標準偏差）。ノイズがない場合は `0`。
+  - **updatePeriodMsec**: センサーが新しい値を出す周期（1〜3,600,000の整数、ms）。`acc`と`gyro`は両方に同じ値を
+    指定します。すべての周期は`simulation.timeStep`の整数倍にします。PX4 SITLでは`baro`と`mag`をさらに
+    IMU送信周期の整数倍にします（Control Linkでは各EKF入力周期を独立に設定できます）。
+    未指定時は従来動作を維持します。Control Linkでは対応する`controller.ekf.*IntervalUsec`の既定値になり、
+    `*IntervalUsec`を明示した場合は明示値を優先して不一致を警告します。PX4 SITLではIMUのHIL_SENSOR周期、
+    baro/magの`fields_updated`、HIL_GPS周期に反映します。baro/magは更新回だけ新しいセンサー値を取得し、
+    それ以外のHIL_SENSORでは直前の値を保持し、BAROとDIFF_PRESSの更新印を落とします。ArduPilot SITLでは
+    GPSだけを整数型の`SIM_GPS_HZ`へ変換し、割り切れない場合は最も近い表現可能なHzへ丸めて警告します。
+    その他は未使用として実行記録へ残します。
+  - **gps.accuracy**: GPSが申告する精度。`horizontalM`（水平位置、m）、`verticalM`（垂直位置、m）、
+    `speedMps`（速度、m/s）を指定します。一部を省略した場合は順に`0.5`、`0.75`、`0.5`を使います。
+    `accuracy`がある場合、PX4 SITLのHIL_GPSには水平・垂直をcmへ変換して送り、Control LinkのEKFには
+    メートルのまま渡します。負・非有限値は既定値、HIL_GPSのuint16範囲以上は65535へ制限します。
+  - **gps.eph / gps.epv / gps.sacc**: 非推奨（将来廃止）。互換性のため、`accuracy`がない場合だけ従来どおり
+    使用します。旧`eph`/`epv`は値をそのままHIL_GPSへ載せるため、PX4 SITLではcmと解釈され、設定値の
+    1/100 mとして届きます。`accuracy`と併記した場合は`accuracy`を優先します。
+
+| GPS設定 | PX4 SITL | Control Link |
+|---|---|---|
+| `accuracy`あり | `horizontalM`・`verticalM`を×100してcmで送信 | 3値を指定単位のままEKFへ渡す |
+| 旧`eph`・`epv`・`sacc`のみ | 従来どおり値をそのまま送信 | 従来どおりメートル／m/sとして渡す |
+| どちらもなし | 従来の既定`eph=10`、`epv=10` | 従来の既定値を渡す |
+
+  GPSの`accuracy`はセンサーが申告する精度、`noise`は実際の観測値に加える誤差で、別の設定です。
+  GPSの劣化を表す場合は両方を設定します。
+  - **delayMsec**: (オプション) ハードとしての遅延。センサーの値そのものが、この時間だけ
+    遅れます（例: GNSSの解が届くまで100 ms、気圧計のフィルタ）。プラグイン（Control Link）にも、SITLへ送る値にも効きます。
+    `gps`、`baro`、`acc`、`gyro`、`mag`で指定できます。物理の刻みの整数倍に丸めます。未指定は`0`。
+  - **softDelayMsec**: (オプション) ソフトとしての遅延。飛行制御ソフトが、受け取った値を
+    使うまでの遅れです（例: PX4 SITLはIMUを1サンプル遅れて使う。250 Hzなら4 ms）。Drone PROが自分の制御器とEKFに
+    渡すときだけ効きます（Control Linkのみ）。SITLでは自動操縦が自分でこの遅れを生むので、SITLへ送る値には足しません。
+    指定できるセンサーと丸めは`delayMsec`と同じです。未指定は`0`。
+  - `delayMsec`と`softDelayMsec`を両方指定すると、Control Linkの制御器とEKFには合計の遅れで届きます。ハードの分は、
+    EKFが遅延の見込み（PX4の`SENS_GPS0_DELAY`・`EKF2_BARO_DELAY`、ArduPilotの`GPS1_DELAY_MS`・`EK3_HGT_DELAY`）で
+    補正します（見込みはハードの遅れと同じ値にします）。ソフトの分は、値だけが遅れ、時刻は「今」として渡すので補正されません
+    （飛行制御ソフトは自分の処理の遅れを知らないため）。SITLへ送る値とセンサーのログは、ハードの分だけ遅れます。
   - **vendor**: (オプション) センサモジュールのパス。
   - **context**: (オプション) センサモジュールに渡す追加情報。
     - **moduleName**: モジュール名。
@@ -272,6 +376,19 @@ MJBはMuJoCo version-boundな実行成果物であり、異なるMuJoCo version�
   - `rpc`: 新しい箱庭 RPC service を使う。
   - `legacy-api`: 従来の箱庭 PDU ベース API を使う。
   - 未指定時は `legacy-api` として扱われる。
+- **backendConfig**: (オプション) 制御バックエンドの設定。
+  - **px4ConfigPath**: `backendType`が`adapter-px4`のときの、PX4コントローラー設定ファイルへのパス。
+  - **px4ThrustModelFactor**: (オプション、`adapter-px4`) PX4の`THR_MDL_FAC`（0〜1）。指定すると、正規化推力からDutyへの
+    変換を、ローターのモデルの正確な逆算ではなく、PX4 SITLと同じくPX4の推力曲線（`f·u²+(1−f)·u`）で行います。
+    この1係数の曲線はhoverの点を通っても傾きが合わず、ループの効きが変わるため（x500で1.34倍）、SITLと同じ条件に
+    するときに使います。未指定は正確な逆算（従来どおり）。
+- **stageSkip**: (オプション) 制御段の実行の取りこぼしを、seed付きの乱数で入れます
+  （Control Linkのみ）。汎用OS上で動く自動操縦（SITL）は、タスクの順序がOSのスケジューリングで揺れ、制御段が
+  サンプルを取りこぼすことがあります。その影響をControl Linkで再現・確認するときに使います。未指定は取りこぼしなし
+  （従来どおり、決定論的）。
+  - **seed**: 乱数の種（整数、未指定は1）。同じseedなら同じ取りこぼしが再現します。
+  - **altitude** / **horizontal** / **attitude** / **rate**: 各段の実行の番が来たときに飛ばす確率（0〜1、未指定は0）。
+    飛ばした回は前の出力を使い、次の実行はその分の時間をまとめて受け取ります。
 - **direct_rotor_control**: ローターの直接制御を有効にする場合は`true`。
 - **mixer**: (オプション) ドローンのミキサー設定。未設定の場合は、推力とトルクが直接物理モデルに入力されます。
   - **enable**: ミキサーを有効にするかどうか。未指定時は `true` として扱われる。
@@ -318,6 +435,26 @@ MJBはMuJoCo version-boundな実行成果物であり、異なるMuJoCo version�
   - radio control controller の場合は `rc`
   - それ以外は `api + legacy-api`
 
+
+## SITLで使う設定
+
+PX4 SITL・ArduPilot SITLで、実機に近いセンサーの届き方で飛ばすための、最低限の設定です。どれも既存の
+項目で、書かなければ今までどおりに動きます。
+
+| 項目 | PX4 SITL | ArduPilot SITL | 理由 |
+|---|---|---|---|
+| `simulation.timeStep` | `0.001`（物理 1 ms） | `0.001` | 物理の刻みを細かくし、センサーの周期を割り切れるようにします |
+| `simulation.sitl.sensor_period_msec` | `4`（IMU と制御 4 ms） | 書かない（書くとエラー） | PX4 は、センサーが届くたびに制御します |
+| `components.sensors.gps.delayMsec` / `baro.delayMsec` | `100` / `60` | 書かない | GNSS の解と気圧計のフィルタの遅れです。ArduPilot SITL は GPS と気圧計を自分で作り、遅れも自分で入れるので、二重にしません |
+| 自動操縦の遅れの見込み | `SENS_GPS0_DELAY` 100、`EKF2_BARO_DELAY` 60 | `GPS1_DELAY_MS`・`EK3_HGT_DELAY` を、ArduPilot SITL の遅れ（`SIM_GPS_LAG_MS`・`SIM_BARO_DELAY`）と同じに | EKF が遅れを補正できるよう、見込みを実際の遅れと同じにします。PX4 SITL の起動スクリプトは `SENS_GPS0_DELAY` を既定値へ戻すので、機体ファイルで `param set` します |
+| `components.sensors.gps.accuracy` | `horizontalM` 0.2、`verticalM` 0.3、`speedMps` 0.1（例） | 同左 | GPS が申告する精度です。旧 `eph`/`epv` は単位の解釈が違うので使いません |
+| `simulation.location.magneticField` | 実在の値（0 にしない） | 同左。偏角は `COMPASS_DEC` にも入れる | 0 だと機首方位が決まりません |
+| `components.droneDynamics.position_meter` の `z` | 機体を地面に置いて、落ち着いた高さ | 同左 | 空中から始めると、開始直後に落ちて着地し、その間の動きが変わります。高さは機体のモデル（脚の長さ）で決まります |
+| `components.sensors.*.noise`、`simulation.randomSeed` | 必要に応じて | 同左 | ノイズを入れる場合、`randomSeed` を決めると同じノイズを再現できます |
+| `components.sensors.*.updatePeriodMsec` | 必要に応じて（`baro`・`mag` は IMU の周期の整数倍） | GPS だけ `SIM_GPS_HZ` に反映 | センサーごとの更新の周期です |
+
+各項目の詳しい意味は、上の[シミュレーション設定](#シミュレーション設定)と[コンポーネント設定](#コンポーネント設定)の
+説明を見てください。
 
 ## 機体パラメータの設定例
 

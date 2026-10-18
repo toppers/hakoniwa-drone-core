@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <cstddef>
 
 namespace hako::comm {
 
@@ -20,6 +21,14 @@ namespace hako::comm {
         virtual ~ICommIO() = default;
         virtual bool send(const char* data, int datalen, int* send_datalen) = 0;
         virtual bool recv(char* data, int datalen, int* recv_datalen) = 0;
+        virtual bool recv_latest(char* data, int datalen, int* recv_datalen, std::size_t* dropped_count,
+            int min_valid_datalen = 0) {
+            (void)min_valid_datalen;
+            if (dropped_count) {
+                *dropped_count = 0;
+            }
+            return recv(data, datalen, recv_datalen);
+        }
         virtual bool close() = 0;
     };
 

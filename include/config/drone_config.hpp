@@ -7,6 +7,10 @@
 #include <filesystem>
 #include <optional>
 #include <array>
+#include <cmath>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
 
 #include <regex>
 #include <algorithm>
@@ -44,12 +48,22 @@ private:
     nlohmann::json configJson;
     std::string config_filepath;
     std::string controllerParamText = "";
+    mutable bool gps_quality_warning_emitted_{false};
+    mutable bool sensor_update_warning_emitted_{false};
+    bool validate_loaded_config() const;
     static std::string join_module_filename(const std::string& module_directory, const std::string& module_name);
     fs::path getConfigDirectoryPath() const;
     static std::string normalize_path_string(const fs::path& path);
     std::string resolvePath(const std::string& raw_path, bool must_exist) const;
     std::string resolveModuleDirectory(const std::string& raw_directory) const;
 public:
+    struct GyroDriftConfig {
+        std::string mode;
+        double speed_deg_s_per_min{0.0};
+        double time_min{0.0};
+        double random_walk_deg_s_sqrt_sec{0.0};
+        std::uint32_t seed{0};
+    };
     DroneConfig() {}
     bool init(const std::string& configFilePath);
     bool init_from_text(const std::string& configText);
@@ -60,6 +74,31 @@ public:
     }
     bool getSimLockStep() const {
         return configJson["simulation"]["lockstep"].get<bool>();
+    }
+    std::optional<std::uint32_t> getSimRandomSeed() const {
+        if (!configJson.contains("simulation") ||
+            !configJson["simulation"].contains("randomSeed")) {
+            return std::nullopt;
+        }
+        const auto& value = configJson["simulation"]["randomSeed"];
+        if (!value.is_number_unsigned() && !value.is_number_integer()) {
+            throw std::runtime_error("simulation.randomSeed must be an integer");
+        }
+        std::uint64_t seed = 0;
+        if (value.is_number_unsigned()) {
+            seed = value.get<std::uint64_t>();
+        }
+        else {
+            const auto signed_seed = value.get<std::int64_t>();
+            if (signed_seed < 0) {
+                throw std::runtime_error("simulation.randomSeed must be in 0..4294967295");
+            }
+            seed = static_cast<std::uint64_t>(signed_seed);
+        }
+        if (seed > std::numeric_limits<std::uint32_t>::max()) {
+            throw std::runtime_error("simulation.randomSeed must be in 0..4294967295");
+        }
+        return static_cast<std::uint32_t>(seed);
     }
     SitlConfig getSimSitlConfig() const {
         SitlConfig config;
@@ -77,6 +116,9 @@ public:
         if (sitl.contains("actuator_to_rotor_index")) {
             config.actuator_to_rotor_index =
                 sitl["actuator_to_rotor_index"].get<std::vector<std::uint32_t>>();
+        }
+        if (sitl.contains("sensor_period_msec")) {
+            config.sensor_period_msec = sitl["sensor_period_msec"].get<std::uint64_t>();
         }
         return config;
     }
@@ -124,11 +166,6 @@ public:
         return configJson["simulation"]["logOutput"]["mavlink"][mavlinkMessage].get<bool>();
     }
 
-    /* MAVLINK Transmission Period */
-    int getSimMavlinkTransmissionPeriod(const std::string& mavlinkMessage) const {
-        return configJson["simulation"]["mavlink_tx_period_msec"][mavlinkMessage].get<int>();
-    }
-
     /* Location parameters */
     double getSimLatitude() const {
         return configJson["simulation"]["location"]["latitude"].get<double>();
@@ -161,12 +198,24 @@ public:
         return configJson["components"]["droneDynamics"]["physicsEquation"].get<std::string>();
     }
     bool getCompDroneDynamicsMuJoCoParameters(MuJoCoParameters& params) const {
+        // The output object may be reused. An omitted optional block must
+        // always mean that yaw air drag is disabled.
+        params.yawAirDragLinearCoefficient = 0.0;
+        params.yawAirDragQuadraticCoefficient = 0.0;
         if (configJson["components"]["droneDynamics"].contains("mujoco")) {
             params.modelPath = configJson["components"]["droneDynamics"]["mujoco"]["modelPath"].get<std::string>();
             params.modelName = configJson["components"]["droneDynamics"]["mujoco"]["modelName"].get<std::string>();
             params.propNames.clear();
             for (const auto& item : configJson["components"]["droneDynamics"]["mujoco"]["propNames"]) {
                 params.propNames.push_back(item);
+            }
+            if (configJson["components"]["droneDynamics"]["mujoco"].contains("yawAirDrag")) {
+                const auto& yaw_air_drag =
+                    configJson["components"]["droneDynamics"]["mujoco"]["yawAirDrag"];
+                params.yawAirDragLinearCoefficient =
+                    yaw_air_drag.value("linearCoefficient", 0.0);
+                params.yawAirDragQuadraticCoefficient =
+                    yaw_air_drag.value("quadraticCoefficient", 0.0);
             }
             return true;
         }
@@ -328,6 +377,16 @@ public:
     int getCompRotorRpmMax() const {
         return configJson["components"]["rotor"]["rpmMax"].get<int>();
     }
+    // components.rotor.softDelayMsec: the flight controller software's lag before its rotor command reaches
+    // the motors (e.g. PX4 SITL's actuator exchange). Applied where Drone PRO hands its controller's duty to
+    // the aircraft (Control Link only); the motor's own response is the rotor model. 0 when absent.
+    double getCompRotorSoftDelayMsec() const {
+        if (!configJson.contains("components") || !configJson["components"].contains("rotor")
+            || !configJson["components"]["rotor"].contains("softDelayMsec")) {
+            return 0.0;
+        }
+        return configJson["components"]["rotor"]["softDelayMsec"].get<double>();
+    }
     std::optional<double> getCompRotorMaxRadPerSec() const {
         if (configJson["components"]["rotor"].contains("max_rad_per_sec")) {
             return configJson["components"]["rotor"]["max_rad_per_sec"].get<double>();
@@ -403,9 +462,115 @@ public:
     double getCompSensorNoise(const std::string& sensor_name) const {
         return configJson["components"]["sensors"][sensor_name]["noise"].get<double>();
     }
+    std::optional<GyroDriftConfig> getGyroDrift() const {
+        const auto& gyro = configJson["components"]["sensors"]["gyro"];
+        if (!gyro.contains("drift")) return std::nullopt;
+        const auto& j = gyro["drift"];
+        GyroDriftConfig value{};
+        value.mode = j.at("mode").get<std::string>();
+        value.speed_deg_s_per_min = j.value("speedDegPerSecPerMin", 0.0);
+        value.time_min = j.value("timeMin", 0.0);
+        value.random_walk_deg_s_sqrt_sec = j.value("randomWalkDegPerSecSqrtSec", 0.0);
+        value.seed = j.value("seed", 0U);
+        if (value.mode != "ardupilot-sitl" && value.mode != "random-walk")
+            throw std::runtime_error("components.sensors.gyro.drift.mode must be ardupilot-sitl or random-walk");
+        return value;
+    }
+    // components.sensors.<name>.delayMsec: the sensor's transport delay (0 when absent).
+    // The standard sensor path applies it.
+    // components.sensors.<name>.softDelayMsec: the flight controller software's own lag before it
+    // uses the measurement (e.g. PX4 SITL works one IMU sample behind). Applied where Drone PRO feeds
+    // its controller and EKF; an external autopilot (SITL) produces it itself. 0 when absent.
+    // controller.stageSkip: {"seed": n, "altitude"|"horizontal"|"attitude"|"rate": probability 0..1}.
+    // Seeded skips of the control stages' due runs, as an autopilot on a general-purpose OS misses
+    // samples (Control Link only). Absent: never skip.
+    std::optional<ControlStageSkip> getControllerStageSkip() const {
+        if (!configJson.contains("controller") || !configJson["controller"].contains("stageSkip")) {
+            return std::nullopt;
+        }
+        const auto& j = configJson["controller"]["stageSkip"];
+        ControlStageSkip skip{};
+        if (j.contains("seed")) {
+            skip.seed = j["seed"].get<std::uint64_t>();
+        }
+        const auto probability = [&j](const char* key, double& value) {
+            if (j.contains(key)) {
+                value = j[key].get<double>();
+                if (!std::isfinite(value) || value < 0.0 || value > 1.0) {
+                    throw std::runtime_error(std::string("controller.stageSkip.") + key + " must be 0..1");
+                }
+            }
+        };
+        probability("altitude", skip.altitude);
+        probability("horizontal", skip.horizontal);
+        probability("attitude", skip.attitude);
+        probability("rate", skip.rate);
+        return skip;
+    }
+    double getCompSensorSoftDelayMsec(const std::string& sensor_name) const {
+        if (!configJson.contains("components") || !configJson["components"].contains("sensors")) {
+            return 0.0;
+        }
+        const auto& sensors = configJson["components"]["sensors"];
+        if (!sensors.contains(sensor_name) || !sensors[sensor_name].contains("softDelayMsec")) {
+            return 0.0;
+        }
+        return sensors[sensor_name]["softDelayMsec"].get<double>();
+    }
+    double getCompSensorDelayMsec(const std::string& sensor_name) const {
+        // Every level is optional: a missing one means no delay (never index a missing key).
+        if (!configJson.contains("components") || !configJson["components"].contains("sensors")) {
+            return 0.0;
+        }
+        const auto& sensors = configJson["components"]["sensors"];
+        if (!sensors.contains(sensor_name) || !sensors[sensor_name].contains("delayMsec")) {
+            return 0.0;
+        }
+        return sensors[sensor_name]["delayMsec"].get<double>();
+    }
+    std::optional<std::uint64_t> getCompSensorUpdatePeriodMsec(const std::string& sensor_name) const {
+        if (!configJson.contains("components") || !configJson["components"].contains("sensors")) {
+            return std::nullopt;
+        }
+        const auto& sensors = configJson["components"]["sensors"];
+        if (!sensors.contains(sensor_name) || !sensors[sensor_name].is_object()
+            || !sensors[sensor_name].contains("updatePeriodMsec")) {
+            return std::nullopt;
+        }
+        const auto& value = sensors[sensor_name]["updatePeriodMsec"];
+        if (!value.is_number_integer() && !value.is_number_unsigned()) {
+            throw std::runtime_error(
+                "components.sensors." + sensor_name + ".updatePeriodMsec must be a positive integer");
+        }
+        std::uint64_t period_msec = 0;
+        if (value.is_number_unsigned()) {
+            period_msec = value.get<std::uint64_t>();
+        }
+        else {
+            const auto signed_period_msec = value.get<std::int64_t>();
+            if (signed_period_msec <= 0) {
+                throw std::runtime_error(
+                    "components.sensors." + sensor_name + ".updatePeriodMsec must be a positive integer");
+            }
+            period_msec = static_cast<std::uint64_t>(signed_period_msec);
+        }
+        constexpr std::uint64_t kMaximumSensorUpdatePeriodMsec = 3600000;
+        if (period_msec == 0) {
+            throw std::runtime_error(
+                "components.sensors." + sensor_name + ".updatePeriodMsec must be a positive integer");
+        }
+        if (period_msec > std::numeric_limits<std::uint64_t>::max() / 1000
+            || period_msec > kMaximumSensorUpdatePeriodMsec) {
+            throw std::runtime_error(
+                "components.sensors." + sensor_name
+                + ".updatePeriodMsec must not exceed 3600000 ms");
+        }
+        return period_msec;
+    }
     hako::config::GpsSensorQualityConfig getCompGpsSensorQualityConfig() const {
         hako::config::GpsSensorQualityConfig cfg{};
         const auto& gps = configJson["components"]["sensors"]["gps"];
+        const bool has_legacy = gps.contains("sacc") || gps.contains("eph") || gps.contains("epv");
         if (gps.contains("sacc")) {
             cfg.sacc_mps = gps["sacc"].get<double>();
         }
@@ -418,6 +583,52 @@ public:
         if (gps.contains("satellitesVisible")) {
             cfg.satellites_visible = gps["satellitesVisible"].get<int>();
         }
+        if (gps.contains("accuracy")) {
+            if (!gps["accuracy"].is_object()) {
+                throw std::runtime_error("gps.accuracy must be an object");
+            }
+            cfg.accuracy.emplace();
+            const auto use_accuracy_value = [&](const char* name, double fallback, double& target) {
+                if (!gps["accuracy"].contains(name)) {
+                    return;
+                }
+                const auto& value = gps["accuracy"][name];
+                if (!value.is_number()) {
+                    throw std::runtime_error(std::string("gps.accuracy.") + name + " must be a number");
+                }
+                if (!std::isfinite(value.get<double>()) || value.get<double>() < 0.0) {
+                    if (!gps_quality_warning_emitted_) {
+                        std::cerr << "WARNING: gps.accuracy." << name
+                                  << " is invalid; using default " << fallback << std::endl;
+                    }
+                    return;
+                }
+                target = value.get<double>();
+            };
+            use_accuracy_value("horizontalM", 0.5, cfg.accuracy->horizontal_m);
+            use_accuracy_value("verticalM", 0.75, cfg.accuracy->vertical_m);
+            use_accuracy_value("speedMps", 0.5, cfg.accuracy->speed_mps);
+            if (!gps_quality_warning_emitted_
+                && (cfg.accuracy->horizontal_m * 100.0 >= static_cast<double>(UINT16_MAX)
+                    || cfg.accuracy->vertical_m * 100.0 >= static_cast<double>(UINT16_MAX))) {
+                std::cerr << "WARNING: gps.accuracy position value exceeds the PX4 HIL_GPS uint16 cm range; "
+                             "it will be clamped to 65535"
+                          << std::endl;
+            }
+            if (!gps_quality_warning_emitted_ && has_legacy) {
+                std::cerr << "WARNING: gps.eph/gps.epv/gps.sacc are ignored because gps.accuracy is configured"
+                          << std::endl;
+            }
+        }
+        else if (!gps_quality_warning_emitted_ && has_legacy) {
+            std::cerr << "WARNING: gps.eph/gps.epv/gps.sacc are deprecated; migrate to gps.accuracy (metres). "
+                         "Legacy values reach PX4 SITL as 1/100 values because they are interpreted as centimetres"
+                      << std::endl;
+        }
+        else if (!gps_quality_warning_emitted_) {
+            std::cerr << "WARNING: GPS accuracy is not configured; set gps.accuracy" << std::endl;
+        }
+        gps_quality_warning_emitted_ = true;
         return cfg;
     }
     bool isExistController(const std::string& param)
@@ -478,6 +689,33 @@ public:
     std::string getControllerPx4ConfigPath() const
     {
         return getControllerBackendConfigPath("px4ConfigPath");
+    }
+    // controller.backendConfig.px4ThrustModelFactor (optional, adapter-px4): drive the rotors as
+    // PX4 does with THR_MDL_FAC instead of inverting the rotor model (Control Link ⇔ SITL equivalence).
+    std::optional<double> getControllerPx4ThrustModelFactor() const
+    {
+        if (!configJson.contains("controller") || !configJson["controller"].contains("backendConfig")) {
+            return std::nullopt;
+        }
+        const auto& backend = configJson["controller"]["backendConfig"];
+        if (!backend.contains("px4ThrustModelFactor")) {
+            return std::nullopt;
+        }
+        const double factor = backend["px4ThrustModelFactor"].get<double>();
+        if (!(factor >= 0.0 && factor <= 1.0)) {
+            throw std::runtime_error("controller.backendConfig.px4ThrustModelFactor must be within 0..1");
+        }
+        return factor;
+    }
+    // backendType adapter-plugin (pro-docs/control-link/adapter-plugin.md):
+    // the plugin library and the adapter's own configuration file.
+    std::string getControllerPluginPath() const
+    {
+        return getControllerBackendConfigPath("pluginPath");
+    }
+    std::string getControllerPluginConfigPath() const
+    {
+        return getControllerBackendConfigPath("configPath");
     }
     std::string getControllerServiceMode() const;
     std::string getControllerApiServiceMode() const;
@@ -550,6 +788,10 @@ public:
     hako::config::ControllerEkfConfig getControllerEkfConfig() const
     {
         hako::config::ControllerEkfConfig info{};
+        bool explicit_imu = false;
+        bool explicit_mag = false;
+        bool explicit_baro = false;
+        bool explicit_gps = false;
         if (configJson["controller"].contains("ekf")) {
             const auto& ekf = configJson["controller"]["ekf"];
             if (ekf.contains("enable")) {
@@ -557,23 +799,96 @@ public:
             }
             if (ekf.contains("sensorIntervalUsec")) {
                 info.imu_interval_usec = ekf["sensorIntervalUsec"].get<std::uint64_t>();
+                explicit_imu = true;
             }
             if (ekf.contains("imuIntervalUsec")) {
                 info.imu_interval_usec = ekf["imuIntervalUsec"].get<std::uint64_t>();
+                explicit_imu = true;
             }
             if (ekf.contains("magIntervalUsec")) {
                 info.mag_interval_usec = ekf["magIntervalUsec"].get<std::uint64_t>();
+                explicit_mag = true;
             }
             if (ekf.contains("baroIntervalUsec")) {
                 info.baro_interval_usec = ekf["baroIntervalUsec"].get<std::uint64_t>();
+                explicit_baro = true;
             }
             if (ekf.contains("gpsIntervalUsec")) {
                 info.gps_interval_usec = ekf["gpsIntervalUsec"].get<std::uint64_t>();
+                explicit_gps = true;
+            }
+            if (ekf.contains("imuAverage")) {
+                info.imu_average = ekf["imuAverage"].get<bool>();
             }
             if (ekf.contains("paramFilePath")) {
                 info.param_file_path = resolvePath(ekf["paramFilePath"].get<std::string>(), true);
             }
+            if (ekf.contains("altitudeReference")) {
+                const auto reference = ekf["altitudeReference"].get<std::string>();
+                if (reference != "world" && reference != "takeoff") {
+                    throw std::runtime_error("controller.ekf.altitudeReference must be \"world\" or \"takeoff\": " + reference);
+                }
+                info.altitude_from_takeoff = reference == "takeoff";
+            }
         }
+        const auto acc_period = getCompSensorUpdatePeriodMsec("acc");
+        const auto gyro_period = getCompSensorUpdatePeriodMsec("gyro");
+        if (acc_period.has_value() != gyro_period.has_value()) {
+            throw std::runtime_error(
+                "components.sensors.acc.updatePeriodMsec and gyro.updatePeriodMsec must both be set");
+        }
+        if (acc_period && *acc_period != *gyro_period) {
+            throw std::runtime_error(
+                "components.sensors.acc.updatePeriodMsec and gyro.updatePeriodMsec must be equal");
+        }
+        const auto apply_period = [&](const char* interval_name, const char* sensor_name,
+                                      const std::optional<std::uint64_t>& period_msec,
+                                      bool explicit_interval, std::uint64_t& interval_usec) {
+            if (!period_msec) {
+                return;
+            }
+            const std::uint64_t derived_usec = *period_msec * 1000;
+            if (explicit_interval) {
+                if (interval_usec != derived_usec && !sensor_update_warning_emitted_) {
+                    std::cerr << "WARNING: controller.ekf." << interval_name
+                              << "IntervalUsec overrides components.sensors." << sensor_name
+                              << ".updatePeriodMsec (" << interval_usec << " usec vs "
+                              << derived_usec << " usec)" << std::endl;
+                }
+            }
+            else {
+                interval_usec = derived_usec;
+            }
+        };
+        apply_period("imu", "acc/gyro", acc_period, explicit_imu, info.imu_interval_usec);
+        apply_period("mag", "mag", getCompSensorUpdatePeriodMsec("mag"), explicit_mag, info.mag_interval_usec);
+        apply_period("baro", "baro", getCompSensorUpdatePeriodMsec("baro"), explicit_baro, info.baro_interval_usec);
+        apply_period("gps", "gps", getCompSensorUpdatePeriodMsec("gps"), explicit_gps, info.gps_interval_usec);
+        const auto baro_period = getCompSensorUpdatePeriodMsec("baro");
+        const auto mag_period = getCompSensorUpdatePeriodMsec("mag");
+        const auto gps_period = getCompSensorUpdatePeriodMsec("gps");
+        const bool has_update_period = acc_period || baro_period || mag_period || gps_period;
+        const std::uint64_t simulation_step_usec = has_update_period
+            ? static_cast<std::uint64_t>(std::llround(getSimTimeStep() * 1000000.0))
+            : 1;
+        if (simulation_step_usec == 0) {
+            throw std::runtime_error("simulation.timeStep must be greater than zero");
+        }
+        const auto validate_period = [simulation_step_usec](
+                                         const char* sensor,
+                                         const std::optional<std::uint64_t>& period_msec) {
+            if (period_msec && ((*period_msec * 1000) % simulation_step_usec != 0)) {
+                throw std::runtime_error(
+                    std::string("components.sensors.") + sensor
+                    + ".updatePeriodMsec must be a multiple of simulation.timeStep");
+            }
+        };
+        validate_period("acc", acc_period);
+        validate_period("gyro", gyro_period);
+        validate_period("baro", baro_period);
+        validate_period("mag", mag_period);
+        validate_period("gps", gps_period);
+        sensor_update_warning_emitted_ = true;
         return info;
     }
 
