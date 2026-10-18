@@ -1,0 +1,90 @@
+<mujoco model="hakoniwa-generic-x500">
+  <compiler angle="degree" inertiafromgeom="true" inertiagrouprange="5 5" />
+  <option timestep="0.001" density="1.204" viscosity="0.000018" integrator="RK4" />
+  <visual>
+    <global azimuth="135" elevation="-20" />
+    <headlight ambient="0.4 0.4 0.4" diffuse="0.5 0.5 0.5" specular="0.1 0.1 0.1" />
+    <rgba haze="0.75 0.85 0.95 1" />
+  </visual>
+  <!-- Display only (sky, ground pattern, light); does not change the physics. -->
+  <asset>
+    <texture name="sky" type="skybox" builtin="gradient" rgb1="0.55 0.75 0.95" rgb2="0.95 0.97 1.0" width="512" height="512" />
+    <texture name="ground_grid" type="2d" builtin="checker" rgb1="0.72 0.75 0.78" rgb2="0.58 0.62 0.66" width="512" height="512" />
+    <material name="ground_grid" texture="ground_grid" texrepeat="50 50" reflectance="0" />
+  </asset>
+  <worldbody>
+    <light pos="0 0 4" diffuse="0.8 0.8 0.8" />
+    <light directional="true" pos="0 0 30" dir="-0.3 -0.3 -1" diffuse="0.5 0.5 0.5" />
+    <geom name="ground" type="plane" size="50 50 0.1" material="ground_grid" friction="0.8 0.1 0.1" />
+    <body name="drone_base" pos="0 0 0.21">
+      <freejoint name="drone_freejoint" />
+      <geom name="frame_top_plate" type="box" pos="0 0 0.015" quat="1 0 0 0" size="0.072 0.072 0.002" rgba="0.52 0.55 0.58 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_bottom_plate" type="box" pos="0 0 -0.015" quat="1 0 0 0" size="0.072 0.072 0.002" rgba="0.42 0.45 0.48 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_arm_front_right" type="cylinder" pos="0.0884 -0.0884 0" quat="0.653281482438 0.270598050073 0.653281482438 -0.270598050073" size="0.009 0.125" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_arm_front_left" type="cylinder" pos="0.0884 0.0884 0" quat="0.653281482438 -0.270598050073 0.653281482438 0.270598050073" size="0.009 0.125" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_arm_rear_left" type="cylinder" pos="-0.0884 0.0884 0" quat="0.270598050073 -0.653281482438 0.270598050073 0.653281482438" size="0.009 0.125" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_arm_rear_right" type="cylinder" pos="-0.0884 -0.0884 0" quat="0.270598050073 0.653281482438 0.270598050073 -0.653281482438" size="0.009 0.125" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_motor_mount_1" type="box" pos="0.1768 -0.1768 0" quat="0.923879532511 0 0 -0.382683432365" size="0.025 0.02 0.009" rgba="0.2 0.7 0.9 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_motor_mount_2" type="box" pos="0.1768 0.1768 0" quat="0.923879532511 0 0 0.382683432365" size="0.025 0.02 0.009" rgba="0.2 0.7 0.9 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_motor_mount_3" type="box" pos="-0.1768 0.1768 0" quat="0.923879532511 0 0 -0.382683432365" size="0.025 0.02 0.009" rgba="0.2 0.7 0.9 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_motor_mount_4" type="box" pos="-0.1768 -0.1768 0" quat="0.923879532511 0 0 0.382683432365" size="0.025 0.02 0.009" rgba="0.2 0.7 0.9 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="frame_center_body_contact" type="box" pos="0 0 0" quat="1 0 0 0" size="0.075 0.075 0.02" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="0.5 0.02 0.001" />
+      <geom name="frame_plates_mass_proxy" type="box" pos="0 0 0" quat="1 0 0 0" size="0.072 0.072 0.016" rgba="0 0 0 0" density="531.854360714" group="5" contype="0" conaffinity="0" />
+      <geom name="frame_arm_front_right_mass_proxy" type="cylinder" pos="0.0884 -0.0884 0" quat="0.653281482438 0.270598050073 0.653281482438 -0.270598050073" size="0.01 0.125" rgba="0 0 0 0" density="531.854360714" group="5" contype="0" conaffinity="0" />
+      <geom name="frame_arm_front_left_mass_proxy" type="cylinder" pos="0.0884 0.0884 0" quat="0.653281482438 -0.270598050073 0.653281482438 0.270598050073" size="0.01 0.125" rgba="0 0 0 0" density="531.854360714" group="5" contype="0" conaffinity="0" />
+      <geom name="frame_arm_rear_left_mass_proxy" type="cylinder" pos="-0.0884 0.0884 0" quat="0.270598050073 -0.653281482438 0.270598050073 0.653281482438" size="0.01 0.125" rgba="0 0 0 0" density="531.854360714" group="5" contype="0" conaffinity="0" />
+      <geom name="frame_arm_rear_right_mass_proxy" type="cylinder" pos="-0.0884 -0.0884 0" quat="0.270598050073 0.653281482438 0.270598050073 -0.653281482438" size="0.01 0.125" rgba="0 0 0 0" density="531.854360714" group="5" contype="0" conaffinity="0" />
+      <geom name="motor_prop1_mass_proxy" type="cylinder" pos="0.1768 -0.1768 0.02" quat="1 0 0 0" size="0.014 0.011" rgba="0 0 0 0" density="4650.63145398" group="5" contype="0" conaffinity="0" />
+      <geom name="propeller_prop1_mass_proxy" type="cylinder" pos="0.1768 -0.1768 0.02" quat="1 0 0 0" size="0.127 0.002" rgba="0 0 0 0" density="78.9410096556" group="5" contype="0" conaffinity="0" />
+      <geom name="motor_prop2_mass_proxy" type="cylinder" pos="-0.1768 0.1768 0.02" quat="1 0 0 0" size="0.014 0.011" rgba="0 0 0 0" density="4650.63145398" group="5" contype="0" conaffinity="0" />
+      <geom name="propeller_prop2_mass_proxy" type="cylinder" pos="-0.1768 0.1768 0.02" quat="1 0 0 0" size="0.127 0.002" rgba="0 0 0 0" density="78.9410096556" group="5" contype="0" conaffinity="0" />
+      <geom name="motor_prop3_mass_proxy" type="cylinder" pos="0.1768 0.1768 0.02" quat="1 0 0 0" size="0.014 0.011" rgba="0 0 0 0" density="4650.63145398" group="5" contype="0" conaffinity="0" />
+      <geom name="propeller_prop3_mass_proxy" type="cylinder" pos="0.1768 0.1768 0.02" quat="1 0 0 0" size="0.127 0.002" rgba="0 0 0 0" density="78.9410096556" group="5" contype="0" conaffinity="0" />
+      <geom name="motor_prop4_mass_proxy" type="cylinder" pos="-0.1768 -0.1768 0.02" quat="1 0 0 0" size="0.014 0.011" rgba="0 0 0 0" density="4650.63145398" group="5" contype="0" conaffinity="0" />
+      <geom name="propeller_prop4_mass_proxy" type="cylinder" pos="-0.1768 -0.1768 0.02" quat="1 0 0 0" size="0.127 0.002" rgba="0 0 0 0" density="78.9410096556" group="5" contype="0" conaffinity="0" />
+      <geom name="battery_case" type="box" pos="0 0 -0.04" quat="1 0 0 0" size="0.075 0.024 0.0175" rgba="0.1 0.1 0.11 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="battery_mass_proxy" type="box" pos="0 0 -0.04" quat="1 0 0 0" size="0.075 0.024 0.0175" rgba="0 0 0 0" density="1984.12698413" group="5" contype="0" conaffinity="0" />
+      <geom name="camera_mass_proxy" type="box" pos="0.09 0 0.01" quat="1 0 0 0" size="0.015 0.015 0.0125" rgba="0 0 0 0" density="533.333333333" group="5" contype="0" conaffinity="0" />
+      <geom name="controller_mass_proxy" type="box" pos="-0.005 0 0.028" quat="1 0 0 0" size="0.018 0.018 0.004" rgba="0 0 0 0" density="1736.11111111" group="5" contype="0" conaffinity="0" />
+      <geom name="landing_gear_front_left_support" type="cylinder" pos="0.07 0.09 -0.09" quat="0.994521895368 0.104528463268 0 0" size="0.007 0.09" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_rear_left_support" type="cylinder" pos="-0.07 0.09 -0.09" quat="0.994521895368 0.104528463268 0 0" size="0.007 0.09" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_front_right_support" type="cylinder" pos="0.07 -0.09 -0.09" quat="0.994521895368 -0.104528463268 0 0" size="0.007 0.09" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_rear_right_support" type="cylinder" pos="-0.07 -0.09 -0.09" quat="0.994521895368 -0.104528463268 0 0" size="0.007 0.09" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_left_skid" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0.08 0.08 0.09 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_right_skid" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0.08 0.08 0.09 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="landing_gear_left_skid_contact" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <geom name="landing_gear_right_skid_contact" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <geom name="landing_gear_left_mass_proxy" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" density="457.147176966" group="5" contype="0" conaffinity="0" />
+      <geom name="landing_gear_right_mass_proxy" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" density="457.147176966" group="5" contype="0" conaffinity="0" />
+      <geom name="attachment_gps_tray" type="box" pos="-0.1 0 -0.01" quat="1 0 0 0" size="0.05 0.035 0.004" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_gps_mast" type="cylinder" pos="-0.1 0 0.045" quat="1 0 0 0" size="0.004 0.055" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_gps_receiver" type="cylinder" pos="-0.1 0 0.11" quat="1 0 0 0" size="0.028 0.01" rgba="0.1 0.1 0.11 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_gps_mass_proxy" type="box" pos="-0.1 0 0.045" quat="1 0 0 0" size="0.04 0.03 0.04" rgba="0 0 0 0" density="130.208333333" group="5" contype="0" conaffinity="0" />
+      <geom name="attachment_wifi_enclosure" type="box" pos="-0.025 0.04 0.026" quat="1 0 0 0" size="0.025 0.016 0.006" rgba="0.06 0.06 0.07 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_wifi_antenna" type="cylinder" pos="-0.055 0.04 0.061" quat="1 0 0 0" size="0.003 0.03" rgba="0.04 0.04 0.04 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_wifi_mass_proxy" type="box" pos="-0.025 0.04 0.046" quat="1 0 0 0" size="0.025 0.016 0.025" rgba="0 0 0 0" density="293.75" group="5" contype="0" conaffinity="0" />
+      <geom name="attachment_flight_controller_case" type="box" pos="-0.005 0 0.024" quat="1 0 0 0" size="0.042 0.022 0.006" rgba="0.85 0.85 0.85 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <geom name="attachment_flight_controller_mass_proxy" type="box" pos="-0.005 0 0.024" quat="1 0 0 0" size="0.042 0.022 0.006" rgba="0 0 0 0" density="834.235209235" group="5" contype="0" conaffinity="0" />
+      <geom name="attachment_power_system_mass_proxy" type="box" pos="0 0 0" quat="1 0 0 0" size="0.07 0.07 0.005" rgba="0 0 0 0" density="306.12244898" group="5" contype="0" conaffinity="0" />
+      <geom name="attachment_bottom_unit_enclosure" type="box" pos="0 0 -0.06" quat="1 0 0 0" size="0.03 0.02 0.02" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
+      <body name="prop1" pos="0.1768 -0.1768 0.02">
+        <geom name="prop1_geom" type="cylinder" size="0.127 0.0015" mass="0" contype="0" conaffinity="0" rgba="0.18 0.18 0.20 0.55" />
+        <site name="prop1_axis" type="sphere" size="0.006" rgba="0.15 0.55 1 1" />
+      </body>
+      <body name="prop2" pos="-0.1768 0.1768 0.02">
+        <geom name="prop2_geom" type="cylinder" size="0.127 0.0015" mass="0" contype="0" conaffinity="0" rgba="0.18 0.18 0.20 0.55" />
+        <site name="prop2_axis" type="sphere" size="0.006" rgba="0.15 0.55 1 1" />
+      </body>
+      <body name="prop3" pos="0.1768 0.1768 0.02">
+        <geom name="prop3_geom" type="cylinder" size="0.127 0.0015" mass="0" contype="0" conaffinity="0" rgba="0.18 0.18 0.20 0.55" />
+        <site name="prop3_axis" type="sphere" size="0.006" rgba="0.9 0.2 0.15 1" />
+      </body>
+      <body name="prop4" pos="-0.1768 -0.1768 0.02">
+        <geom name="prop4_geom" type="cylinder" size="0.127 0.0015" mass="0" contype="0" conaffinity="0" rgba="0.18 0.18 0.20 0.55" />
+        <site name="prop4_axis" type="sphere" size="0.006" rgba="0.9 0.2 0.15 1" />
+      </body>
+      <geom name="fpv_camera" type="box" pos="0.09 0 0.01" size="0.015 0.015 0.0125" mass="0" contype="0" conaffinity="0" rgba="0.15 0.15 0.15 1" />
+      <camera name="fpv" pos="0.09 0 0.01" xyaxes="0 -1 0 0 0 1" fovy="90" />
+    </body>
+  </worldbody>
+</mujoco>

@@ -1,0 +1,186 @@
+{
+  "name": "Drone",
+  "simulation": {
+    "lockstep": true,
+    "timeStep": 0.001,
+    "logging": {
+      "mode": "csv"
+    },
+    "logOutputDirectory": ".",
+    "location": {
+      "latitude": 47.641468,
+      "longitude": -122.140165,
+      "altitude": 121.321,
+      "magneticField": {
+        "intensity_nT": 53045.1,
+        "declination_deg": 15.011,
+        "inclination_deg": 68.984
+      }
+    },
+    "sitl": {
+      "sensor_period_msec": 4
+    }
+  },
+  "components": {
+    "droneDynamics": {
+      "physicsEquation": "MuJoCo",
+      "mujoco": {
+        "modelName": "drone_base",
+        "propNames": [
+          "prop1",
+          "prop2",
+          "prop3",
+          "prop4"
+        ],
+        "modelPath": "config/drone/x500-px4-sitl/drone.xml"
+      },
+      "useQuaternion": true,
+      "collision_detection": true,
+      "enable_disturbance": true,
+      "manual_control": false,
+      "airFrictionCoefficient": [
+        0.5,
+        0.0
+      ],
+      "inertia": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mass_kg": 1.6265,
+      "body_size": [
+        0.5,
+        0.5,
+        0.1
+      ],
+      "position_meter": [
+        0.0,
+        0.0,
+        -0.21000000000000005
+      ],
+      "angle_degree": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "body_boundary_disturbance_power": 1.0
+    },
+    "battery": {
+      "vendor": "None",
+      "model": "constant",
+      "BatteryModelCsvFilePath": "battery-model.csv",
+      "VoltageLevelGreen": 13.32,
+      "VoltageLevelYellow": 11.840000000000002,
+      "CapacityLevelYellow": 1.0,
+      "NominalVoltage": 14.8,
+      "NominalCapacity": 5.0,
+      "EODVoltage": 12.0
+    },
+    "rotor": {
+      "vendor": "BatteryModel",
+      "max_rad_per_sec": 1032.22,
+      "dynamics_constants": {
+        "R": 0.115,
+        "Ct": 0.0000116359,
+        "Cq": 1.84228E-7,
+        "K": 0.0103797,
+        "D": 0.0,
+        "J": 0.00015
+      },
+      "radius": 0.127,
+      "softDelayMsec": 2.0
+    },
+    "thruster": {
+      "vendor": "MuJoCo",
+      "rotorPositions": [
+        {
+          "position": [
+            0.1768,
+            0.1768,
+            -0.02
+          ],
+          "rotationDirection": 1.0
+        },
+        {
+          "position": [
+            -0.1768,
+            -0.1768,
+            -0.02
+          ],
+          "rotationDirection": 1.0
+        },
+        {
+          "position": [
+            0.1768,
+            -0.1768,
+            -0.02
+          ],
+          "rotationDirection": -1.0
+        },
+        {
+          "position": [
+            -0.1768,
+            0.1768,
+            -0.02
+          ],
+          "rotationDirection": -1.0
+        }
+      ],
+      "Ct": 0.0000116359
+    },
+    "sensors": {
+      "acc": {
+        "sampleCount": 1,
+        "noise": 0.03,
+        "softDelayMsec": 4.0
+      },
+      "gyro": {
+        "sampleCount": 1,
+        "noise": 0.0,
+        "softDelayMsec": 4.0
+      },
+      "mag": {
+        "sampleCount": 1,
+        "noise": 0.03
+      },
+      "baro": {
+        "sampleCount": 1,
+        "noise": 0.01,
+        "delayMsec": 60
+      },
+      "gps": {
+        "sampleCount": 1,
+        "noise": 0.0,
+        "sacc": 0.1,
+        "eph": 0.2,
+        "epv": 0.3,
+        "delayMsec": 100
+      }
+    }
+  },
+  "controller": {
+    "direct_rotor_control": false
+  },
+  "fpv": {
+    "controllerMode": "angle",
+    "camera": {
+      "catalogId": "hako_x500_camera",
+      "fov_deg": 90.0,
+      "position_m": [
+        0.09,
+        0.0,
+        0.01
+      ]
+    },
+    "viewer": {
+      "backend": "hakoniwa-threejs-drone",
+      "status": "metadata-only-in-mvp"
+    }
+  },
+  "configVersion": "4.2",
+  "validatedWith": {
+    "mujoco": "3.16.0",
+    "droneProVersion": "4.2.0",
+    "px4Autopilot": "a1726d316a941af9524f6279eb293a713d8fdcac"
+  }
+}
