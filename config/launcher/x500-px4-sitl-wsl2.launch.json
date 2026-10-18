@@ -20,7 +20,14 @@
       "command": "${HAKO_DRONE_SERVICE_BIN}",
       "args": ["127.0.0.1", "4560", "config/drone/x500-px4-sitl", "config/pdudef/drone-pdudef-1.json"],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",
-      "delay_sec": 3
+      "delay_sec": 3,
+      "readiness": {
+        "type": "hako_asset",
+        "asset_name": "drone",
+        "timeout_sec": 30,
+        "poll_interval_sec": 0.2,
+        "command_timeout_sec": 1
+      }
     }
   ]
 }

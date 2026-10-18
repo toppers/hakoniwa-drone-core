@@ -1,0 +1,7 @@
+{
+  "mission": [
+    {"command": "takeoff", "parameters": {"height": 3, "timeout_sec": 120}},
+    {"command": "moveToPosition", "parameters": {"x": 5.0, "y": 0.0, "z": 3, "speed": 2, "yaw_deg": 0, "timeout_sec": 120}},
+    {"command": "land"}
+  ]
+}
