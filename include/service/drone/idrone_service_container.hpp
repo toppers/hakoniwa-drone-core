@@ -9,9 +9,7 @@
 
 namespace hako::service {
 
-namespace impl {
 class IDroneServicePort;
-}
 
 class IDroneServiceContainer : public IServiceContainer {
 public:
@@ -45,7 +43,7 @@ public:
 
     virtual uint32_t getNumServices() override = 0;
     virtual std::string getRobotName(uint32_t index) override = 0;
-    virtual void setServicePort(uint32_t index, std::shared_ptr<impl::IDroneServicePort> service_port) = 0;
+    virtual void setServicePort(uint32_t index, std::shared_ptr<IDroneServicePort> service_port) = 0;
     virtual std::string getFleetServiceConfigPath() const = 0;
     virtual OperationMode getOperationMode(uint32_t index) const = 0;
     virtual ApiServiceMode getApiServiceMode(uint32_t index) const = 0;
@@ -72,6 +70,7 @@ public:
      * Get EKF runtime status for the drone service.
      */
     virtual DroneServiceEkfStatus get_ekf_status(uint32_t index) const = 0;
+    virtual aircraft::DronePositionType get_estimated_position(uint32_t index) const = 0;
     virtual void set_ekf_flight_state_override(
         uint32_t index,
         const DroneServiceEkfFlightStateOverride& override_state) = 0;

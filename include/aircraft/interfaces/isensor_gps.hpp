@@ -6,9 +6,9 @@ namespace hako::aircraft {
 
 class ISensorGps : public ISensor {
 protected:
-    double ref_lat;
-    double ref_lon;
-    double ref_alt;
+    double ref_lat{};
+    double ref_lon{};
+    double ref_alt{};
 public:
     virtual ~ISensorGps() {}
     virtual void init_pos(double lat_data, double lon_data, double alt_data)
@@ -18,6 +18,15 @@ public:
         this->ref_alt = alt_data;
     }
     virtual void run(const DronePositionType& p, const DroneVelocityType& v) = 0;
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+    virtual void run(const DronePositionType& p, const DroneVelocityType& v,
+        const DroneAngularVelocityBodyFrameType&, const DroneEulerType&)
+    {
+        run(p, v);
+    }
+    // [SEN-GPS-270] What ArduPilot SITL takes as the vehicle location: the body origin's true state.
+    virtual DroneGpsDataType vehicle_reference_value() = 0;
+#endif
     virtual DroneGpsDataType sensor_value() = 0;
     virtual double speed_accuracy_mps() const { return 0.5; }
     virtual bool uses_metric_accuracy() const { return false; }

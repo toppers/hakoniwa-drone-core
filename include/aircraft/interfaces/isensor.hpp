@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "primitive_types.hpp"
 
 #include "isensor_noise.hpp"
@@ -10,9 +12,9 @@ namespace hako::aircraft {
 
 class ISensor {
 protected:
-    ISensorNoise *noise;
-    void *vendor_model;
-    void *context;
+    ISensorNoise *noise{nullptr};
+    void *vendor_model{nullptr};
+    void *context{nullptr};
     std::weak_ptr<IAirCraftInputAccessor> aircraft_input_accessor;
 public:
     virtual ~ISensor() {}

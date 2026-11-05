@@ -16,6 +16,15 @@
 #include <algorithm>
 #include "config/drone_config_types.hpp"
 #include "config/fleet_validator.hpp"
+#ifdef HAKO_ENABLE_EXTERNAL_SENSORS
+#include "config/external_sensor_config.hpp"
+#endif
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+#include "aircraft/impl/sensors/sensor_models.hpp"
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+#include "aircraft/impl/vibration/rotor_vibration_generator.hpp"
+#endif
+#endif
 
 namespace fs = std::filesystem;
 #ifdef __APPLE__
@@ -38,7 +47,7 @@ constexpr double hako_drone_control_disabled_target_yaw_deg = 9999999.0;
 /* DRONE_PID_CONTROL_CPP */
 struct RotorPosition {
     std::vector<double> position;
-    double rotationDirection;
+    double rotationDirection{};
 };
 #define DEGREE2RADIAN(v)    ( (v) * M_PI / (180.0) )
 #define RADIAN2DEGREE(v)    ( (180.0 * (v)) / M_PI )
@@ -67,6 +76,9 @@ public:
     DroneConfig() {}
     bool init(const std::string& configFilePath);
     bool init_from_text(const std::string& configText);
+#ifdef HAKO_ENABLE_EXTERNAL_SENSORS
+    std::vector<ExternalSensorConfig> getExternalSensorConfigs() const;
+#endif
 
     /* Simulation parameters */
     double getSimTimeStep() const {
@@ -74,6 +86,20 @@ public:
     }
     bool getSimLockStep() const {
         return configJson["simulation"]["lockstep"].get<bool>();
+    }
+    // [SEN-COM-530] controller.ekf.fromSensors: the EKF's noise assumptions from the sensors (spec 5.6).
+    // Absent: on for configVersion "5.0", off for 4.1 and 4.2 (their behaviour does not change).
+    bool getControllerEkfFromSensors() const {
+        if (configJson.contains("controller") && configJson["controller"].contains("ekf") &&
+            configJson["controller"]["ekf"].contains("fromSensors")) {
+            const auto& value = configJson["controller"]["ekf"]["fromSensors"];
+            if (!value.is_boolean()) {
+                throw std::runtime_error("controller.ekf.fromSensors must be true or false");
+            }
+            return value.get<bool>();
+        }
+        return configJson.contains("configVersion") && configJson["configVersion"].is_string() &&
+               configJson["configVersion"].get<std::string>() == "5.0";
     }
     std::optional<std::uint32_t> getSimRandomSeed() const {
         if (!configJson.contains("simulation") ||
@@ -120,9 +146,21 @@ public:
         if (sitl.contains("sensor_period_msec")) {
             config.sensor_period_msec = sitl["sensor_period_msec"].get<std::uint64_t>();
         }
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+        if (sitl.contains("transport")) {
+            config.transport = sitl["transport"].get<std::string>();
+        }
+        if (sitl.contains("shm") && sitl["shm"].is_object()) {
+            const auto& shm = sitl["shm"];
+            config.shm_hil_sensor_channel = shm.value("hil_sensor_channel", -1);
+            config.shm_hil_gps_channel = shm.value("hil_gps_channel", -1);
+            config.shm_hil_actuator_channel = shm.value("hil_actuator_channel", -1);
+        }
+#endif
         return config;
     }
     LoggingMode getSimLoggingMode() const;
+    LoggingConfig getSimLoggingConfig() const;
     std::string getSimLogOutputDirectory() const;
     std::string getRoboName() const
     {
@@ -185,13 +223,7 @@ public:
         double inclination_deg;
     };
 
-    MagneticField getSimMagneticField() const {
-        MagneticField field;
-        field.intensity_nT = configJson["simulation"]["location"]["magneticField"]["intensity_nT"].get<double>();
-        field.declination_deg = configJson["simulation"]["location"]["magneticField"]["declination_deg"].get<double>();
-        field.inclination_deg = configJson["simulation"]["location"]["magneticField"]["inclination_deg"].get<double>();
-        return field;
-    }
+    MagneticField getSimMagneticField() const;
 
     /* Drone Dynamics parameters */
     std::string getCompDroneDynamicsPhysicsEquation() const {
@@ -203,7 +235,12 @@ public:
         params.yawAirDragLinearCoefficient = 0.0;
         params.yawAirDragQuadraticCoefficient = 0.0;
         if (configJson["components"]["droneDynamics"].contains("mujoco")) {
-            params.modelPath = configJson["components"]["droneDynamics"]["mujoco"]["modelPath"].get<std::string>();
+            // From drone_config's folder first, then the current one (as the other files the config names).
+            // A path found in neither is kept as written, so the model loader reports it.
+            const auto raw_model_path =
+                configJson["components"]["droneDynamics"]["mujoco"]["modelPath"].get<std::string>();
+            const auto resolved_model_path = resolvePath(raw_model_path, true);
+            params.modelPath = resolved_model_path.empty() ? raw_model_path : resolved_model_path;
             params.modelName = configJson["components"]["droneDynamics"]["mujoco"]["modelName"].get<std::string>();
             params.propNames.clear();
             for (const auto& item : configJson["components"]["droneDynamics"]["mujoco"]["propNames"]) {
@@ -459,8 +496,68 @@ public:
     int getCompSensorSampleCount(const std::string& sensor_name) const {
         return configJson["components"]["sensors"][sensor_name]["sampleCount"].get<int>();
     }
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+    int getCompSensorSampleCountV2(const std::string& sensor_name) const {
+        const auto& sensor = configJson["components"]["sensors"][sensor_name];
+        if (!sensor.contains("sampleCount")) return 1;
+        const auto& value = sensor["sampleCount"];
+        if (!value.is_number_integer() || value.get<int>() != 1) {
+            throw std::runtime_error("components.sensors." + sensor_name + ".sampleCount must be 1");
+        }
+        return 1;
+    }
+#endif
     double getCompSensorNoise(const std::string& sensor_name) const {
         return configJson["components"]["sensors"][sensor_name]["noise"].get<double>();
+    }
+    hako::config::GpsNoiseConfig getCompGpsNoiseConfig() const {
+        hako::config::GpsNoiseConfig cfg{};
+        const auto& gps = configJson["components"]["sensors"]["gps"];
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+        if (gps.contains("noiseDensity")) {
+            throw std::runtime_error("gps.noiseDensity is not supported");
+        }
+#endif
+        if (gps.contains("noise") && gps.contains("positionNoise")) {
+            throw std::runtime_error("gps.noise and gps.positionNoise cannot both be configured");
+        }
+        const auto read_nonnegative = [](const nlohmann::json& object, const char* member,
+                                         const std::string& path) {
+            if (!object.contains(member)) return 0.0;
+            const auto& value = object[member];
+            if (!value.is_number()) {
+                throw std::runtime_error(path + " must be a number");
+            }
+            const double result = value.get<double>();
+            if (!std::isfinite(result) || result < 0.0) {
+                throw std::runtime_error(path + " must be finite and non-negative");
+            }
+            return result;
+        };
+        if (gps.contains("noise")) {
+            if (!gps["noise"].is_number()) {
+                throw std::runtime_error("gps.noise must be a number");
+            }
+            const double legacy = gps["noise"].get<double>();
+            if (!std::isfinite(legacy) || legacy < 0.0) {
+                throw std::runtime_error("gps.noise must be finite and non-negative");
+            }
+            cfg.position_horizontal_m = legacy;
+            cfg.position_vertical_m = legacy;
+        }
+        if (gps.contains("positionNoise")) {
+            const auto& value = gps["positionNoise"];
+            if (!value.is_object()) throw std::runtime_error("gps.positionNoise must be an object");
+            cfg.position_horizontal_m = read_nonnegative(value, "horizontalM", "gps.positionNoise.horizontalM");
+            cfg.position_vertical_m = read_nonnegative(value, "verticalM", "gps.positionNoise.verticalM");
+        }
+        if (gps.contains("velocityNoise")) {
+            const auto& value = gps["velocityNoise"];
+            if (!value.is_object()) throw std::runtime_error("gps.velocityNoise must be an object");
+            cfg.velocity_horizontal_mps = read_nonnegative(value, "horizontalMps", "gps.velocityNoise.horizontalMps");
+            cfg.velocity_vertical_mps = read_nonnegative(value, "verticalMps", "gps.velocityNoise.verticalMps");
+        }
+        return cfg;
     }
     std::optional<GyroDriftConfig> getGyroDrift() const {
         const auto& gyro = configJson["components"]["sensors"]["gyro"];
@@ -476,6 +573,25 @@ public:
             throw std::runtime_error("components.sensors.gyro.drift.mode must be ardupilot-sitl or random-walk");
         return value;
     }
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+    hako::aircraft::impl::GyroModelConfig getGyroModelConfig() const {
+        return hako::aircraft::impl::parse_gyro_model_config(configJson);
+    }
+    hako::aircraft::impl::AccelerationModelConfig getAccelerationModelConfig() const {
+        return hako::aircraft::impl::parse_acceleration_model_config(configJson);
+    }
+    hako::aircraft::impl::GeomagnetModelConfig getGeomagnetModelConfig() const {
+        return hako::aircraft::impl::parse_geomagnet_model_config(configJson);
+    }
+    hako::aircraft::impl::BarometricModelConfig getBarometricModelConfig() const {
+        return hako::aircraft::impl::parse_barometric_model_config(configJson);
+    }
+    hako::aircraft::impl::GpsModelConfig getGpsModelConfig() const {
+        return hako::aircraft::impl::parse_gps_model_config(configJson);
+    }
+    // [SEN-VIB-040] components.propellerVibration; nullopt when absent or enabled is false.
+    std::optional<hako::aircraft::impl::RotorVibrationConfig> getRotorVibrationConfig() const;
+#endif
     // components.sensors.<name>.delayMsec: the sensor's transport delay (0 when absent).
     // The standard sensor path applies it.
     // components.sensors.<name>.softDelayMsec: the flight controller software's own lag before it
@@ -760,8 +876,8 @@ public:
     {
         if (configJson["controller"].contains("mixer")) {
             info.vendor = configJson["controller"]["mixer"]["vendor"];
-            info.enableDebugLog = configJson["controller"]["mixer"]["enableDebugLog"];
-            info.enableErrorLog = configJson["controller"]["mixer"]["enableErrorLog"];
+            info.enableDebugLog = configJson["controller"]["mixer"].value("enableDebugLog", false);
+            info.enableErrorLog = configJson["controller"]["mixer"].value("enableErrorLog", false);
             if (configJson["controller"]["mixer"].contains("enable")) {
                 info.enable = configJson["controller"]["mixer"]["enable"].get<bool>();
             }

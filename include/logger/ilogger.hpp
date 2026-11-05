@@ -13,10 +13,12 @@
 
 namespace hako::logger {
 
-typedef struct {
+struct LogEntryType {
     ILog* log;
     std::unique_ptr<ILogFile> log_file;
-} LogEntryType;
+    uint64_t last_write_usec{0};
+    bool has_written{false};
+};
 
 class IHakoLogger {
 public:
@@ -27,6 +29,8 @@ public:
     virtual void flush() = 0;
     virtual void reset() = 0;
     virtual void close() = 0;
+
+    static std::shared_ptr<IHakoLogger> create(uint64_t interval_usec = 1000);
 
     static void set_time_usec(uint64_t t);
     static uint64_t get_time_usec();

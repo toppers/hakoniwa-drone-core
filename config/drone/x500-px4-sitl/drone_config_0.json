@@ -85,7 +85,7 @@
         "Cq": 1.84228E-7,
         "K": 0.0103797,
         "D": 0.0,
-        "J": 0.00015
+        "J": 2.2e-05
       },
       "radius": 0.127,
       "softDelayMsec": 2.0
@@ -136,7 +136,7 @@
       },
       "gyro": {
         "sampleCount": 1,
-        "noise": 0.0,
+        "noise": 0.0008726646,
         "softDelayMsec": 4.0
       },
       "mag": {

@@ -68,7 +68,7 @@ public:
 class IAircraftController: public logger::ILog {
 private:
     std::shared_ptr<IAircraftMixer> mixer_;
-    int index_;
+    int index_{};
 protected:
     std::shared_ptr<logger::IHakoLogger> logger;
 public:

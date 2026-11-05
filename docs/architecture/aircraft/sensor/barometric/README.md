@@ -1,35 +1,233 @@
-# Barometric Sensor Component Specification
+# 気圧センサの仕様
 
-## Input
+気圧センサに固有のことを書きます。全センサに共通の決まり（座標、取り付け位置姿勢、処理の順番、自動操縦との合わせ方）は
+[センサの共通仕様](../README.md) にあります。
 
-*   **DronePositionType**: Current position of the drone.
-*   **AircraftInputType**: Contains environmental disturbances, specifically `d_atm.sea_level_atm` (sea level atmospheric pressure) and `d_temp.value` (sea level temperature in Celsius).
+## 1. 何を測るか
 
-## Output
+センサの位置での**静圧**（その高さの大気の圧力）を測ります。出力は次の 3 つです。 `[SEN-BAR-010]`
 
-*   **DroneBarometricPressureType**: Contains:
-    *   `abs_pressure`: Absolute pressure in Pascals.
-    *   `diff_pressure`: Differential pressure (currently always 0).
-    *   `pressure_alt`: Pressure altitude in meters.
+| 出力 | 単位 | 意味 |
+|---|---|---|
+| 気圧 | Pa | 静圧。自動操縦が高さの推定に使う主な値 |
+| 気圧高度 | m | 出力した気圧を、2 章の大気の式で高さに戻した値 |
+| 温度 | ℃ | センサの位置の気温（2 章の大気の式の気温） |
 
-## External Parameters
+差圧（対気速度を測るための、動圧との差）は、対気速度センサの量なので、この仕様の外です（0 を出す）。 `[SEN-BAR-020]`
 
-### Observation Interval (Δt)
-- **Description**: Δt represents the time interval between each measurement taken by the barometric sensor. This parameter determines the frequency at which the sensor data is sampled and updated.
-- **Impact**: The choice of Δt affects the resolution and responsiveness of the barometric readings. Shorter intervals lead to more frequent updates but can increase noise, while longer intervals can smooth out data but may reduce sensitivity to quick changes.
+## 2. 真値：標準大気
 
-### Moving Average Window (N)
-- **Description**: N is the number of samples used to calculate the moving average of the altitude data. This parameter defines the window size over which the data is averaged.
-- **Impact**: Setting N involves a trade-off between data smoothness and latency. A larger N provides smoother data by averaging over more samples, which can reduce the effect of transient noise. However, it also introduces a delay in the sensor's response to changes.
+センサの高さ h（海抜、m）での気圧と気温は、国際標準大気（ISA、US 標準大気 1976 と同じ）で計算します。 `[SEN-BAR-030]`
 
-### Noise Characteristics
-- **Average (Mean) of Noise**: The average value of the noise added to the barometric data is set to zero. This means that over time, the noise will not have a net positive or negative effect on the pressure readings.
-- **Variance of Noise**: The variance parameter specifies the spread of noise around the average. Even with an average of zero, the noise can vary, representing the randomness or fluctuation level in the sensor readings.
+```text
+h = simulation.location.altitude − z_sensor
+```
 
-The integration of zero-mean noise ensures that any bias is minimized, allowing the simulation to accurately reflect only the random variations typical of real-world conditions.
+- `simulation.location.altitude`：シミュレーションの原点の海抜（m）。
+- z_sensor：センサの位置の、世界（NED）での下向きの座標。センサの位置は共通仕様 2.4 の式（p + R_nb · r）で求めます。 `[SEN-BAR-040]`
 
-## Operational Details
+式の高さは、幾何学的な高さ h をジオポテンシャル高度 H に直した値です（r₀ = 6,356,766 m）。層の境（11,000 m、20,000 m）もジオポテンシャル高度で決めます。気圧から逆算した高さは、幾何学的な高さに戻して出します。 `[SEN-BAR-095]`
 
-- **Altitude to Pressure Conversion**: The sensor converts the drone's altitude into barometric pressure using a standard atmospheric model. The `alt2baro` function implements this conversion, taking into account sea-level atmospheric pressure and temperature, which can be influenced by environmental disturbances.
-- **Moving Average**: A moving average filter is applied to the calculated altitude to smooth out readings and reduce noise.
-- **Noise Integration**: Random noise with a zero mean and specified variance is added to the final pressure and altitude values to simulate real-world sensor inaccuracies.
+```text
+H = r₀ · h / (r₀ + h)        h = r₀ · H / (r₀ − H)
+```
+
+海面の気圧 P₀ と気温 T₀ は、環境（外乱）から受け取ります。式の中の気温 T・T₀・T₁₁ は、すべてケルビン（K ＝ ℃ + 273.15）で計算します。飛行中に変わってもかまいません。受け取らないときは、P₀ = 101,325 Pa（1 atm）、T₀ = 15 ℃ です。 `[SEN-BAR-050]` `[SEN-BAR-060]`
+
+| 高さ | 気温 T | 気圧 P |
+|---|---|---|
+| H が 11,000 m 以下（海面より下も含む） | T = T₀ + L · H | P = P₀ · (T₀ / T)^(g·M / (R·L)) `[SEN-BAR-070]` |
+| H が 11,000 m〜、h が 20,000 m まで | T = T₁₁（11,000 m の気温で一定） | P = P₁₁ · exp(−g·M·(H − 11,000) / (R · T₁₁)) `[SEN-BAR-080]` |
+| 20,000 m より上 | T = T₁₁（式に入れる高さを 20,000 m に止める） | P = P₂₀（20,000 m の気圧）のまま。初めてこうなったときに、警告を 1 回だけ出す `[SEN-BAR-085]` |
+
+| 定数 | 値 |
+|---|---|
+| L（気温の減り方） | −0.0065 K/m `[SEN-BAR-090]` |
+| M（空気のモル質量） | 0.0289644 kg/mol `[SEN-BAR-090]` |
+| R（気体定数） | 8.31432 J/(mol·K) `[SEN-BAR-090]` |
+| g（重力加速度） | 標準重力 g₀ = 9.80665 m/s² `[SEN-BAR-090]` |
+
+- 入力の条件：P₀ > 0、T₀ > −273.15 ℃、各層で T > 0 K。この範囲で気圧は高さとともに必ず下がるので、気圧から高さへの逆算は一つに決まります。 `[SEN-BAR-100]`
+  環境から受け取った値がこの条件を外れたとき（P₀ ≤ 0、または 20,000 m までのどこかで T ≤ 0 K になる。T₁₁ = T₀ + L · 11,000 なので、T₀ ≤ −201.65 ℃）は、その値を使いません。前の正しい P₀・T₀ を使い続け、警告を出します。環境の値は設定ではないので、読み込みのエラーにはしません。 `[SEN-BAR-105]`
+  逆算は、P ≥ P₁₁（11,000 m の気圧）なら 1 行目の式、P₂₀ ≤ P < P₁₁ なら 2 行目の式を使います。 `[SEN-BAR-110]`
+- 例：海抜 0 m、P₀ = 101,325 Pa、T₀ = 15 ℃ なら、高さ 100 m の気圧は約 100,129 Pa です。地上付近では、1 m 上がると約 12 Pa 下がります。
+
+## 3. 取り付け位置姿勢
+
+`components.sensors.baro.mount` に書きます（共通仕様 2.2）。
+
+- **位置の高さだけを使います。** センサが機体の原点より 10 cm 上にあれば、その分だけ高い所の気圧を測ります。機体が傾けば、センサの高さも変わります。 `[SEN-BAR-120]`
+- **姿勢は使いません。** 静圧は向きによらないためです。 `[SEN-BAR-130]`
+
+## 4. 処理の順番
+
+気圧センサの誤差は、自動操縦の設定（PX4・ArduPilot とも高さの m で書く）に合わせて、**高さ（m）で足します**。
+そのあと気圧に直し、センサの部品で決まる分解能と範囲を、気圧（Pa）で当てます。 `[SEN-BAR-140]`
+
+```text
+h → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 気圧に換算 → 分解能 → 頭打ち → 気圧
+                                                                                    ↓
+                                                                    気圧高度（気圧から逆算）・温度
+```
+
+| 段 | 設定（`components.sensors.baro.*`） | 内容 |
+|---|---|---|
+| 位置 | 気圧センサの取り付け位置姿勢 | センサの高さで測る |
+| 遅れ | `delayMsec` | ハードの遅れ（共通仕様 4 章） |
+| 測る周期 | `updatePeriodMsec` | 新しい値を測る周期（共通仕様 4 章）。`sampleCount`（平均）は 1 だけ書ける（共通仕様 6 章） |
+| ゼロ点のずれ | `zeroOffset` | いつも同じだけ高く・低く測るずれ。下の 4.1 |
+| ノイズ | `noise` | 正規分布の標準偏差（m）。0 以下ならノイズなし `[SEN-BAR-150]` |
+| ノイズの密度 | `noiseDensity` | `noise` の代わりに書ける白色ノイズの密度（m/√Hz）。σ に直す式と決まりは共通仕様 4.3。`noise` と両方は書けない `[SEN-COM-185]` |
+| ドリフト | `drift` | ゼロ点のゆっくりした変化。`mode` は `gauss-markov`（共通仕様 4.2）。`stddevM`（m）、`correlationTimeSec`（秒） `[SEN-BAR-160]` |
+| 気圧に換算 | — | 誤差を足した高さから、2 章の式で気圧を求める。気温は真の高さから求める |
+| 分解能 | `resolutionPa` | 値の刻み（Pa）。最も近い刻みに丸め、中間は 0 から遠い方。目安 0.01〜0.1 Pa `[SEN-BAR-170]` |
+| 頭打ち | `range.minHPa`、`range.maxHPa` | 測れる範囲（hPa）。外れたら端の値。目安 300〜1,100 hPa `[SEN-BAR-180]` |
+
+- 設定を省略したときと、誤りとしてエラーにするときは、共通仕様 4.0 のとおりです（`resolutionPa` を省略すれば丸めない、`range.minHPa` ≥ `range.maxHPa` はエラー、など）。
+- `noise` は値が 1 つだけです。[x, y, z] を書いたらエラーにします。 `[SEN-BAR-184]`
+- `drift.mode` は `gauss-markov` だけです。ほかの `mode` を書いたらエラーにします。 `[SEN-BAR-186]`
+
+- 気圧高度は、頭打ちまで済んだ気圧から、2 章の式で逆算します。気圧と気圧高度は、いつも互いに食い違いません。 `[SEN-BAR-190]`
+- 温度は、センサの真の高さ（誤差を足す前の高さ）での気温です。気圧の誤差は、周りの気温を変えないためです。温度の誤差は再現しません。 `[SEN-BAR-200]`
+- 遅れは高さに掛けます。海面の気圧・気温は、気圧に換算するその時点の値を使います。天気による気圧の変化は、センサの遅れ（数十〜百 ms）に比べて十分ゆっくりなので、遅れを掛けません。 `[SEN-BAR-210]`
+- 自動操縦が受け取ってから使うまでの遅れ（`softDelayMsec`）と、値を出す周期（`updatePeriodMsec`）は、渡し方の設定です（共通仕様 4 章）。
+
+### 4.1 ゼロ点のずれ
+
+```json
+"zeroOffset": { "fixedM": 1.5 }
+```
+```json
+"zeroOffset": { "randomStdM": 4.0 }
+```
+
+- `fixedM`：決まったずれ（m）。正なら高く測る。 `[SEN-BAR-220]`
+- `randomStdM`：起動時に 1 回だけ、正規分布で引く（標準偏差、m）。乱数の決まりは共通仕様 4.1。 `[SEN-BAR-230]`
+- どちらか一方だけを書く。省略すればずれなし。 `[SEN-BAR-240]`
+- 目安：データシートの絶対精度（±50 Pa 程度）は、地上付近で ±4 m 程度にあたります。
+- 飛行中は変わりません。PX4・ArduPilot は、推定する高さ（起動した場所からの高さ）を起動時の気圧を基準に測るので、 `[SEN-BAR-250]`
+  起動後に海面の気圧・気温が変わらなければ、一定のずれはおおむね取り除かれます（6 章）。飛行中の天気の変化による見かけの高さの変化は、取り除かれません。
+
+## 5. 自動操縦への渡し方
+
+| 動かし方 | 渡し方 |
+|---|---|
+| Control Link（PX4） | アダプターが気圧（Pa）を受け取り、PX4 SITL の sensors モジュール（`VehicleAirData`）と同じく、`SENS_BARO_RATE`（既定 20 Hz）の間隔で平均し、平均した時刻とともに、`SENS_BARO_QNH` を基準に PX4 の大気のライブラリで高さに直して EKF へ渡す。温度は渡さない（15 ℃ の既定のまま）。PX4 は内蔵の気圧計では 15 ℃ の決まった値を使い、高さには効かないため `[SEN-BAR-325]` |
+| Control Link（ArduPilot） | アダプターが気圧（Pa）を受け取り、ArduPilot SITL の ArduCopter と同じく、いちばん新しい値を `runtime.baro_update_hz`（ArduCopter の気圧の読み取りの速さ、10 Hz）ごとに読む。起動時は ArduPilot の較正（`AP_Baro::calibrate`）と同じく、`runtime.baro_calibration_warmup_updates`（10 回）待ってから `runtime.baro_calibration_samples`（5 回）の平均を地上の気圧にし、それまでは EKF3 へ気圧を渡さない。高さは ArduPilot の 1976 年標準大気の式で、今の気圧の高度から地上の気圧の高度を引いた値。3 つの値は自動操縦の設定（`ardupilot-controller-config.json`）に書き、書いていなければ読み込みをエラーにする `[SEN-BAR-326]` |
+| PX4 SITL | HIL_SENSOR の気圧（hPa に換算）、気圧高度、温度 `[SEN-BAR-270]` |
+| ArduPilot SITL | 箱庭からは送らない。ArduPilot SITL が自分で気圧を作る（6 章の置き換え） `[SEN-BAR-280]` |
+| 箱庭アダプター | 気圧高度を使う（取り付け位置姿勢は使わない） `[SEN-BAR-290]` |
+
+## 6. PX4・ArduPilot のパラメータとの対応
+
+関係の 4 種類（合わせる・見込み・置き換え・較正）は、ジャイロの仕様 5 章と同じ意味です。
+
+| 箱庭の設定 | 関係 | PX4 | ArduPilot |
+|---|---|---|---|
+| 海面の気圧 P₀ | 合わせる（起動時の値） | `SENS_BARO_QNH`（hPa。海抜の高さの計算に使う）。P₀ は外乱から受け取る値で機体の設定にないので、設定を作る道具に起動時の P₀（Pa）を渡す（`--sea-level-pressure-pa`）。渡さなければ 101,325 Pa（1,013.25 hPa）。道具がいつも書き込む | —（起動時の気圧を基準にする） `[SEN-BAR-300]` |
+| `zeroOffset` | 較正 | —（EKF が推定する高さは、起動時の気圧が基準。海抜の高さには、ずれが残る） | `BARO1_GND_PRESS`（起動時に自動で測る、内部の値） |
+| `noise` | 見込み | `EKF2_BARO_NOISE`（m） | `EK3_ALT_M_NSE`（m） |
+| `noise` | 置き換え（ArduPilot SITL） | — | `SIM_BARO_RND`（m）= `noise` × √3（一様分布 ±値 なので、標準偏差をそろえる） `[SEN-BAR-310]` |
+| `delayMsec` | 見込み | `EKF2_BARO_DELAY`（ms）= `delayMsec` | `EK3_HGT_DELAY`（ms）= `delayMsec` `[SEN-BAR-320]` |
+| `delayMsec` | 置き換え（ArduPilot SITL） | — | `SIM_BARO_DELAY`（ms）= `delayMsec` `[SEN-BAR-330]` |
+| `drift` | 対応なし | — | `SIM_BARO_DRIFT` は別物（一定の速さで増え続けるずれ、m/s）。使わない（0） `[SEN-BAR-340]` |
+| 取り付け位置姿勢の位置 | 対応なし | — | — |
+| `updatePeriodMsec` | 関連するレート | `SENS_BARO_RATE`（Hz） | — |
+| `range`、`resolutionPa` | — | 対応なし | 対応なし |
+
+- 遅れについて：測定そのものを遅らせるのは箱庭（ArduPilot SITL では `SIM_BARO_DELAY`）です。`EKF2_BARO_DELAY`・`EK3_HGT_DELAY` は、その遅れを EKF に知らせて時刻を合わせるための値で、さらに遅らせるものではありません。両方に同じ値を入れるのが正しい組み合わせです。 `[SEN-BAR-320]`
+- 気圧センサの位置は、PX4・ArduPilot とも設定がありません。決まった高さの差は、起動時の較正に含まれて消えます。機体が傾いてセンサの高さが変わる分は、測定に現れます（実機と同じ）。
+- ArduPilot SITL では、ArduPilot SITL が自分で気圧を作ります。そのため、取り付け位置姿勢の位置、`zeroOffset`、`gauss-markov` のドリフト、`resolutionPa`、`range`、天気（海面の気圧・気温）の変化は、ArduPilot SITL の気圧には現れません。設定を作る道具は、これらを書いた設定で、現れない項目を記録に残します（共通仕様 4.0）。 `[SEN-BAR-350]`
+
+## 7. SDFormat との対応
+
+| 箱庭 | SDFormat（`<air_pressure>`） | 関係 |
+|---|---|---|
+| `simulation.location.altitude` | `reference_altitude` | 同じ意味（基準の海抜）。ただし Gazebo は上向きが正（高さ = reference_altitude + z）、箱庭は NED で下向きが正（高さ = altitude − z）なので、z の符号を変える |
+| 誤差を高さ（m）で足す | `pressure/noise` を気圧（Pa）で足す | 違う。地上付近では 1 m ≒ 12 Pa |
+| 大気の式（海面の気圧・気温を環境から受け取る） | 標準大気（固定） | 箱庭は天気の変化を入れられる |
+| 気圧高度・温度の出力 | なし（`<altimeter>` は別のセンサ） | 箱庭だけ |
+| 分解能 | `precision`（Pa） | 同じ（量子化の丸め方も同じ） |
+| ゼロ点のずれ・ドリフト | `bias_*`、`dynamic_bias_*`（Pa） | 考え方だけ対応。単位（m と Pa）、Gauss-Markov の σ の意味、起動時のずれの符号反転が違い、直接は変換しない（共通仕様 7 章） |
+| 頭打ち | なし | 箱庭だけ |
+
+## 8. 受け入れの確かめ方
+
+1. **既定値の互換**：取り付け位置姿勢とこの仕様で足した設定を書かないとき、出力が、それらの段がない場合と一致する（ログが一致）。
+2. **大気の式**：P₀ = 101,325 Pa、T₀ = 15 ℃ で、海抜 0・100・1,000・11,000・15,000 m の気圧と気温が、2 章の式と一致する（ノイズなし）。
+3. **気圧高度**：気圧高度を気圧から逆算すると、誤差なしのとき高さ h と一致する。
+4. **位置**：センサを原点より 10 cm 上に付けると、気圧高度が 10 cm 高くなる。機体を 90° 傾けると、その分だけ変わる。
+5. **ノイズの単位**：`noise` = 1 m のとき、気圧高度の標準偏差が 1 m、気圧の標準偏差が地上付近で約 12 Pa。
+6. **飛行**：ノイズ・遅れを入れ、自動操縦の見込み（6 章）を合わせると、高さの推定が安定する。Control Link と SITL、PX4 と ArduPilot の両方で、繰り返して判定する。
+
+## 9. サポートしない特性
+
+| 特性 | 意味 | 目安 | 備考 |
+|---|---|---|---|
+| プロペラの風・機体の速さによる乱れ | プロペラの吹き下ろしや前進の風で、センサの周りの気圧が変わる。実機の高さの誤差の大部分 | 数十〜数百 Pa（数 m〜数十 m 相当。機体と取り付けによる） | 機体の周りの流れのモデルが要る。ArduPilot SITL の `SIM_BARO_WCF_*` などに近い |
+| 地面効果による乱れ | 地面の近くで気圧が変わる | — | 同上 |
+| 温度の影響 | センサの温度でゼロ点が変わる | 数 Pa/℃ | 機体の温度のモデルが要る |
+| 温度の誤差 | 温度の出力そのものの誤差 | ±1 ℃ 程度 | — |
+| 差圧（対気速度） | 動圧との差 | — | 対気速度センサとして扱う |
+| 20,000 m より上の大気 | — | — | ドローンの高さの範囲外。20,000 m の値のまま（2 章） |
+| 湿度の影響 | 空気の密度が変わる | 小さい | — |
+| 内部のフィルタ | チップの中のフィルタ（IIR） | — | 平均と遅れで近似する |
+| 複数の気圧センサ | 2 つ以上を載せる | — | 気圧センサは 1 つ |
+
+### このモデルで判断してよいこと
+
+このモデルは、自動操縦の推定と制御にセンサの誤差がどう効くかを確かめるためのものです。実物のセンサの値を、細部まで同じに作るものではありません。そこで、このモデルの結果で判断してよいことと、判断してはいけないことを分けておきます。
+
+| 判断してよいこと | 判断してはいけないこと |
+|---|---|
+| ノイズ・遅れ・ゼロ点のずれ・ドリフトが、高さの推定と制御に与える影響 | プロペラの風や地面の近くで気圧が乱れる影響 |
+| 天気（海面の気圧・気温）がゆっくり変わったときの、見かけの高さの変化 | センサの温度による誤差の変化 |
+| 取り付けの高さの違いが、気圧と高さに与える影響 | 温度の出力の誤差（温度は、その場所の気温をそのまま出す） |
+
+## 10. 要求の一覧
+
+番号の決まりは、共通仕様 8 章のとおりです。
+
+| 番号 | 要求 | 章 |
+|---|---|---|
+| SEN-BAR-010 | 出力は気圧（Pa）、気圧高度（m）、温度（℃）の 3 つ | 1 |
+| SEN-BAR-020 | 差圧は 0 を出す | 1 |
+| SEN-BAR-030 | 気圧と気温は、高さ h = `simulation.location.altitude` − z_sensor（海抜、m）で、標準大気の形で求める | 2 |
+| SEN-BAR-040 | z_sensor は、共通仕様 2.4 の式で求めたセンサの位置の、世界（NED）の下向きの座標 | 2 |
+| SEN-BAR-050 | 海面の気圧 P₀・気温 T₀ は環境から受け取り、飛行中に変わってよい。式の気温はケルビンで計算する | 2 |
+| SEN-BAR-060 | P₀・T₀ を受け取らないときは、P₀ = 101,325 Pa、T₀ = 15 ℃ | 2 |
+| SEN-BAR-070 | 11,000 m 以下（海面より下も含む）は、T = T₀ + L·h、P = P₀·(T₀/T)^(g·M/(R·L)) | 2 |
+| SEN-BAR-080 | 11,000〜20,000 m は、T = T₁₁ で一定、P = P₁₁·exp(−g·M·(h − 11,000)/(R·T₁₁)) | 2 |
+| SEN-BAR-085 | 20,000 m より上は、式に入れる高さを 20,000 m に止め（気圧は P₂₀ のまま）、警告を 1 回だけ出す | 2 |
+| SEN-BAR-090 | 定数は L = −0.0065 K/m、M = 0.0289644 kg/mol、R = 8.31432 J/(mol·K)、g = g₀ = 9.80665 m/s²（US 標準大気 1976 の定数） | 2 |
+| SEN-BAR-095 | 式の高さはジオポテンシャル高度 H = r₀ h / (r₀ + h)（r₀ = 6,356,766 m）。層の境もジオポテンシャル高度で決め、逆算した高さは幾何学的な高さに戻す | 2 |
+| SEN-BAR-100 | 入力の条件は P₀ > 0、T₀ > −273.15 ℃、各層で T > 0 K。この範囲で気圧は高さとともに下がる | 2 |
+| SEN-BAR-105 | 環境の P₀・T₀ が条件を外れたら（P₀ ≤ 0、T₀ ≤ −201.65 ℃）、その値を使わず前の正しい値を使い続け、警告を出す。エラーにはしない | 2 |
+| SEN-BAR-110 | 気圧から高さへの逆算は、P ≥ P₁₁ なら 1 行目の式、P₂₀ ≤ P < P₁₁ なら 2 行目の式 | 2 |
+| SEN-BAR-120 | 取り付けの位置は高さだけを使う。機体が傾けば、センサの高さも変わる | 3 |
+| SEN-BAR-130 | 取り付けの姿勢は使わない | 3 |
+| SEN-BAR-140 | 処理の順番は、h → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 気圧に換算 → 分解能 → 頭打ち。誤差は高さ（m）で足し、分解能と頭打ちは気圧（Pa）で当てる | 4 |
+| SEN-BAR-150 | ノイズは標準偏差 `noise`（m）の正規分布。0 以下ならノイズなし | 4 |
+| SEN-BAR-160 | ドリフトは `gauss-markov`（共通仕様 4.2）で、σ は `stddevM`（m）、τ は `correlationTimeSec` | 4 |
+| SEN-BAR-170 | 分解能は `resolutionPa` の最も近い刻みに丸め、中間は 0 から遠い方 | 4 |
+| SEN-BAR-180 | 頭打ちは `range.minHPa`〜`range.maxHPa` の外を端の値にする | 4 |
+| SEN-BAR-184 | `noise` は値が 1 つ。[x, y, z] はエラー | 4 |
+| SEN-BAR-186 | `drift.mode` は `gauss-markov` だけ。ほかはエラー | 4 |
+| SEN-BAR-190 | 気圧高度は、頭打ちまで済んだ気圧から 2 章の式で逆算する | 4 |
+| SEN-BAR-200 | 温度は、センサの真の高さでの気温（気圧の誤差で変わらない）。温度の誤差は足さない | 4 |
+| SEN-BAR-210 | 遅れは高さに掛け、海面の気圧・気温には掛けない（換算するその時点の値を使う） | 4 |
+| SEN-BAR-220 | `zeroOffset.fixedM` は決まったずれ（m）。正なら高く測る | 4.1 |
+| SEN-BAR-230 | `zeroOffset.randomStdM` は起動時に 1 回、正規分布で引く（m） | 4.1 |
+| SEN-BAR-240 | `fixedM` と `randomStdM` はどちらか一方だけ。省略すればずれなし | 4.1 |
+| SEN-BAR-250 | ゼロ点のずれは飛行中に変わらない | 4.1 |
+| SEN-BAR-325 | Control Link（PX4）では、アダプターが気圧（Pa）を受け取り、PX4 SITL と同じく `SENS_BARO_RATE` の間隔で平均し、`SENS_BARO_QNH` を基準に PX4 の式で高さに直して EKF へ渡す | 5 |
+| SEN-BAR-326 | Control Link（ArduPilot）では、アダプターが気圧（Pa）を受け取り、ArduCopter と同じく `runtime.baro_update_hz` ごとにいちばん新しい値を読み、ArduPilot の較正の回数（`runtime.baro_calibration_warmup_updates`・`runtime.baro_calibration_samples`）で地上の気圧を決め、1976 年標準大気の式で地上からの高さに直して EKF3 へ渡す | 5 |
+| SEN-BAR-270 | PX4 SITL では、HIL_SENSOR で気圧（hPa）、気圧高度、温度を送る | 5 |
+| SEN-BAR-280 | ArduPilot SITL へは気圧を送らない | 5 |
+| SEN-BAR-290 | 箱庭アダプターは気圧高度を使い、取り付け位置姿勢は使わない | 5 |
+| SEN-BAR-300 | PX4 の `SENS_BARO_QNH` に、起動時の P₀（hPa）を合わせる | 6 |
+| SEN-BAR-310 | ArduPilot SITL では `SIM_BARO_RND` = `noise` × √3 | 6 |
+| SEN-BAR-320 | `EKF2_BARO_DELAY`・`EK3_HGT_DELAY` は `delayMsec` と同じ値（さらに遅らせる値ではない） | 6 |
+| SEN-BAR-330 | ArduPilot SITL では `SIM_BARO_DELAY` = `delayMsec` | 6 |
+| SEN-BAR-340 | ArduPilot SITL では `SIM_BARO_DRIFT` = 0 | 6 |
+| SEN-BAR-350 | ArduPilot SITL の気圧に現れない項目（位置・`zeroOffset`・ドリフト・分解能・範囲・天気の変化）は、設定を作る道具が記録に残す | 6 |

@@ -52,8 +52,11 @@
       <geom name="landing_gear_rear_right_support" type="cylinder" pos="-0.07 -0.09 -0.09" quat="0.994521895368 -0.104528463268 0 0" size="0.007 0.09" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
       <geom name="landing_gear_left_skid" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0.08 0.08 0.09 1" mass="0" group="1" contype="0" conaffinity="0" />
       <geom name="landing_gear_right_skid" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0.08 0.08 0.09 1" mass="0" group="1" contype="0" conaffinity="0" />
-      <geom name="landing_gear_left_skid_contact" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
-      <geom name="landing_gear_right_skid_contact" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <!-- Issue #193: MuJoCo makes one contact per hfield triangle for each geom, so a skid capsule rests on one point and chatters on hfield ground. Two end spheres per skid rest on two points. -->
+      <geom name="landing_gear_left_skid_contact_front" type="sphere" pos="0.15 0.113 -0.19" size="0.01" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <geom name="landing_gear_left_skid_contact_rear" type="sphere" pos="-0.15 0.113 -0.19" size="0.01" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <geom name="landing_gear_right_skid_contact_front" type="sphere" pos="0.15 -0.113 -0.19" size="0.01" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
+      <geom name="landing_gear_right_skid_contact_rear" type="sphere" pos="-0.15 -0.113 -0.19" size="0.01" rgba="0 0 0 0" mass="0" group="2" contype="1" conaffinity="1" friction="1 0.02 0.001" />
       <geom name="landing_gear_left_mass_proxy" type="capsule" pos="0 0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" density="457.147176966" group="5" contype="0" conaffinity="0" />
       <geom name="landing_gear_right_mass_proxy" type="capsule" pos="0 -0.113 -0.19" quat="0.707106781187 0 0.707106781187 0" size="0.01 0.15" rgba="0 0 0 0" density="457.147176966" group="5" contype="0" conaffinity="0" />
       <geom name="attachment_gps_tray" type="box" pos="-0.1 0 -0.01" quat="1 0 0 0" size="0.05 0.035 0.004" rgba="0.05 0.05 0.06 1" mass="0" group="1" contype="0" conaffinity="0" />
