@@ -1,6 +1,6 @@
 # x500 と PX4 SITL（WSL2 / Ubuntu）
 
-このディレクトリは、Hakoniwa Drone Simulator 4.2.0 の x500 クラス機体モデルと PX4 SITL 用の設定です。物理刻みは 1 ms、PX4 とのセンサー／制御更新周期は 4 ms です。PX4 SITL は WSL2 ホスト、箱庭と Python の飛行命令は Docker コンテナで動かします。
+このディレクトリは、Hakoniwa Drone Simulator 5.0.0 の x500 クラス機体モデルと PX4 SITL 用の設定です。物理刻みは 1 ms、PX4 とのセンサー／制御更新周期は 4 ms です。PX4 SITL は WSL2 ホスト、箱庭と Python の飛行命令は Docker コンテナで動かします。
 
 > x500 は公開情報から推定したモデルであり、メーカー公認のモデルではありません。
 
@@ -17,7 +17,7 @@ WSL2 の Ubuntu と Docker を用意し、Windows の `/mnt/c` ではなく WSL2
 └── PX4-Autopilot/             # WSL2 ホストで SITL を起動する場所
 ```
 
-この手順は `toppersjp/hakoniwa-drone-core:v4.2.0` を使用します。イメージに含まれる Linux 実行バイナリは Release の `lnx.zip`（SHA-256: `344aac4b6bc1f2d82205c7740b574d0439eb9359363bcd6d69ef427587a865b0`）と同一のため、ここでは `-p lnx.zip` を付けません。`-p` は手元の Release 配布物でイメージ内バイナリを明示的に上書きしたい場合にだけ使います。
+この手順は `toppersjp/hakoniwa-drone-core:v5.0.0` を使用します。イメージに含まれる Linux 実行バイナリは Release の `lnx.zip`（SHA-256: `0cb0e271c107c0c031111d58eff934540f9e748ad6ca2cc5ec646f6a90e879fc`）と同一のため、ここでは `-p lnx.zip` を付けません。`-p` は手元の Release 配布物でイメージ内バイナリを明示的に上書きしたい場合にだけ使います。
 
 ```bash
 mkdir -p ~/project

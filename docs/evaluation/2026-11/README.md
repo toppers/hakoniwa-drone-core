@@ -1,12 +1,12 @@
 # 箱庭ドローン PRO
 
-**技術仕様・定量評価・競合技術比較｜改訂第3版**  
-**評価日：2026年11月1日｜合同会社箱庭ラボ｜技術評価資料（製品保証書ではない）**
+**技術仕様・定量評価・競合技術比較｜改訂第4版**  
+**評価日：2026年11月1日（第4版の追加分は2026年11月5日）｜合同会社箱庭ラボ｜技術評価資料（製品保証書ではない）**
 
-> **v5.0.0（2026-11-05）での注記**：本資料は2026年11月1日時点の評価です。その後のv5.0.0で、
-> センサーモデルv2（本資料の「標準センサー」の行）を無償版（hakoniwa-drone-core）にも含めました。
-> Control Link（CL）、外部センサー（Sensors PRO）、Camera PROは、引き続き別製品・別契約です。
-> 参考文献のうち、Drone PRO・Camera PROのリポジトリへのリンクは非公開で、契約者のみ開けます。
+> **第4版（v5.0.0、2026-11-05）での注記**：v5.0.0で、センサーモデルv2（本資料の「標準センサー」の行）を
+> 無償版（hakoniwa-drone-core）にも含め、**PIL（PX4の実ファームをエミュレータAthrillの上で動かす構成）**を公開した
+> （1章、2.3節、3章）。Control Link（CL）、外部センサー（Sensors PRO）、Camera PROは、引き続き別製品・別契約です。
+> 参考文献のうち、Drone PRO・Camera PROのリポジトリへのリンクは非公開で、契約者のみ開けます。Athrill関連は公開です。
 
 > **結論**：箱庭ドローン PRO の中心用途は、**機体・センサー・制御・故障条件を指定し、制御／推定が成立する範囲を定量的に検証すること**である。センサー群の追加は、その「検証できる条件」を拡張する技術投資であり、カメラ／LiDARの機能数でGazeboやProject AirSimと競う戦略への転換を意味しない。比較は第Ⅰ部でRflySim・ArduPilot SITL・PX4 SIH・MATLAB/Simulinkとの**制御検証**、第Ⅱ部でGazebo・Project AirSimとの**センサーおよびシミュレーション機能**を扱う。性能値は同一条件の比較だけを横並びにし、実機妥当性とは区別する。[H1][H2][H3][C1][C2]
 
@@ -23,7 +23,7 @@
 | **CL / SL** | 別契約のControl Link／Scenario Link。基本ライセンスの標準機能には算入しない |
 | **Sensors / Camera** | 別リポジトリのMuJoCo Sensors PRO／Camera PRO。実装とDrone PROへの統合状態を区別する |
 
-**対象バージョン**：Drone PROの正式公開版は**v4.2.0（2026-10-18）**。本資料で参照した開発版mainは`3fc3c958`（2026-11-01）、MuJoCo Sensors PROは`450c2b9`（同日）、Camera PROは`3b1788dc`。競合はGazebo Jetty（gz-sensors 10系）、Project AirSim v1.0.1の公式資料、RflySimの公開マニュアル、PX4・ArduPilot・MathWorksの公式資料を用いる。第3版では、カメラのDrone PRO統合（PR #335）と手順書・PDU定義v2（PR #336）の取り込みを反映した。[H1][H4][H5][C1][C2][C3]
+**対象バージョン**：Drone PROの正式公開版は**v5.0.0（2026-11-05）**。第3版までの評価はv4.2.0（2026-10-18）と、本資料で参照した開発版mainは`3fc3c958`（2026-11-01）、MuJoCo Sensors PROは`450c2b9`（同日）、Camera PROは`3b1788dc`。競合はGazebo Jetty（gz-sensors 10系）、Project AirSim v1.0.1の公式資料、RflySimの公開マニュアル、PX4・ArduPilot・MathWorksの公式資料を用いる。第3版では、カメラのDrone PRO統合（PR #335）と手順書・PDU定義v2（PR #336）の取り込みを反映した。第4版のPILは、Athrill STM32（`athrill-target-stm32`）v0.2.0候補、Athrill RISC-V（`athrill-target-riscv`）v0.1.0候補、`athrill-device`、比較対象のRenodeはArduPilotの性能改善ブランチ（`fbea4f40`）を用いる。[H1][H4][H5][H9][H10][C1][C2][C3]
 
 ---
 
@@ -39,8 +39,9 @@
 | 機体・推進 | ローター**1～16基**、位置・回転方向・推力・反トルク係数・ローター慣性 | 幾何・制御配分条件によって安定飛行可否が異なる |
 | 時刻 | 固定物理刻み。代表的な実証は**1ms** | 制御周期、センサー周期、通信遅延は別に設定・評価 |
 | 標準センサー | 加速度、ジャイロ、地磁気、気圧、GPS | 本体センサーv2。取り付け・遅延・ノイズ・ずれなどを設定 |
-| 外部センサー | 距離計、2D／3D LiDAR、深度カメラ、RGBカメラ（Sensors PROのプラグイン） | main実装、ビルドスイッチ`HAKO_ENABLE_EXTERNAL_SENSORS`（既定OFF）。確認はmacOS。v4.2.0には含まれない |
+| 外部センサー | 距離計、2D／3D LiDAR、深度カメラ、RGBカメラ（Sensors PROのプラグイン） | main実装、ビルドスイッチ`HAKO_ENABLE_EXTERNAL_SENSORS`（既定OFF）。確認はmacOS。無償版v5.0.0には含まれない |
 | PX4／ArduPilot | 両方のSITL実行とMAVLink連携 | 本体と構成依存。外部センサーのFC入力まで一律に保証しない |
+| PIL（実ファーム） | PX4のボード用ファーム（Pixhawk 4の`px4_fmu-v5_default`、AIFoundry Erbium）をエミュレータAthrillで実行し、共有メモリのPDUでデータの往復ごとに同期 | **v5.0.0で公開**（無償版も）。STM32はボードのチップ（IMU・地磁気・気圧・GPS）を模擬しPX4のドライバがそのまま読む。ArduPilotは起動・チップ検出まで、箱庭での飛行は未確認。実ハードウェアのHILではない |
 | 制御差し替え | PX4／ArduPilot系アダプタと独自制御 | **CL：別オプション** |
 | PID探索 | hover → angle → altitude → horizontalの4段階 | **CL等**、半自動。完全無人処理・全機体の成功は意味しない |
 | 外乱・故障注入 | ローター故障・風等の条件注入 | **SL：別オプション**。最適な復旧制御を自動で保証しない |
@@ -82,6 +83,19 @@ PX4の「要確認」は、例えばコマンド応答のばらつきや着陸�
 
 競合製品との**飛行全体の速度倍率差は測っていない**。本表の「約25倍」は**実時間との比率**であり、Gazebo・RflySim・ArduPilot SITL・PX4 SIH・MATLABに対する25倍の優位を意味しない。[H2][H3][H7]
 
+### 2.3 PIL――ボード用ファームのままの実行（第4版で追加）
+
+| 測定項目 | 数値 | 測定条件と解釈 |
+|---|---:|---|
+| PX4（Pixhawk 4用）×箱庭x500の離陸・ホバリング | **3/3回**、2.5m目標に対し**2.48–2.50m** | Apple M2 Pro、macOS、MuJoCo viewerあり・実時間。パラメータ初期化から1回目を含む。v5.0.0と同じコードのPRO版で確認（公開版zipは未確認） |
+| PX4（Erbium、RISC-V）×箱庭x500 | **3/3回**、**2.50–2.51m** | 同上 |
+| PIL全体の速さ（STM32、ホバリング中） | **RTF 1.48** | 2026-11-04、viewerなし。Athrillは1コアの91%、箱庭は111%。PX4 SIH単体（外部物理なし）は1.94 |
+| PX4 SIHの再現性（Athrill単体） | **macOSとLinux x86_64でビット一致**（2,903,884,344命令） | 公開ELFと台本どおりの飛行。SDカード像・ULog・F-RAM・コンソールの全一致。QGroundControl等の実時間入力を含む再現は対象外 |
+| ArduPilot（ArduCopter、Pixhawk 4用）の速さ：Renodeとの比較 | Renode **0.30**、Athrill **0.62**（アイドルもそのまま実行）／**1.58**（`b .`をWFI扱い） | 同一ELF・同一Mac。ArduCopterのアイドルは`b .`で、WFIがない。0.62が「ハードウェアの模擬だけ」の比較（約2倍）、1.58はファームを知らない汎用の設定で、そのアイドルの間の時間を飛ばした値（約5倍）。周辺の模擬は両者で違い、作業量を正規化した比較ではない |
+| ArduPilotの命令の一致（Renodeとの比較） | Renodeの411,873命令のうち**411,627命令が同期して一致** | 不一致91か所はすべてハードウェアの待ち時間（タイマー割り込みの入りなど） |
+
+PILの位置づけは、**SITL（ホスト向けビルド）とHIL（実ボード）の間**である。ボード用のビルドをそのまま動かし、ドライバ・割り込み・DMAを通る経路を、実ハードウェアなしで繰り返せる。一方で、命令サイクル精度・電気的特性・実ボードの代替は主張しない。[H9][H10][H11]
+
 ## 3. 最も近い競合との機能比較――制御検証
 
 比較対象は、**RflySim**、**ArduPilot SITL単体**、**PX4 SIH**、**MATLAB/Simulink＋UAV Toolboxおよび必要なサポートパッケージ**。いずれも「制御系の検証」と直接関係があるが、飛行力学の配置やライセンス・追加製品は異なる。機能の存在と、箱庭と同一形式の定量評価資料の存在は別に判定する。[C1][C2][C3][C4]
@@ -97,11 +111,12 @@ PX4の「要確認」は、例えばコマンド応答のばらつきや着陸�
 | RPM連動のIMU振動モデル | **○ 実験的** | — 方式未確認 | **○** RPM・位相・高調波 | — 今回未確認 | **△** モデル実装に依存 |
 | 高速な非実時間実験 | **○ 約25倍の実測例** | **○** 速度の同条件実測なし | **○** `SIM_SPEEDUP` | **○** 軽量・lockstep | **○** 構成依存 |
 | 自動／反復試験 | **○** | **○** 自動試験例 | **○** AutoTest等 | **△** PX4のテスト構成依存 | **○** Simulink Test等の構成次第 |
-| HIL・実ハードウェア試験 | — 標準では提供しない | **○** Pixhawk HIL | **△** 別のHIL構成 | **○** SIH-on-hardware（HILとは別方式） | **○** 対応パッケージ・ハード必要 |
+| PIL（エミュレータ上のボード用ファーム） | **○** PX4（Pixhawk 4・Erbium）、ArduPilotは起動まで | — 今回未確認 | — （ホスト向けビルド） | — （SIH-on-hardwareは実ボード） | **△** 実ボード上のPIL（Embedded Coder・対応ハード） |
+| HIL・実ハードウェア試験 | — 標準では提供しない（PILは上の行） | **○** Pixhawk HIL | **△** 別のHIL構成 | **○** SIH-on-hardware（HILとは別方式） | **○** 対応パッケージ・ハード必要 |
 | 同一シナリオで軽量代役 vs 本物のSITLを定量照合 | **○ CL：68/72項目の記録** | — 同形の標準資料は未確認 | — 別の比較対象を要する | — 別の比較対象を要する | **△** ユーザー構築可能、同形の標準資料未確認 |
 | 動かせるOS | **○** macOS（Apple Silicon）・Ubuntu・Windows | Windows（LinuxはWSLの中） | 今回未確認 | 今回未確認 | 今回未確認 |
 
-**選ぶ理由**：機能の有無ではRflySimとの差は小さい。箱庭を選ぶ理由は、①**PX4とArduPilotの両方**を同じ機体・同じ条件で回せること（RflySimの公式の飛行制御はPX4系、ArduPilot SITLとPX4 SIHはそれぞれ自分のFCだけ）、②**macOS・Ubuntu・Windows**で動くこと（RflySimの導入手順はWindows）、③軽量代役と本物のSITLを照合した結果（68／72項目）を**記録として持つ**こと、の3点である。[C1][C10]
+**選ぶ理由**：機能の有無ではRflySimとの差は小さい。箱庭を選ぶ理由は、①**PX4とArduPilotの両方**を同じ機体・同じ条件で回せること（RflySimの公式の飛行制御はPX4系、ArduPilot SITLとPX4 SIHはそれぞれ自分のFCだけ）、②**macOS・Ubuntu・Windows**で動くこと（RflySimの導入手順はWindows）、③軽量代役と本物のSITLを照合した結果（68／72項目）を**記録として持つ**こと、の3点である。第4版から、④**ボード用ファームのままのPIL**を、実ボードなしに同じ機体・同じ条件で回せること（2.3節）が加わる。[C1][C10][H9]
 
 **読み方**：表中の「○」は機能提供を示すだけで、品質・精度・速度の優劣を示さない。ArduPilot SITLにはSIM_パラメータによる風・GPS異常・振動や`SIM_SPEEDUP`があり、RflySimには故障注入・自動テスト・HILの公式ワークフローがある。PX4 SIHは外部の高品質物理エンジンを使わない軽量設計。MathWorksのSITL／HILは、UAV Toolbox単独で完結せず**Simulink、Embedded Coder、サポートパッケージ等の必要製品が条件によって異なる**。[C1][C2][C3][C4]
 
@@ -242,6 +257,7 @@ Gazeboでは本比較アダプターが`gz::math::Rand`の**プロセス共有�
 | A | 外部センサーのmacOS以外での結合とSITL併用 | Ubuntu／WSL2（ray系センサー）・Windowsの実飛行、PX4／ArduPilot SITLと同時の時刻・停止 |
 | A | PX4光学フロー位置保持 | `DISTANCE_SENSOR`＋`HIL_OPTICAL_FLOW`、ジャイロ積分・品質・時刻、GPSなしEKF2実飛行 |
 | A | RPM振動のFC独立性を証明 | 同一RPM・振動シード・モデルをPX4／ArduPilotへ適用、観測スペクトル・EKF・制御差を記録 |
+| A | ArduPilotのPIL飛行 | Athrill STM32上のArduCopterで箱庭x500の離陸・ホバリング、繰り返し3回以上 |
 | A | 多センサー飛行の1msリアルタイム性 | Rangefinder／3D LiDAR／RGB／Depth同時、平均・p99・最大・RTF・取りこぼし、機体数別 |
 | B | 競合との同条件ベンチマーク | 同一機体・同一物理相当・シナリオ・CPU・測定対象・ウォームアップ時間を固定した比較 |
 | B | 外部センサーのOS・配布評価 | Windows／Linux/macOS、DLL/so/dylib ABI、サービス再起動、異常時復旧 |
@@ -276,6 +292,14 @@ Gazeboでは本比較アダプターが`gz::math::Rand`の**プロセス共有�
 **集計**：箱庭○18／18、Gazebo○4＋△2＋×12、Project AirSim○1＋△8＋×9。**元の概要ページには「Project AirSim：条件付き9」とあったが、詳細18行を数えると△8だった。本書では詳細表の内訳を採用し、元の概要ページも8に訂正した。** **ここから「箱庭の全センサー機能が競合より上」と結論づけない。** Gazeboが標準で持つAirspeed、Thermal、Panoptic Segmentation、Force/Torque、GPU LiDAR等はこの18項目の対象外。単体ノイズ実装についての実測比較であり、ロボットワールド・FC連携の優劣とは別問題。[H7][C5][C9]
 
 ## 付録B　改訂履歴
+
+### 第4版（第3版からの変更、2026-11-05）
+
+| 変更 | 改訂内容 |
+|---|---|
+| 対象版 | 正式公開版をv5.0.0に。センサーモデルv2が無償版にも入ったことを冒頭に |
+| PIL | 1章に「PIL（実ファーム）」の行、2.3節（離陸3/3回、RTF、SIHのビット一致、Renodeとの速度・命令一致）、3章の比較表にPILの行と「選ぶ理由」④ |
+| 優先順位 | ArduPilotのPIL飛行を追加 |
 
 ### 第3版（第2版からの変更）
 
@@ -314,6 +338,9 @@ Gazeboでは本比較アダプターが`gz::math::Rand`の**プロセス共有�
 - **[H6]** [Camera PRO：センサー実装状況](https://github.com/tmori/hakoniwa-camera-pro/blob/main/sensors/STATUS.md)。
 - **[H7]** [センサーv2：6軸結果](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/sensors/docs/results/README.md)、[軸2：18項目全内訳](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/sensors/docs/results/axis2-coverage.md)、[軸4：速度（中央値／p99）](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/sensors/docs/results/axis4-speed.md)、[軸3：再現性](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/sensors/docs/results/axis3-repeatability.md)、[試験証跡216／239](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/pro-docs/sensor-v2/test-tally.md)。
 - **[H8]** [RPM連動IMU振動の設計／実装状況](https://github.com/hakoniwalab/hakoniwa-drone-pro/blob/main/pro-docs/sensor-vibration/propeller-vibration-design.md)。
+- **[H9]** Athrill STM32（公開）：[箱庭との接続（PIL）](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/hakoniwa.md)、[SIHの再現性の検証](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/verification.md)、[ArduPilotとRenodeの比較](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/ardupilot.md)、[時間の設計](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/time-skip.md)。
+- **[H10]** Athrill RISC-V（公開）：[PX4（Erbium）と箱庭](https://github.com/hakoniwalab/athrill-target-riscv/blob/main/docs/hakoniwa.md)。
+- **[H11]** [athrill-device（公開）：箱庭のセンサーデバイス](https://github.com/hakoniwalab/athrill-device)。
 
 ### 競合側：公式資料・実装
 

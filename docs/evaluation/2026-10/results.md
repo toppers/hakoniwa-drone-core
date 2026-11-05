@@ -23,7 +23,7 @@
 | 5 | カスタムセンサーの拡張性 | 公式（カスタムセンサーとSystem Plugin） | 条件付（標準センサー組替え可。新型の追加APIは未確認） | 条件付（Python拡張可。独自センサー契約は未確認） | 公式（Python API/OmniGraphで追加・構成） | 公式（PDUを読み書きするアセット） | 基本：公式 |
 | 6 | 3D環境の再現度と拡張性 | 公式（SDF・独自ワールド・Fuelモデル） | 公式（Unrealカスタム環境、GISシーン） | 条件付（カスタムUSD。GUIでは制限） | 公式（USDシーン、外部ロボット・3Dアセット取込） | 条件付（外部ビューア連携） | 基本：条件付、実在都市は別製品 |
 | 7 | 外部環境の拡張性 | 条件付（風等。気象全項目は未確認） | 条件付（外部環境値を独自物理へ受渡し。標準範囲は未確認） | 条件付（推力・抗力を設定。気象の標準化は未確認） | 条件付（環境条件のランダム化。機体物理への同等性は未確認） | 公式（風・温度・気圧） | SL：風・故障注入 |
-| 8 | FCの対応範囲 | 条件付（PX4連携。ArduPilotのJetty動作は未確認） | 条件付（PX4 v1.12.3、ArduPilotは最近の検証なし） | 条件付（PX4、ArduPilotは実験的・v5.1.0未テスト） | 条件付（Pegasus等の追加構成） | 公式（PX4/ArduPilot/内蔵） | CL：PX4/ArduPilot/差し替え可能な制御基盤 |
+| 8 | FCの対応範囲 | 条件付（PX4連携。ArduPilotのJetty動作は未確認） | 条件付（PX4 v1.12.3、ArduPilotは最近の検証なし） | 条件付（PX4、ArduPilotは実験的・v5.1.0未テスト） | 条件付（Pegasus等の追加構成） | 公式（PX4/ArduPilot/内蔵。v5.0.0からPX4の実ファームのPILも、項目36） | CL：PX4/ArduPilot/差し替え可能な制御基盤 |
 | 9 | 通信プロトコル | 公式（Gazebo Transport、ROS 2 bridge。MAVLinkは構成依存） | 公式（Client API、ROS bridge、FC接続はUDP/MAVLink） | 公式（PX4 MAVLink、ROS 2は別バックエンド） | 公式（ROS 2 Bridge／OmniGraph。MAVLink標準ではない） | 公式（MAVLink/PDU/UDP/RPC） | 基本・CL：公式 |
 | 10 | プログラミング言語とAPI | 公式（C++ Gazebo API、ROS 2経由） | 公式（Python／C++クライアントAPI） | 公式（Python API） | 公式（Python API、拡張／OmniGraph） | 公式（Python飛行API等） | 基本：C/C++/Pythonアセット API、RPC |
 | 11 | ROS/ROS 2対応 | 公式（ROS 2 topics/services、型に制約） | 公式（ROS 1／ROS 2 C++ Bridge） | 条件付（ROS 2 backend・例あり。互換範囲は要確認） | 公式（ROS 2 topics/services bridge） | 条件付（接続機構。対応範囲は要確認） | 基本：条件付 |
@@ -42,7 +42,7 @@
 | 24 | 教育用途 | 公式（tutorial） | 公式（開発者向け例・tutorial） | 公式（tutorial・sample） | 公式（各種tutorial） | Python API・見本あり | 基本：Python API・見本あり |
 | 25 | デモの視覚性・対話性 | 公式（3D GUI。品質順位は未評価） | 公式（Unreal描画、camera・segmentation） | 条件付（Isaac Sim描画を利用） | 公式（RTX描画・視覚sensor。品質順位は未評価） | 外部ビューアで構成 | 基本：外部描画環境で構成、高品質描画は別製品 |
 | 26 | 独立ライブラリ利用と実行環境 | 公式（独立したgz-* libraries） | 条件付（simulation library・host clock。単体公開範囲は未確認） | 条件付（Isaac Sim extensionとしてPython利用） | 公式（Pythonから組込み・standalone構築） | 公式（Cサービス層） | 基本：公式 |
-| 27 ★ | 決定論・反復再現性 | 条件付（PX4同期実行。ビット一致は未確認） | 条件付（固定刻み／手動step。ビット一致は未確認） | 未確認 | 条件付（Isaac Labの条件付き再現性。全構成のビット一致ではない） | 条件付（同期実行。全経路のビット一致ではない） | CL：実測あり |
+| 27 ★ | 決定論・反復再現性 | 条件付（PX4同期実行。ビット一致は未確認） | 条件付（固定刻み／手動step。ビット一致は未確認） | 未確認 | 条件付（Isaac Labの条件付き再現性。全構成のビット一致ではない） | 条件付（同期実行。全経路のビット一致ではない。PILのPX4 SIHはmacOSとLinuxでビット一致を実測、項目36） | CL：実測あり |
 | 28 ★ | センサー時間特性 | 公式（周期・Gaussian noise。FC全遅延とは別） | 条件付（LiDAR周期。FC全sensor遅延は未確認） | 公式（IMU雑音・bias／drift等。FC遅延は別） | 条件付（IMU filter、LiDAR tickRate。FC全遅延は未確認） | 公式（SITL：ハード遅れ、センサー別周期、PX4送信周期、GPS精度、ジャイロドリフト、乱数の種） | CL：ソフト遅れ、EKF入力周期・受け渡し、制御段の取りこぼし |
 | 29 ★ | 高速代役とSITLの応答照合 | 未確認 | 未確認 | 未確認 | 未確認 | 非対応（PROで提供） | CL：同じ機体モデル・決めた条件でPX4/ArduPilotとの制御応答を定量照合 |
 | 30 ★ | 非実時間の処理性能 | 条件付（RTF設定／実時間超。比較実測なし） | 条件付（clockでRTF変更可。実測なし） | 未確認 | 条件付（headless／physics-only。比較実測なし） | 条件付（構成依存） | CL：実測あり、並列試行可 |
@@ -51,8 +51,12 @@
 | 33 ★ | 実在都市データと遠隔操作 | 条件付（DEM／heightmap。PLATEAU自動変換は未確認） | 条件付（GIS tiles。PLATEAU自動取込とは別） | 未確認 | 未確認 | 別製品 | 別製品：PLATEAU/OSM、ブラウザ操作 |
 | 34 ★ | 配布・再現可能な環境 | 公式（Linux native／server package。実験全体の再現保証ではない） | 公式（Windows／Linux binaries、Docker） | 条件付（Isaac Sim 5.1依存） | 公式（Linux Docker、Windows／Linux install） | 公式（OS別パッケージ、Docker） | 基本：成果物化、機能ごとの条件あり |
 | 35 ★ | シナリオ標準連携 | 未確認 | 未確認 | 未確認 | 未確認 | 非対応（試作は別製品） | 別製品で試作。OpenSCENARIO対応は未確認 |
+| 36 ★ | 実ファームのPIL（ボード用ビルドをエミュレータで実行） | 未確認（実ボードのHITLは条件付：PX4のHITL） | 未確認（実ボードのHITLは条件付：PX4 HITL） | 未確認 | 未確認 | 公式（v5.0.0。PX4のPixhawk 4用・Erbium用をAthrillで実行、離陸・ホバリングを確認。ArduPilotは起動まで） | 基本：無償版と同じ |
 
 ## 数値を読む際の注意
+
+項目36は第4版（v5.0.0、2026-11-05）で追加しました。PILは実ボードを使うHITLとは別の方式で、エミュレータの上でボード用のビルドをそのまま動かします。競合の「未確認」は、実ボードのHITLとは別に、エミュレータ上の実ファーム実行を公式資料で確認できなかったという意味です。数値は[技術評価資料（第4版）](../2026-11/README.md)の2.3節にあります。
+
 
 Gazeboのlockstep、Project AirSimのsteppable clock、Isaac Labの条件付き再現性、箱庭の記録照合は保証するレベルが異なります。「ビット単位一致を未確認」は非対応を意味しません。各競合にもセンサー周期や雑音等の設定例がありますが、FCの受信タイミングとソフトウェア遅延まで含む照合とは分けて評価しています。
 

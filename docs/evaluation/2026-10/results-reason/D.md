@@ -15,6 +15,7 @@
 | 33 | 実在都市データと遠隔操作 | 一般的な3D取り込み、Project AirSimのGIS tile、GazeboのDEM／heightmapと、PLATEAU／OSMから衝突形状・高低差を含む物理環境一式を生成する機能を分けます。箱庭の該当機能とブラウザ操作はUrban Mobility等の別製品です。 | 箱庭: 別製品の公開根拠は未確認。競合の根拠は下表。 | 2026-10-18 |
 | 34 | 配布・再現可能な環境 | 箱庭は各OS上の固有パッケージとLinuxパッケージを使うDocker構成があります。一度のビルドで3 OS成果物を生成するという意味ではありません。競合の確認内容と限定は下表です。 | 箱庭: [README](../../../../README.md)、[Docker](../../../../docker/README.md)。競合: 下表。 | 2026-10-18 |
 | 35 | シナリオ標準連携 | 箱庭の無償版は非対応で、別製品に試作があります。OpenDRIVE、esmini、OpenSCENARIOの正式対応を断定しません。競合の確認内容と限定は下表です。 | 競合: 下表。箱庭の別製品については正式対応を裏付ける公開URLを未確認。 | 2026-10-18 |
+| 36 | 実ファームのPIL | 箱庭はv5.0.0で、PX4のPixhawk 4用（`px4_fmu-v5_default`）とAIFoundry Erbium用のファームをエミュレータAthrillで動かし、共有メモリのPDUで箱庭の機体と同期します。x500の離陸・ホバリングを3/3回確認。ArduPilotは起動とチップ検出までで、箱庭での飛行は未確認。実ボードのHITLではありません。 | 箱庭: [Athrill STM32：箱庭との接続](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/hakoniwa.md)、[Athrill RISC-V：箱庭](https://github.com/hakoniwalab/athrill-target-riscv/blob/main/docs/hakoniwa.md)、[athrill-device](https://github.com/hakoniwalab/athrill-device)、[技術評価資料 第4版 2.3節](../../2026-11/README.md)。 | 2026-11-05 |
 
 ## 競合の根拠と限定
 
@@ -29,3 +30,4 @@
 | 33 | [Comparison](https://gazebosim.org/docs/jetty/comparison/)。DEM／heightmap、PLATEAU自動変換は未確認。 | [GIS scenes](https://github.com/iamaisim/ProjectAirSim/blob/v1.0.1/docs/gis_scenes.md)、[Scene config](https://github.com/iamaisim/ProjectAirSim/blob/v1.0.1/docs/config_scene.md)。CustomGISのGLB/glTF tilesでありPLATEAU自動取込とは別。 | 未確認。 | 未確認。browser配信は都市data生成とは別。 |
 | 34 | [Ubuntu install](https://gazebosim.org/docs/jetty/install_ubuntu/)。native／server package、実験全体の再現保証ではない。 | [Prebuilt](https://github.com/iamaisim/ProjectAirSim/blob/v1.0.1/docs/development/use_prebuilt.md)。Windows／Linux binaries、Docker。全依存の再現保証ではない。 | [Setup](https://github.com/PegasusSimulator/PegasusSimulator/blob/v5.1.0/docs/source/setup/installation.rst)。Isaac Sim 5.1依存、6.0以降はv5.1.0範囲外。 | [Container](https://docs.isaacsim.omniverse.nvidia.com/6.2.0/installation/install_container.html)、[Requirements](https://docs.isaacsim.omniverse.nvidia.com/6.2.0/installation/requirements.html)。DockerはLinuxのみ公式。 |
 | 35 | 未確認。OpenSCENARIO／OpenDRIVEの正式統合workflowを確認していない。 | 未確認。同左。 | 未確認。同左。 | 未確認。同左。 |
+| 36 | 未確認（エミュレータ上の実ファーム実行）。実ボードのHITLは[PX4 HITL](https://docs.px4.io/main/en/simulation/hitl.html)の構成で条件付。 | 未確認（同左）。実ボードのHITLは[Controller一覧](https://github.com/iamaisim/ProjectAirSim/blob/main/docs/controllers/controllers.md)のPX4 HITLで条件付。 | 未確認。 | 未確認。 |
