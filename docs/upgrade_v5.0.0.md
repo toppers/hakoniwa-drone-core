@@ -80,6 +80,21 @@ v1の書き方のうち、v2では使われない項目です。読み込み時�
 `legacy/config/drone/`に移しました。文書と起動の設定の参照先も`legacy/`に直してあります。
 `legacy/`は次の版で削除します。詳しくは[`legacy/README.md`](../legacy/README.md)を見てください。
 
+## 新しい機能：PIL（PX4の実ファームを、エミュレータの上で）
+
+v5.0.0から、PX4の実ファーム（Pixhawk 4用の`px4_fmu-v5_default`）を、エミュレータ
+[Athrill](https://github.com/hakoniwalab/athrill-target-stm32)の上で動かし、箱庭ドローンのx500を飛ばせます
+（PIL：Processor-in-the-Loop）。SITLと違い、PX4のビルドはボード用のものそのままで、センサはボードのチップ
+（IMU、地磁気、気圧、GPS）を通ってPX4のドライバに届きます。
+
+- 箱庭とAthrillは、共有メモリのPDUでつながります（`hil_sensor`、`hil_gps`、`hil_actuator`）。
+  時刻は、センサのデータとモーターの指令の往復で揃います。
+- 機体設定は`config/drone/x500-athrill-px4`、PDUの定義は`config/pdudef/drone-pdudef-athrill-px4.json`です。
+- 起動の手順は、Athrill STM32の[箱庭との接続](https://github.com/hakoniwalab/athrill-target-stm32/blob/main/docs/hakoniwa.md)を見てください。
+
+離陸の高さをMAVLinkの`MAV_CMD_NAV_TAKEOFF`で指定するときは、海抜の高さ（ホームの高さ＋上がる高さ）を
+渡します。QGroundControlから操作する場合は、気にする必要はありません。
+
 ## そのほかの変更
 
 ### バイナリログ（v4.3.0から）
