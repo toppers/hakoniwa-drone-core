@@ -150,10 +150,16 @@
       },
       "gps": {
         "sampleCount": 1,
-        "noise": 0.0,
-        "sacc": 0.1,
-        "eph": 0.2,
-        "epv": 0.3,
+        "updatePeriodMsec": 1,
+        "positionNoise": {
+          "horizontalM": 0.0,
+          "verticalM": 0.0
+        },
+        "accuracy": {
+          "horizontalM": 0.2,
+          "verticalM": 0.3,
+          "speedMps": 0.1
+        },
         "delayMsec": 100
       }
     }
