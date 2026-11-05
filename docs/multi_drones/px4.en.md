@@ -1,5 +1,10 @@
 # What is this?
 
+> **Note for v5.0.0:** the airframe configs used here moved to `legacy/`. Sensor model v2
+> is standard from v5.0.0, so these configs no longer give the same results as up to v4
+> (not compatible). See [Migrating to v5.0.0](../upgrade_v5.0.0.md).
+> `legacy/` will be deleted in the next version.
+
 This document provides instructions for building a multi-vehicle simulation environment using PX4.
 
 # Prerequisites
@@ -29,11 +34,11 @@ px4-controllers/
 *   `c1/PX4-Autopilot` and `c2/PX4-Autopilot` should be **separate clones** (or have separate build/working directories).
 *   Perform a **build** in each. It is safer to use the same branch/tag for all.
 
-Also, prepare the following **vehicle definition files** under `hakoniwa-drone-core/config`.
+Also, prepare the following **vehicle definition files** under `hakoniwa-drone-core/legacy/config`.
 (`-2` indicates a definition file for two vehicles)
 
 ```tree
-hakoniwa-drone-core/config
+hakoniwa-drone-core/legacy/config
 ├── drone
 │   ├── px4-1   # Definition directory for 1 vehicle
 │   │   └── drone_config_0.json

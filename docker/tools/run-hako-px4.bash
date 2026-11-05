@@ -13,4 +13,4 @@ echo "Starting instance ${DRONE_NUM}"
 
 cd ${DRONECORE_DIR}
 
-linux-main_hako_aircraft_service_px4 127.0.0.1 4560 ./config/drone/px4-${DRONE_NUM} ${CONFIG_PATH}
+linux-main_hako_aircraft_service_px4 127.0.0.1 4560 ./legacy/config/drone/px4-${DRONE_NUM} ${CONFIG_PATH}

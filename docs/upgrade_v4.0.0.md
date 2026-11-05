@@ -212,7 +212,7 @@ v4.0.0 では、PX4 control adapter を利用するための設定ファイル�
 config/controller/px4-controller-config.json
 config/controller/px4-controller-extra.json
 config/controller/param-px4-mixer-mujoco.txt
-config/drone/mujoco-px4/
+legacy/config/drone/mujoco-px4/
 config/launcher/drone-rc-px4-mac-mujoco.launch.json
 ```
 

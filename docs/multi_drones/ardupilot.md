@@ -1,5 +1,10 @@
 # これは何？
 
+> **v5.0.0 での注意**：この文書が使う機体設定は `legacy/` に移しました。v5.0.0 から
+> センサモデル v2 が標準になったため、これらの設定は v4 までと同じ結果にはなりません
+> （非互換）。[v5.0.0 への移行手順](../upgrade_v5.0.0.md)を見て
+> 対応してください。`legacy/` は次の版で削除します。
+
 Ardupilot を用いた複数機体のシミュレーション環境を構築するための手順です。
 
 # 事前準備
@@ -30,11 +35,11 @@ ardupilot-controllers/
 * それぞれで **ビルド** を実施。ブランチ/タグは同一にしておくと無難です。
 
 
-また、`hakoniwa-drone-core/config` 以下に、以下のような**機体定義ファイル**を用意します。
+また、`hakoniwa-drone-core/legacy/config` 以下に、以下のような**機体定義ファイル**を用意します。
 (`-2` は 2 機体用の定義ファイル）
 
 ```tree
-hakoniwa-drone-core/config
+hakoniwa-drone-core/legacy/config
 ├── drone
 │   ├── ardupilot-1 #1機分の定義ディレクトリ
 │   │   └── drone_config_0.json
@@ -113,4 +118,3 @@ python3 -m hakosim_mavlink --name Drone1 \
 | 1 | 127.0.0.1:14560       | HOST\_IP:14560               | `Drone1`        | `drone_config_1.json` |
 
 ---
-

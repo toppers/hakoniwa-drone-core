@@ -22,7 +22,7 @@
       "args": [
         "${WSL_IP}",
         "9002", "9003",
-        "config/drone/ardupilot-1", 
+        "legacy/config/drone/ardupilot-1",
         "config/pdudef/webavatar.json"],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}"
     },

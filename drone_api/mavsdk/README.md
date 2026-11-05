@@ -1,5 +1,10 @@
 # MuJoCo + PX4 + pymavlink + Three.js（WSL2 / Docker）
 
+> **v5.0.0 での注意**：この文書が使う機体設定は `legacy/` に移しました。v5.0.0 から
+> センサモデル v2 が標準になったため、これらの設定は v4 までと同じ結果にはなりません
+> （非互換）。[v5.0.0 への移行手順](../../docs/upgrade_v5.0.0.md)を見て
+> 対応してください。`legacy/` は次の版で削除します。
+
 WSL2 上で PX4 SITL を起動し、Docker コンテナ内の `hakoniwa-drone-core` と接続して、
 Python `pymavlink` から速度指令を送るための手順です。シミュレーション中の機体状態は
 Three.js のブラウザビューアで確認できます。
@@ -120,9 +125,9 @@ Offboard API（pymavlink）が接続するOnboard MAVLinkポートで、QGC用�
 
 | 役割 | ファイル / コンポーネント |
 |---|---|
-| PX4接続設定 | `config/drone/mujoco-px4-1/drone_config_0.json` |
+| PX4接続設定 | `legacy/config/drone/mujoco-px4-1/drone_config_0.json` |
 | 1機用PDU定義 | `config/pdudef/drone-pdudef-1.json` |
-| MuJoCoモデル | `config/drone/mujoco-ardupilot-1/drone.xml`（PX4設定内の`modelPath`が参照） |
+| MuJoCoモデル | `legacy/config/drone/mujoco-ardupilot-1/drone.xml`（PX4設定内の`modelPath`が参照） |
 | Docker起動 | `docker/run.bash` |
 | コンテナ接続 | `docker/attach.bash` |
 | Docker内Launcher | `tools/launch-mujoco-px4-web-bridge-wsl2.bash` |
@@ -136,7 +141,7 @@ Offboard API（pymavlink）が接続するOnboard MAVLinkポートで、QGC用�
 は、Drone Serviceへ次のディレクトリを渡します。
 
 ```text
-config/drone/mujoco-px4-1/
+legacy/config/drone/mujoco-px4-1/
 └─ drone_config_0.json
 ```
 
@@ -148,17 +153,17 @@ config/drone/mujoco-px4-1/
   "mujoco": {
     "modelName": "d1_drone_base",
     "propNames": ["d1_prop1", "d1_prop2", "d1_prop3", "d1_prop4"],
-    "modelPath": "config/drone/mujoco-ardupilot-1/drone.xml"
+    "modelPath": "legacy/config/drone/mujoco-ardupilot-1/drone.xml"
   }
 }
 ```
 
 つまり、設定ディレクトリは`mujoco-px4-1`ですが、実際にロードされるXMLは
-`config/drone/mujoco-ardupilot-1/drone.xml`です。このXMLには`d1_drone_base`と
+`legacy/config/drone/mujoco-ardupilot-1/drone.xml`です。このXMLには`d1_drone_base`と
 `d1_prop1`〜`d1_prop4`が定義されており、`modelName`／`propNames`と一致している必要があります。
 
-なお、単体MuJoCo（PX4なし）の設定では`config/drone/mujoco/drone_config_0.json`が
-`config/drone/mujoco/drone.xml`を参照します。今回のPX4構成ではこちらは使用しません。
+なお、単体MuJoCo（PX4なし）の設定では`legacy/config/drone/mujoco/drone_config_0.json`が
+`legacy/config/drone/mujoco/drone.xml`を参照します。今回のPX4構成ではこちらは使用しません。
 
 ## 1. Docker イメージを取得する
 
@@ -390,7 +395,7 @@ ss -lunp | rg '14540|14550'
 - PX4 が先に起動しているか確認する
 - PX4 simulator link が `127.0.0.1:4560` で待機しているか確認する
 - DockerがWSL2のhost networkで起動しているか確認する
-- `config/drone/mujoco-px4-1` と `config/pdudef/drone-pdudef-1.json` が存在するか確認する
+- `legacy/config/drone/mujoco-px4-1` と `config/pdudef/drone-pdudef-1.json` が存在するか確認する
 
 ### ブラウザが表示されない
 
