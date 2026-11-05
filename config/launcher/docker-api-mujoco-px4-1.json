@@ -23,7 +23,7 @@
       "args": [
         "127.0.0.1",
         "4560",
-        "config/drone/mujoco-px4-1",
+        "legacy/config/drone/mujoco-px4-1",
         "config/pdudef/webavatar.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",

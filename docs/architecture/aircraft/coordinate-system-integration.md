@@ -2,6 +2,11 @@
 
 # MuJoCo / Hakoniwa / PX4 座標系統合メモ
 
+> **v5.0.0 での注意**：この文書が使う機体設定は `legacy/` に移しました。v5.0.0 から
+> センサモデル v2 が標準になったため、これらの設定は v4 までと同じ結果にはなりません
+> （非互換）。[v5.0.0 への移行手順](../../upgrade_v5.0.0.md)を見て
+> 対応してください。`legacy/` は次の版で削除します。
+
 ## 目的
 
 このドキュメントは、MuJoCo モデル、箱庭ドローン内部設定、PX4 ローター設定の間で、
@@ -246,8 +251,8 @@ moment = CT * position × axis - CT * KM * axis
 
 確認対象:
 
-- `config/drone/mujoco-px4-1/drone.xml`
-- `config/drone/mujoco-px4-1/drone_config_0.json`
+- `legacy/config/drone/mujoco-px4-1/drone.xml`
+- `legacy/config/drone/mujoco-px4-1/drone_config_0.json`
 
 この構成では、MuJoCo 側の `propNames` は以下の順で定義されている。
 

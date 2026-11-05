@@ -21,7 +21,7 @@
       "activation_timing": "before_start",
       "command": "mac/mac-main_hako_drone_service",
       "args": [
-        "config/drone/rc-1",
+        "legacy/config/drone/rc-1",
         "config/pdudef/webavatar.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}"

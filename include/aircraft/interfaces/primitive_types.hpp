@@ -7,7 +7,8 @@
 
 namespace hako::aircraft {
 
-const double GRAVITY = 9.81;
+// Standard gravity g0 [m/s^2] (ISO 80000-3), used by the physics, the controllers and the sensors.
+const double GRAVITY = 9.80665;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -28,7 +29,7 @@ do { \
  * REF: https://github.com/toppers/hakoniwa-px4sim/tree/main/docs/phys_specs/data/physics#position
  */
 typedef struct DronePosition {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DronePosition() { data.x = 0; data.y = 0; data.z = 0; }
     DronePosition(const hako::drone_physics::VectorType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DronePosition& operator=(const hako::drone_physics::VectorType& rhs) {
@@ -102,7 +103,7 @@ typedef struct DroneAcceleration {
  * REF: https://github.com/toppers/hakoniwa-px4sim/blob/main/docs/phys_specs/data/physics/README.md#velocity-in-body-coordinate-system
  */
 typedef struct DroneVelocityBodyFrame {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneVelocityBodyFrame(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneVelocityBodyFrame(const hako::drone_physics::VectorType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DroneVelocityBodyFrame& operator=(const hako::drone_physics::VectorType& rhs) {
@@ -124,7 +125,7 @@ typedef struct DroneVelocityBodyFrame {
  * REF: https://github.com/toppers/hakoniwa-px4sim/tree/main/docs/phys_specs/data/physics#angle
  */
 typedef struct DroneAngle {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneAngle(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneAngle(const hako::drone_physics::EulerType& rhs) : data(rhs.phi, rhs.theta, rhs.psi) {} 
     DroneAngle& operator=(const hako::drone_physics::EulerType& rhs) {
@@ -146,7 +147,7 @@ typedef struct DroneAngle {
  * REF: https://github.com/toppers/hakoniwa-px4sim/tree/main/docs/phys_specs/data/physics#angularvelocity
  */
 typedef struct DroneAngularRate {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneAngularRate(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneAngularRate(const hako::drone_physics::EulerRateType& rhs) : data(rhs.phi, rhs.theta, rhs.psi) {} 
     DroneAngularRate& operator=(const hako::drone_physics::EulerRateType& rhs) {
@@ -169,7 +170,7 @@ typedef struct DroneAngularRate {
  * REF: https://github.com/toppers/hakoniwa-px4sim/blob/main/docs/phys_specs/data/physics/README.md#angular-velocity-in-body-coordinate-system
  */
 typedef struct DroneAngularVelocityBodyFrame {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneAngularVelocityBodyFrame(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneAngularVelocityBodyFrame(const hako::drone_physics::AngularVelocityType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DroneAngularVelocityBodyFrame& operator=(const hako::drone_physics::AngularVelocityType& rhs) {
@@ -182,7 +183,7 @@ typedef struct DroneAngularVelocityBodyFrame {
 } DroneAngularVelocityBodyFrameType;
 
 typedef struct DroneAngularAccelerationBodyFrame {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneAngularAccelerationBodyFrame(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneAngularAccelerationBodyFrame(const hako::drone_physics::AngularAccelerationType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DroneAngularAccelerationBodyFrame& operator=(const hako::drone_physics::AngularAccelerationType& rhs) {
@@ -223,7 +224,7 @@ typedef struct {
  * REF: https://github.com/toppers/hakoniwa-px4sim/tree/main/docs/phys_specs/data/physics#torque
  */
 typedef struct DroneTorque {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneTorque(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneTorque(const hako::drone_physics::VectorType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DroneTorque& operator=(const hako::drone_physics::VectorType& rhs) {
@@ -252,7 +253,7 @@ typedef struct {
  * accounting for movements in all three spatial dimensions.
  */
 typedef struct DroneAccelerationBodyFrame {
-    glm::dvec3 data;
+    glm::dvec3 data{};
     DroneAccelerationBodyFrame(){ data.x = 0; data.y = 0; data.z = 0; }
     DroneAccelerationBodyFrame(const hako::drone_physics::VectorType& rhs) : data(rhs.x, rhs.y, rhs.z) {} 
     DroneAccelerationBodyFrame& operator=(const hako::drone_physics::VectorType& rhs) {

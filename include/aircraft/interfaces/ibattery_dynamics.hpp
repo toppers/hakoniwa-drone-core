@@ -26,8 +26,8 @@ typedef struct {
 
 class IBatteryDynamics {
 protected:
-    void *vendor_model;
-    void *context;
+    void *vendor_model{nullptr};
+    void *context{nullptr};
     config::BatteryModelParameters params;
     BatteryModelFactor current_factor = {};
     std::vector<DischargeDynamicsType*> devices;
@@ -61,4 +61,3 @@ public:
 
 };
 }
-

@@ -1,0 +1,14 @@
+{
+  "paths": [
+    {
+      "id": "drone_type",
+      "path": "drone-pdutypes-athrill-px4.json"
+    }
+  ],
+  "robots": [
+    {
+      "name": "Drone",
+      "pdutypes_id": "drone_type"
+    }
+  ]
+}

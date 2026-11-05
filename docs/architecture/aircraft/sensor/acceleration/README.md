@@ -1,40 +1,295 @@
-# Accelerometer Sensor Component Specification
+# 加速度センサの仕様
 
-## Input 
+加速度センサに固有のことを書きます。全センサに共通の決まり（座標、取り付け位置姿勢、回転の式、処理の順番、
+自動操縦との合わせ方）は [センサの共通仕様](../README.md) にあります。
 
-* [Angle](/docs/fundamental/README.md#angle)
-* [Velocity (Body Frame)](/docs/fundamental/README.md#velocity-in-body-coordinate-system)
-* [Angular Velocity (Body Frame)](/docs/fundamental/README.md#angular-velocity-in-body-coordinate-system)
-* [Acceleration (Body Frame)](/docs/architecture/physics/README.md#body-frame-dynamics)
+## 1. 何を測るか
 
-## Output
+センサの位置での**比力**（specific force）を、**センサの軸**で測ります。単位は m/s² です。 `[SEN-ACC-010]`
 
-* [[xyz]acc](/docs/flight_controller/mavlink/HIL_SENSOR/README.md#xyzacc) of HIL_SENSOR.
+比力は「加速度 − 重力加速度」です。実機の加速度センサは、重力そのものは感じず、重力に逆らって支えられている力を感じます。 `[SEN-ACC-020]`
 
-## External Parameters
+```text
+f = a − g
+```
 
-### Observation Interval (Δt)
-- **Description**: Δt represents the time interval between each measurement taken by the accelerometer. This parameter determines the frequency at which the sensor data is sampled and updated.
-- **Impact**: The choice of Δt affects the resolution and responsiveness of the accelerometer readings. Shorter intervals lead to more frequent updates but can increase noise, while longer intervals can smooth out data but may reduce sensitivity to quick changes.
+| 記号 | 意味 |
+|---|---|
+| a | センサの位置の並進加速度（慣性系での加速度） |
+| g | 重力加速度。世界（NED）で (0, 0, +g₀)、g₀ = 9.80665 m/s²（標準重力） `[SEN-ACC-020]` |
 
-### Moving Average Window (N)
-- **Description**: N is the number of samples used to calculate the moving average of the accelerometer data. This parameter defines the window size over which the data is averaged.
-- **Impact**: Setting N involves a trade-off between data smoothness and latency. A larger N provides smoother data by averaging over more samples, which can reduce the effect of transient noise. However, it also introduces a delay in the sensor's response to changes.
+g₀ は標準重力で、物理（MuJoCo）・制御・センサで同じ値を使います。箱庭ドローン PRO は、MuJoCo のモデルを読み込んだあとに、地球の重力（真下に 9.7〜9.9 m/s²。重力を書かないモデルの MuJoCo の既定 9.81 も含む）を、(0, 0, −g₀)（MuJoCo の軸で上が +）にそろえます。0 など、それ以外の値はそのまま使います（試験のため）。単位の換算に使う 1 g も同じ 9.80665 m/s² です（3 章）。 `[SEN-ACC-025]`
 
-### Noise Characteristics
-- **Average (Mean) of Noise**: The average value of the noise added to the accelerometer data is set to zero. This means that over time, the noise will not have a net positive or negative effect on the acceleration readings.
-- **Variance of Noise**: The variance parameter specifies the spread of noise around the average. Even with an average of zero, the noise can vary, representing the randomness or fluctuation level in the sensor readings.
+- 例：機体が水平に止まっていると、a = 0 なので、機体の軸（FRD）で f = (0, 0, −9.80665) m/s² です。
+- 例：自由落下中は a = g なので、f = 0 です。
 
-The integration of zero-mean noise ensures that any bias is minimized, allowing the simulation to accurately reflect only the random variations typical of real-world conditions.
+## 2. 取り付け位置姿勢
 
-## Operational Details
+加速度センサは IMU の一部なので、取り付け位置姿勢は IMU として書きます（共通仕様 2.2）。**位置と姿勢の両方を使います。** `[SEN-ACC-030]`
 
-<img width="775" alt="スクリーンショット 2023-12-08 6 06 27" src="https://github.com/toppers/hakoniwa-px4sim/assets/164193/5b20bd10-2146-4c2d-80ae-da2cad82ab97">
+1. **位置**：機体の原点での比力 f_origin から、センサの位置での比力を求めます（共通仕様 2.4 の加速度の式）。 `[SEN-ACC-040]`
 
-- **Acceleration Calculation Methodology**: The sensor calculates acceleration by taking the input acceleration (from drone dynamics), subtracting the gravity components (based on the drone's Euler angles), and adding Coriolis forces (derived from the drone's body frame velocity and angular rate). To reduce transient fluctuations and improve data stability, a moving average is applied. This involves averaging the acceleration values over multiple samples (spanning N times Δt) to provide a more consistent and reliable measurement.
+   ```text
+   f_mount = f_origin + α × r + ω × (ω × r)
+   ```
 
-- **Observation Frequency**: Measurements are conducted at regular intervals defined by Δt. The moving average calculation uses N samples within each period of N times Δt to ensure smoother data.
+   - ω × (ω × r)：中心へ向かう加速度。例：r = 5 cm、300°/s で約 1.4 m/s²。
+   - α × r：回転が速まる・遅くなるときの加速度。
+   - 重力はどこでも同じなので、位置では変わりません。
+2. **姿勢**：f_sensor = Rᵀ · f_mount（R は共通仕様 2.3 の回転行列）。 `[SEN-ACC-050]`
 
-- **Noise Integration**: Noise with a zero mean and a specified variance is integrated into the acceleration data. This approach emulates the random inaccuracies and variations found in real-world sensor data, without introducing a bias in either direction.
+例：IMU を `yaw = 90` で付けると、水平に止まっている機体では、センサの軸でも f = (0, 0, −9.80665) m/s² です（z 軸は回らないため）。
+機体が前へ加速すると、その加速度はセンサの −y 軸に出ます。
 
-The updated noise characteristics ensure that the simulated accelerometer data is realistic and provides a valuable tool for testing the drone's response to actual flight conditions.
+## 3. 処理の順番
+
+共通仕様 4 章の順番に、加速度センサに固有の段を入れると次のとおりです。 `[SEN-ACC-060]`
+
+```text
+f_origin → 位置（α×r + ω×(ω×r)） → 姿勢（Rᵀ） → 目盛り・軸の干渉（M） → （IMU のフィルタ：オプション） → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 分解能 → 頭打ち → f_sensor
+```
+
+| 段 | 設定（`components.sensors.acc.*`） | 内容 |
+|---|---|---|
+| 位置・姿勢 | IMU の取り付け位置姿勢 | センサの位置へ移し、センサの軸へ回す |
+| 目盛り・軸の干渉 | `sensitivity` | 比例した誤差と、軸どうしの漏れ。下の 3.1 |
+| IMU のフィルタ | `filter` | 明示的に有効にしたときだけ、物理の刻みごとにかけるローパスフィルタ（共通仕様 4.5）。書かなければかけない |
+| 遅れ | `delayMsec` | ハードの遅れ（共通仕様 4 章） |
+| 測る周期 | `updatePeriodMsec` | 新しい値を測る周期（共通仕様 4 章）。`sampleCount`（平均）は 1 だけ書ける（共通仕様 6 章） |
+| ゼロ点のずれ | `zeroGOffset` | 比力が 0 でも出る一定のずれ。下の 3.2 |
+| ノイズ | `noise` | 正規分布の標準偏差（m/s²）。1 つの値（3 軸共通）か、軸ごとの [x, y, z]。0 以下の軸はノイズなし `[SEN-ACC-070]` |
+| ノイズの密度 | `noiseDensity` | `noise` の代わりに書ける白色ノイズの密度（m/s²/√Hz）。σ に直す式と決まりは共通仕様 4.3。`noise` と両方は書けない `[SEN-COM-185]` |
+| ドリフト | `drift` | ゼロ点のゆっくりした変化。`mode` は `gauss-markov`（共通仕様 4.2）。`stddevMg`（mg）、`correlationTimeSec`（秒）。目安：σ 数十 µg〜0.1 mg（高性能な MEMS の bias instability 程度）、τ 数百〜数千秒 `[SEN-ACC-080]` |
+| 分解能 | `resolutionMps2` | 値の刻み。下の 3.3 |
+| 頭打ち | `range.fullScaleG` | 測れる範囲（±g）。軸ごとに範囲で切る。下の 3.4 |
+
+- ドリフトの `mode` は `gauss-markov` だけです。ほかの `mode` は設定の誤りです（共通仕様 4.0）。 `[SEN-ACC-085]`
+
+自動操縦が受け取ってから使うまでの遅れ（`softDelayMsec`）と、値を出す周期（`updatePeriodMsec`）は、
+センサの値そのものではなく渡し方の設定です（共通仕様 4 章）。加速度とジャイロは同じ IMU なので、`updatePeriodMsec` は両方に同じ値を書きます。 `[SEN-ACC-090]`
+違う値を書いたときや、片方だけに書いたときは、設定の誤りです。 `[SEN-ACC-095]`
+
+単位の換算には、1 g = 9.80665 m/s² を使います。 `[SEN-ACC-100]`
+
+**実験的なオプション**：[ロータの回転数に同期する振動の生成器](../vibration/README.md)の `δa_vib_body` [m/s²] は、真の `ω`・`α` によるIMU搭載点の `α×r + ω×(ω×r)` を求めた**後**に加えます。振動角速度 `δω_vib` を剛体の向心加速度計算に使わず、合成後に既存の `Rᵀ` と感度行列から先の処理を通します。OFFでは既存処理順を変えません。
+
+### 3.1 目盛りの誤差と軸の干渉
+
+ジャイロの仕様 3.3 と同じ形です。3×3 の行列 M 1 つで表します。 `[SEN-ACC-110]`
+
+```text
+f' = M · f（f は姿勢で回したあとの値）
+M[i][i] = 1 + scaleErrorPct[i] / 100
+M[i][j] = crossAxisPct[i][j] / 100   （i ≠ j）
+```
+
+- `scaleErrorPct`：軸ごとの目盛りの誤差（%）。目安 ±0.5〜2%。
+- `crossAxisPct`：軸 j の加速度が軸 i に漏れる割合（%）。対角は使わない（0 を書く）。目安 ±1%。
+- 省略すれば M は単位行列（誤差なし）。 `[SEN-ACC-120]`
+- ジャイロと違い、PX4・ArduPilot は加速度の目盛りの誤差（軸ごとの倍率）を較正できます（5 章）。軸の干渉は較正しません。
+
+### 3.2 ゼロ点のずれ
+
+比力が 0（自由落下と同じ状態）でも出る、一定のずれです。理想の値に、いつも同じ量が足されます。データシートでは「zero-g offset」と呼ばれます。
+
+```json
+"zeroGOffset": { "fixedMg": [20.0, -15.0, 40.0] }
+```
+```json
+"zeroGOffset": { "randomStdMg": 30.0 }
+```
+
+- `fixedMg`：軸ごとの決まったずれ（mg、1 mg = 0.001 g）。 `[SEN-ACC-130]`
+- `randomStdMg`：起動時に 1 回だけ、軸ごとに正規分布で引く（標準偏差、mg）。乱数の決まりは共通仕様 4.1。 `[SEN-ACC-140]`
+- どちらか一方だけを書く。省略すればずれなし。目安 ±20〜50 mg。 `[SEN-ACC-150]`
+- 飛行中は変わりません。 `[SEN-ACC-160]`
+
+### 3.3 分解能
+
+値の刻みです。各軸の値を、`resolutionMps2` の整数倍のうち最も近いものに丸めます（頭打ちの前）。 `[SEN-ACC-170]`
+ちょうど中間のときは、0 から遠い方にします。刻みは 3 軸共通です。 `[SEN-ACC-180]`
+
+- 例：16 ビットで ±16 g のチップなら、32 × 9.80665 / 65536 ≒ 0.0048 m/s²。
+- 省略すれば丸めない。 `[SEN-ACC-190]`
+
+### 3.4 頭打ち（測れる範囲）
+
+- 各軸の値を ±`fullScaleG` × 9.80665 m/s² で切ります（処理の最後）。 `[SEN-ACC-200]`
+- **センサの軸ごとに**切ります。 `[SEN-ACC-210]`
+- 目安は ±2・4・8・16 g（ドローンでは ±16 g がよく使われる）。止まっていても 1 g かかるので、範囲が小さいと、激しい動きや振動で振り切れます。
+- 頭打ちになったことは上に伝えません（値が範囲の端に張り付くだけです）。 `[SEN-ACC-220]`
+- 省略すれば切らない。 `[SEN-ACC-230]`
+
+## 4. 自動操縦への渡し方
+
+加速度の値はセンサの軸のまま自動操縦に渡し、自動操縦の側で機体の軸に直します（共通仕様 5 章）。 `[SEN-ACC-240]`
+機体の軸に直すのは、ジャイロと同じ IMU の姿勢の設定で行います。
+
+| 動かし方 | 渡し方 | 機体の軸に直すところ |
+|---|---|---|
+| Control Link（PX4） | アダプターが EKF と制御へ渡す | アダプターが `SENS_BOARD_ROT` で戻す |
+| Control Link（ArduPilot） | アダプターが EKF3 と制御へ渡す | アダプターが `AHRS_ORIENTATION` で戻す |
+| PX4 SITL | HIL_SENSOR | PX4 が `SENS_BOARD_ROT` で戻す |
+| ArduPilot SITL | JSON | ArduPilot が `AHRS_ORIENTATION` で戻す |
+| 箱庭アダプター | — | サポートしない |
+
+### 4.1 IMU の位置を合わせても、中心へ向かう加速度は残る
+
+PX4（EKF2）も ArduPilot（EKF3）も、IMU の位置の設定（`EKF2_IMU_POS_*`、`INS_POS1_*`）を、
+IMU と GPS などのほかのセンサとの位置関係や、推定した位置・速度を重心へ移すことに使います。
+**加速度の値から、中心へ向かう加速度（ω × (ω × r)）や α × r を取り除くことには使いません。**
+
+どちらの EKF も、加速度の値はそのまま使って推定し、推定した位置・速度を出すときに、出す点を IMU から機体の重心へ移します（自動操縦は重心を機体の基準点とします）。
+そのため、IMU を重心から離して付けると、位置を正しく設定しても、加速度の値そのものは原点に付けたときと同じにはなりません。
+条件によっては、推定に影響が残ります。これは実機と同じふるまいです。箱庭はこの加速度を再現し、自動操縦の側でも差し引かないことを、そのまま見せます。 `[SEN-ACC-250]`
+
+ArduPilot SITL には、これとは別に `SIM_IMU_POS` があります。これは ArduPilot SITL が自分で加速度を作るときに、
+同じ α × r + ω × (ω × r) を足すための設定です。箱庭がこの加速度を作って渡すので、`SIM_IMU_POS` は 0 にします（二重にしない）。 `[SEN-ACC-260]`
+
+## 5. PX4・ArduPilot のパラメータとの対応
+
+関係の 4 種類（合わせる・見込み・置き換え・較正）は、ジャイロの仕様 5 章と同じ意味です。
+
+| 箱庭の設定 | 関係 | PX4 | ArduPilot |
+|---|---|---|---|
+| IMU の姿勢 | 合わせる | `SENS_BOARD_ROT`、`SENS_BOARD_X_OFF`・`Y_OFF`・`Z_OFF`（作り方は共通仕様 5.2） | `AHRS_ORIENTATION`、`CUST_ROT_ENABLE`、`CUST_ROT1_ROLL`・`PITCH`・`YAW`（同） |
+| IMU の姿勢 | 対応なし | — | `SIM_IMU_ORIENT` は使わない（0）。センサの軸への回転は箱庭が行って送る `[SEN-ACC-270]` |
+| IMU の位置 | 合わせる（重心から見た値に直して渡す。共通仕様 5.1） | `EKF2_IMU_POS_X`・`Y`・`Z` | `INS_POS1_X`・`Y`・`Z` |
+| IMU の位置 | 対応なし | — | `SIM_IMU_POS_X`・`Y`・`Z` は使わない（0）。位置の加速度は箱庭が作って送る（4.1） `[SEN-ACC-260]` |
+| `noise` | 見込み | `EKF2_ACC_NOISE` | `EK3_ACC_P_NSE` |
+| `noise` | 対応なし | — | `SIM_ACC1_RND` は使わない（0）。ノイズは箱庭が足して送る `[SEN-ACC-280]` |
+| `zeroGOffset` | 較正 | `CAL_ACC0_XOFF`・`YOFF`・`ZOFF` | `INS_ACCOFFS_X`・`Y`・`Z` |
+| `zeroGOffset` | 置き換え | — | `SIM_ACC1_BIAS_X`・`Y`・`Z` `[SEN-ACC-290]` |
+| `drift` | 見込み | `EKF2_ACC_B_NOISE`（m/s³）（推定器のずれの変化の見込み。単位が違い、`drift` の設定から直接は換算しない） | `EK3_ABIAS_P_NSE`（m/s³）（同） |
+| `sensitivity` | 較正（目盛りの誤差だけ） | `CAL_ACC0_XSCALE`・`YSCALE`・`ZSCALE` | `INS_ACCSCAL_X`・`Y`・`Z` |
+| `sensitivity` | 置き換え（目盛りの誤差だけ） | — | `SIM_ACC1_SCAL_X`・`Y`・`Z` `[SEN-ACC-290]` |
+| `range` | — | 対応なし（範囲はセンサの部品で決まる） | 対応なし |
+| `resolutionMps2` | — | 対応なし | 対応なし |
+| `updatePeriodMsec` | 関連するレート | `IMU_INTEG_RATE` | `SCHED_LOOP_RATE` |
+| （サポートしない：内部のフィルタ） | — | `IMU_ACCEL_CUTOFF`（自動操縦の側のフィルタ。センサの内部フィルタとは別物） | `INS_ACCEL_FILTER`（同） |
+
+- ArduPilot SITL は、`SIM_ACC1_RND` = 0 でも、軸ごとに約 ±0.01 m/s² の一様なノイズを自分で足します。これはパラメータで止められません。そのため、ArduPilot SITL の加速度の値には、箱庭のノイズのほかに、この小さなノイズが乗ります。
+
+### 5.1 較正値の作り方
+
+較正の項目は、実機では自動操縦の較正の手順で測って書き込む値です。PX4 も ArduPilot も、受け取った値から
+「ずれを引いてから、倍率を掛ける」（(値 − オフセット) × 倍率）で直します。箱庭の設定から、次の式で較正値を作ります（軸 i ごと、センサの軸）。 `[SEN-ACC-300]`
+
+```text
+k_i      = 1 + scaleErrorPct[i] / 100
+オフセット = zeroGOffset の mg × 0.001 × 9.80665      （m/s²）
+倍率      = 1 / k_i
+```
+
+| 較正値 | PX4 | ArduPilot |
+|---|---|---|
+| オフセット | `CAL_ACC0_XOFF`・`YOFF`・`ZOFF` | `INS_ACCOFFS_X`・`Y`・`Z` |
+| 倍率 | `CAL_ACC0_XSCALE`・`YSCALE`・`ZSCALE` | `INS_ACCSCAL_X`・`Y`・`Z` |
+
+- この較正値を設定すると、自動操縦がずれと目盛りの誤差を取り除きます。設定しなければ（オフセット 0、倍率 1）、誤差はそのまま推定に入ります。
+- 軸の干渉（`crossAxisPct`）は、この較正では取り除けません。
+- 設定を作る道具は、較正値をいつも計算して、記録に残します（調整の設定一式の `sensor-model-v2-provenance.json` の `accelerometer_calibration`、道具の表示）。 `[SEN-ACC-301]`
+- 較正値を自動操縦のパラメータに書き込むかどうかは、ユーザが `components.sensors.acc.writeAutopilotCalibration`（true・false）で選びます。既定は書き込まない（false。較正する前の実機の IMU と同じ）です。true・false 以外は読み込みのエラーにします。書き込んだ較正値は、Control Link のアダプターも自動操縦と同じ式で当てます（PX4 は `Accelerometer::Correct()`、ArduPilot は `_rotate_and_correct_accel()`。どちらもセンサの軸で (値 − オフセット) × 倍率、そのあと向きを直す）。 `[SEN-ACC-302]`
+- `randomStdMg` のずれは、シミュレーションの起動時に引きます。自動操縦のパラメータは起動の前に作るので、このずれは較正値のオフセットに入れられません（オフセットは 0、倍率だけ作ります）。起動時に実際に引いた値（＝その起動での較正のオフセット）は、加速度のログの `zero_g_offset_x`・`y`・`z`（m/s²、センサの軸）に記録します。`fixedMg` のときも、同じ列にその値が出ます。 `[SEN-ACC-303]`
+
+### 5.2 ArduPilot SITL での置き換え
+
+ArduPilot SITL では、ずれと目盛りの誤差を、箱庭の側で足すか、ArduPilot SITL の側で作るかのどちらか一方にします（二重にしない）。 `[SEN-ACC-290]`
+既定は「箱庭が足して送る」です。 `[SEN-ACC-305]`
+どちらで作るかは、`components.sensors.acc.ardupilotSitlErrorSource` で選びます。`"hakoniwa"`（箱庭が足して送る。省略したとき）か `"ardupilot-sitl"`（ArduPilot SITL が作る）です。ほかの値は読み込みのエラーにします。この設定は ArduPilot SITL のときだけ効き、Control Link と PX4 SITL では箱庭がいつも足します。 `[SEN-ACC-306]`
+
+| 経路 | 箱庭の側 | ArduPilot SITL の側 |
+|---|---|---|
+| 箱庭が足して送る | `zeroGOffset`・`sensitivity` を足す | `SIM_ACC1_BIAS_*` = 0、`SIM_ACC1_SCAL_*` = 0（0 は倍率を使わない） `[SEN-ACC-310]` |
+| ArduPilot SITL が作る | 足さない。ArduPilot SITL の起動の道具が、箱庭（service）に渡す設定から `zeroGOffset`・`sensitivity` を外す（センサモデルは自動操縦への渡し方を知らない。共通仕様 7.5） | `SIM_ACC1_BIAS_*` = オフセット（m/s²）、`SIM_ACC1_SCAL_*` = 1 / k_i `[SEN-ACC-320]` |
+
+ArduPilot SITL は、受け取った値を軸ごとに `SIM_ACC1_SCAL` で割り（0 の軸は割らない）、そのあと `SIM_ACC1_BIAS` を足します。
+つまり、出る値は f_i / `SIM_ACC1_SCAL_i` + `SIM_ACC1_BIAS_i` です。そのため、箱庭と同じ k_i · f_i + オフセットを作るには、倍率に 1 / k_i を設定します。
+
+- 「ArduPilot SITL が作る」を選び、`crossAxisPct` に 0 でない値があるときは、軸の干渉を再現できません。設定を作る道具はそのことを記録に残し（共通仕様 4.0）、箱庭の側でも足しません。 `[SEN-ACC-325]`
+
+## 6. 受け入れの確かめ方
+
+1. **既定値の互換**：取り付け位置姿勢とこの仕様で足した設定を書かないとき、出力が、それらの段がない場合と一致する（ログが一致）。
+2. **重力**：水平に止まっている機体で、センサの軸の値が (0, 0, −9.80665) m/s²（ノイズなし）。
+3. **自由落下**：自由落下している機体で、センサの値が 0（ノイズなし）。
+4. **中心へ向かう加速度**：一定の角速度 ω で回る機体（角加速度 0）で、原点から r 離した IMU の値が、ω × (ω × r) だけ変わる（同じ時刻の「IMU の値 − 原点の値」で測る。ノイズなしで式と一致）。
+5. **回転が速まるときの加速度**：止まった状態から角加速度 α だけを与えた瞬間（角速度 0）に、原点から r 離した IMU の値が、α × r だけ変わる（同じ時刻の「IMU の値 − 原点の値」で測る。ノイズなしで式と一致）。
+6. **姿勢**：IMU を 90° 回して付け、自動操縦にも同じ姿勢を設定すると、回さないときと同じように飛ぶ。設定しなければずれる。
+   Control Link と SITL、PX4 と ArduPilot の両方で、繰り返して判定する。
+7. **位置を合わせた飛行**：IMU を重心から離して付け、自動操縦に位置を設定すると、原点のときとほぼ同じように飛ぶ。
+   差は 4.1 の加速度の大きさに見合う範囲に収まる。許せる差は、試験ごとに、その飛行での位置の加速度の大きさから決める。
+8. **軸ごとの頭打ち**：範囲あり・斜め付けで、センサの軸ごとに振り切れる。
+
+## 7. サポートしない特性
+
+一般的な加速度センサのデータシートにあり、再現しない特性です。
+
+| 特性 | 意味 | 目安 | 備考 |
+|---|---|---|---|
+| 温度の影響 | 温度でゼロ点と目盛りが変わる | 約 0.1〜1 mg/℃ | 機体の温度のモデルが要る |
+| 直線性の誤差 | 大きな加速度ほど比例からずれる | ±0.5% 程度 | — |
+| 内部のフィルタ | チップの中のローパスフィルタ | 数十〜数百 Hz | 平均と遅れで近似する |
+| 振動 | プロペラ・モーターの振動が加速度に入る。実機の誤差の大部分 | 機体による | 周期的な**観測外乱**として、実験的なオプションで足せる（振動の仕様）。機体のたわみは対象外 |
+| 振動による整流（vibration rectification） | 振動が平均のずれに変わる | 機体による | 振動のモデルが要る |
+| 帯域とエイリアシング | 内部のサンプリングと、出す周期の違いで起きる折り返し | — | 物理の刻みごとの値を平均と遅れで扱う |
+| 頭打ちの通知 | 振り切れたことを上に伝える | — | PX4 の clip の数など |
+| 複数の IMU | 2 つ以上の IMU を載せる | — | IMU は 1 つ |
+
+### このモデルで判断してよいこと
+
+このモデルは、自動操縦の推定と制御にセンサの誤差がどう効くかを確かめるためのものです。実物のセンサの値を、細部まで同じに作るものではありません。そこで、このモデルの結果で判断してよいことと、判断してはいけないことを分けておきます。
+
+| 判断してよいこと | 判断してはいけないこと |
+|---|---|
+| 取り付けの位置・向きと、自動操縦への合わせ方が正しいか（重心から離れた所の加速度を含む） | 機体の振動と、それによる折り返し（エイリアシング）や振り切れ（振動とフィルタを再現していない） |
+| ノイズ・ゼロ点のずれ・ドリフト・目盛りの誤差・頭打ちが、推定と制御に与える影響 | 実物の加速度センサと同じ値の並びになること（ノイズは理想的な白色ノイズ） |
+| 強い着地などで範囲を超えたときの振る舞い | 温度による誤差の変化 |
+
+## 8. 要求の一覧
+
+番号の決まりは、共通仕様 8 章のとおりです。
+
+| 番号 | 要求 | 章 |
+|---|---|---|
+| SEN-ACC-010 | センサの位置での比力を、センサの軸で測る（m/s²） | 1 |
+| SEN-ACC-020 | 比力は f = a − g。g は世界（NED）で (0, 0, +g₀)、g₀ = 9.80665 m/s²（標準重力） | 1 |
+| SEN-ACC-025 | g₀ は物理・制御・センサで共通。MuJoCo のモデルの地球の重力（真下に 9.7〜9.9 m/s²、書かないときの既定 9.81 も含む）は、読み込んだあとに (0, 0, −g₀) にそろえる。それ以外の値はそのまま | 1 |
+| SEN-ACC-030 | 取り付けの位置と姿勢の両方を使う | 2 |
+| SEN-ACC-040 | センサの位置の比力は f_mount = f_origin + α×r + ω×(ω×r) | 2 |
+| SEN-ACC-050 | 姿勢は f_sensor = Rᵀ·f_mount | 2 |
+| SEN-ACC-060 | 処理の順番は、位置 → 姿勢 → M → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 分解能 → 頭打ち | 3 |
+| SEN-ACC-070 | ノイズは σ（m/s²）を 1 つの値か [x, y, z] で書き、0 以下の軸はノイズなし | 3 |
+| SEN-ACC-080 | ドリフトは `gauss-markov`（共通仕様 4.2）で、σ は `stddevMg`（mg）、τ は `correlationTimeSec` | 3 |
+| SEN-ACC-085 | ドリフトの `mode` は `gauss-markov` だけ。ほかの `mode` は設定の誤り | 3 |
+| SEN-ACC-090 | `updatePeriodMsec` は、加速度とジャイロに同じ値を書く | 3 |
+| SEN-ACC-095 | 加速度とジャイロの `updatePeriodMsec` が違う、または片方だけのときは設定の誤り | 3 |
+| SEN-ACC-100 | 単位の換算は 1 g = 9.80665 m/s² | 3 |
+| SEN-ACC-110 | 目盛りの誤差と軸の干渉は、3.1 の式の行列 M（姿勢で回したあとに掛ける） | 3.1 |
+| SEN-ACC-120 | `sensitivity` を省略すると M は単位行列 | 3.1 |
+| SEN-ACC-130 | `zeroGOffset.fixedMg` は軸ごとの決まったずれ（mg） | 3.2 |
+| SEN-ACC-140 | `zeroGOffset.randomStdMg` は起動時に 1 回、軸ごとに正規分布で引く（mg） | 3.2 |
+| SEN-ACC-150 | `fixedMg` と `randomStdMg` はどちらか一方だけ。省略すればずれなし | 3.2 |
+| SEN-ACC-160 | ゼロ点のずれは飛行中に変わらない | 3.2 |
+| SEN-ACC-170 | 分解能は `resolutionMps2` の最も近い整数倍に丸め、頭打ちの前に当てる | 3.3 |
+| SEN-ACC-180 | 分解能の丸めは、中間は 0 から遠い方。刻みは 3 軸共通 | 3.3 |
+| SEN-ACC-190 | `resolutionMps2` を省略すると丸めない | 3.3 |
+| SEN-ACC-200 | 頭打ちは ±`fullScaleG` × 9.80665 m/s² で、最後に当てる | 3.4 |
+| SEN-ACC-210 | 頭打ちはセンサの軸ごとに当てる | 3.4 |
+| SEN-ACC-220 | 頭打ちになったことは上に伝えない | 3.4 |
+| SEN-ACC-230 | `range` を省略すると切らない | 3.4 |
+| SEN-ACC-240 | 値はセンサの軸のまま自動操縦に渡し、4 章の表のところで、ジャイロと同じ IMU の姿勢の設定で機体の軸に直す | 4 |
+| SEN-ACC-250 | 箱庭は位置の加速度（α×r + ω×(ω×r)）を再現し、自動操縦に渡す前に差し引かない | 4.1 |
+| SEN-ACC-260 | ArduPilot SITL では `SIM_IMU_POS_X`・`Y`・`Z` = 0 | 4.1、5 |
+| SEN-ACC-270 | ArduPilot SITL では `SIM_IMU_ORIENT` = 0 | 5 |
+| SEN-ACC-280 | ArduPilot SITL では `SIM_ACC1_RND` = 0 | 5 |
+| SEN-ACC-290 | ArduPilot SITL で置き換える項目（ゼロ点のずれ、目盛りの誤差）は、箱庭の側か ArduPilot SITL の側のどちらか一方で作る | 5、5.2 |
+| SEN-ACC-300 | 較正値は、オフセット = `zeroGOffset` × 0.001 × 9.80665（m/s²）、倍率 = 1 / k_i で作り、5.1 の表のパラメータに入れる | 5.1 |
+| SEN-ACC-301 | 設定を作る道具は、較正値をいつも計算して記録に残す | 5.1 |
+| SEN-ACC-302 | 較正値を自動操縦に書き込むかは `acc.writeAutopilotCalibration` で選び、既定は書き込まない。書き込んだ値は Control Link のアダプターも自動操縦と同じ式で当てる | 5.1 |
+| SEN-ACC-303 | `randomStdMg` のずれは起動時に引くので較正値のオフセットに入れない（0）。起動時に引いた値は加速度のログの `zero_g_offset_*` に記録する | 5.1 |
+| SEN-ACC-305 | ArduPilot SITL での置き換えの既定は「箱庭が足して送る」 | 5.2 |
+| SEN-ACC-306 | 置き換えの側は `acc.ardupilotSitlErrorSource`（`hakoniwa`・`ardupilot-sitl`）で選び、ほかの値はエラー。ArduPilot SITL のときだけ効く | 5.2 |
+| SEN-ACC-310 | 箱庭が足して送るときは、`SIM_ACC1_BIAS_*` = 0、`SIM_ACC1_SCAL_*` = 0 | 5.2 |
+| SEN-ACC-320 | ArduPilot SITL が作るときは、ArduPilot SITL の起動の道具が箱庭に渡す設定からずれと目盛りの誤差を外し、`SIM_ACC1_BIAS_*` = オフセット、`SIM_ACC1_SCAL_*` = 1 / k_i | 5.2 |
+| SEN-ACC-325 | 「ArduPilot SITL が作る」で `crossAxisPct` が 0 でないときは、再現できないことを記録に残し、箱庭の側でも足さない | 5.2 |

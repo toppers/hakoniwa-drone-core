@@ -21,7 +21,7 @@
       "activation_timing": "before_start",
       "command": "${HAKO_DRONE_OS}-main_hako_drone_service",
       "args": [
-        "config/drone/mujoco-shibuya-api-10",
+        "legacy/config/drone/mujoco-shibuya-api-10",
         "config/pdudef/webavatar-10.json"
       ],
       "cwd": "${HAKO_DRONE_PROJECT_PATH}",

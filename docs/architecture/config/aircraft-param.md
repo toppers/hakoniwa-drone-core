@@ -38,11 +38,19 @@ SITLで飛ばすときの設定は、[SITLで使う設定](#sitlで使う設定)
     （例: `timeStep` 0.001、`sensor_period_msec` 4で、物理1 ms・PX4のIMUと制御4 ms。PX4用Gazeboと同じ形）。
     未指定時は従来どおり、センサー3 ms、指令1回につき物理1ステップです。ArduPilot SITLでは指定できません
     （毎ステップセンサーを送る前提のため。指定すると機体サービスがエラーで止まります）。
-- **logging**: ログ採取方式の設定。
+- **logging**: ログ採取方式の設定。省略時は `csv`、`f64`、1 ms（従来どおり）。
   - **mode**: ログ採取方式。
-    - `csv`: 現行の CSV ログ出力を行います。
+    - `csv`: CSV ログ出力を行います（既定）。
+    - `binary`: バイナリ形式（HKBLOG、拡張子 `.hblog`）で出力します。ファイル名は CSV の拡張子 `.csv` を `.hblog` に替えたものです
+      （例 `ekf.csv` → `ekf.hblog`）。行はメモリにためてまとめて書きます。`hblog` は同じ意味の別名です。
     - `none`: ログを採取しません。CSV ファイルやログディレクトリも生成しません。
     - `memory`: 将来拡張用の予約値です。現時点では仕様上の予約とします。
+    - 上以外の値は設定エラーで止まります。
+  - **precision**: 小数の値の精度。`f64`（既定、倍精度）または `f32`（単精度）。`binary` のときだけ指定できます
+    （`csv` で `f32` を指定すると設定エラー）。`f32` で単精度になるのは倍精度の列だけで、時刻・整数・真偽値・文字列は元の型のままです。
+  - **interval_msec**: ログを書く間隔（シミュレーション時刻、正の整数、単位 ms）。既定 1。各ログファイルで、
+    最初の行と、前に書いた行から `interval_msec` 以上たった行だけを書きます。1 なら全周期を書きます。
+  - ログの形式・精度・間隔は、記録の仕方だけを変えます。機体の物理と制御の動きは変わりません。
 - **logOutputDirectory**: ログファイルの出力ディレクトリへのパス。例: `"./"`。
 - **logOutput**: 各種センサーとMAVLinkのログ出力の有効/無効。
   - **sensors**: 各センサーのログ出力設定。`true` または `false`。
@@ -84,11 +92,19 @@ SITLで飛ばすときの設定は、[SITLで使う設定](#sitlで使う設定)
   - ログ採取自体を行いません
   - `logOutputDirectory` は実質未使用です
   - `logOutput.sensors` / `logOutput.mavlink` は無視されます
-- `simulation.logging.mode = "csv"` の場合:
-  - 従来どおり CSV 出力を行います
+- `simulation.logging.mode = "csv"` または `"binary"` の場合:
+  - CSV（`binary` では HKBLOG）で出力します
   - `logOutputDirectory` と `logOutput.*` が有効です
 - `simulation.logging.mode` が未指定の場合:
-  - 後方互換のため、`csv` と同等に扱う想定です
+  - 後方互換のため、`csv` と同等に扱います
+
+例（PIDチューニングの試行で使う、一番小さくなる設定）:
+
+```json
+"logging": { "mode": "binary", "precision": "f32", "interval_msec": 8 }
+```
+
+HKBLOG は `python tuning/tools/hblog_to_csv.py <ファイルまたはディレクトリ>` で、CSV ロガーと同じ内容の CSV に変換できます。
 
 ### SITL actuator timeout 監視
 

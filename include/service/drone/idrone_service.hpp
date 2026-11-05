@@ -11,9 +11,7 @@
 
 namespace hako::service {
 
-namespace impl {
 class IDroneServicePort;
-}
 
 struct DroneServiceEkfStatus {
     bool enabled{false};
@@ -102,7 +100,7 @@ public:
     /*
      * Set service port for RPC mode
      */
-    virtual void setServicePort(std::shared_ptr<impl::IDroneServicePort> service_port) = 0;
+    virtual void setServicePort(std::shared_ptr<IDroneServicePort> service_port) = 0;
 
     /*
      * Set PDU syncher
@@ -132,6 +130,7 @@ public:
      * Get EKF runtime status for tuning/runtime gating.
      */
     virtual DroneServiceEkfStatus get_ekf_status() const = 0;
+    virtual aircraft::DronePositionType get_estimated_position() const = 0;
     virtual void set_ekf_flight_state_override(
         const DroneServiceEkfFlightStateOverride& override_state) = 0;
 

@@ -12,9 +12,9 @@ OPTION=${3}
 
 cd ${DRONECORE_DIR}
 
-if [ ! -d  ./config/drone/${OPTION} ]
+if [ ! -d  ./legacy/config/drone/${OPTION} ]
 then
     echo "Invalid option: ${OPTION}.."
     exit 1
 fi
-linux-main_hako_drone_service ./config/drone/${OPTION} ${CONFIG_PATH}
+linux-main_hako_drone_service ./legacy/config/drone/${OPTION} ${CONFIG_PATH}

@@ -1,8 +1,11 @@
 # x500 と PX4 SITL（WSL2 / Ubuntu）
 
-このディレクトリは、Hakoniwa Drone Simulator 4.2.0 の x500 クラス機体モデルと PX4 SITL 用の設定です。物理刻みは 1 ms、PX4 とのセンサー／制御更新周期は 4 ms です。PX4 SITL は WSL2 ホスト、箱庭と Python の飛行命令は Docker コンテナで動かします。
+このディレクトリは、Hakoniwa Drone Simulator 5.0.0 の x500 クラス機体モデルと PX4 SITL 用の設定です。物理刻みは 1 ms、PX4 とのセンサー／制御更新周期は 4 ms です。PX4 SITL は WSL2 ホスト、箱庭と Python の飛行命令は Docker コンテナで動かします。
 
 > x500 は公開情報から推定したモデルであり、メーカー公認のモデルではありません。
+
+ローター故障試験ではPX4の固定版と専用パッチが必要です。この通常飛行手順のPX4を流用せず、
+[PX4 SITLローター故障試験（Ubuntu / WSL2・Docker）](../../../pro-docs/px4-sitl/rotor-fault-wsl2.md)から始めてください。
 
 ## 構成と前提
 
@@ -14,7 +17,7 @@ WSL2 の Ubuntu と Docker を用意し、Windows の `/mnt/c` ではなく WSL2
 └── PX4-Autopilot/             # WSL2 ホストで SITL を起動する場所
 ```
 
-この手順は `toppersjp/hakoniwa-drone-core:v4.2.0` を使用します。イメージに含まれる Linux 実行バイナリは Release の `lnx.zip`（SHA-256: `344aac4b6bc1f2d82205c7740b574d0439eb9359363bcd6d69ef427587a865b0`）と同一のため、ここでは `-p lnx.zip` を付けません。`-p` は手元の Release 配布物でイメージ内バイナリを明示的に上書きしたい場合にだけ使います。
+この手順は `toppersjp/hakoniwa-drone-core:v5.0.0` を使用します。イメージに含まれる Linux 実行バイナリは Release の `lnx.zip`（SHA-256: `0cb0e271c107c0c031111d58eff934540f9e748ad6ca2cc5ec646f6a90e879fc`）と同一のため、ここでは `-p lnx.zip` を付けません。`-p` は手元の Release 配布物でイメージ内バイナリを明示的に上書きしたい場合にだけ使います。
 
 ```bash
 mkdir -p ~/project
@@ -167,7 +170,7 @@ Windows の QGroundControl で、機体の動きを見ることもできます�
 ## ファイル
 
 - `drone_config_0.json`: 箱庭の機体・物理・センサー設定
-- `drone.xml`: MuJoCo モデル
+- `drone.xml`: MuJoCo モデル。脚の接触は、見た目のスキッド（棒）ではなく両端の小さな球4つで受けます。MuJoCo は高さマップ（hfield）の地面と1つの形状の間に接触点を1つしか作らず、棒のままだと1点支えで振動するためです（Issue #193。MuJoCo 側が直るまでの一時対策）。見た目・質量・飛行特性は変わりません
 - `px4-params.txt`: airframe 900003 に入れる PX4 パラメータ
 - `mission-x500-short.json`: 離陸・移動・着陸を確かめる短い mission
 - `../../launcher/x500-px4-sitl-wsl2.launch.json`: Docker 内で x500 aircraft service を起動する launcher 定義（aircraft service の準備を待ってから simulation を開始する readiness 付き）

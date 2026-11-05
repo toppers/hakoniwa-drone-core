@@ -9,7 +9,13 @@ namespace hako::config {
     enum class LoggingMode {
         None,
         Csv,
+        Binary,
         Memory,
+    };
+    struct LoggingConfig {
+        LoggingMode mode{LoggingMode::Csv};
+        bool float32{false};
+        std::uint64_t interval_msec{1};
     };
     struct OutOfBoundsReset {
         std::vector<bool> position; /* X, Y, Z */
@@ -28,12 +34,12 @@ namespace hako::config {
         std::string vendor;
         std::string BatteryModelCsvFilePath;
         std::string model;
-        double NominalCapacity;
-        double EODVoltage;
-        double NominalVoltage;
-        double VoltageLevelGreen;
-        double VoltageLevelYellow;
-        double CapacityLevelYellow;
+        double NominalCapacity{};
+        double EODVoltage{};
+        double NominalVoltage{};
+        double VoltageLevelGreen{};
+        double VoltageLevelYellow{};
+        double CapacityLevelYellow{};
     };
     struct MuJoCoParameters {
         std::string modelName;
@@ -53,6 +59,12 @@ namespace hako::config {
         double epv_m{10.0};
         int satellites_visible{10};
         std::optional<Accuracy> accuracy{};
+    };
+    struct GpsNoiseConfig {
+        double position_horizontal_m{0.0};
+        double position_vertical_m{0.0};
+        double velocity_horizontal_mps{0.0};
+        double velocity_vertical_mps{0.0};
     };
     struct ControllerEkfConfig {
         bool enable{false};
@@ -76,6 +88,14 @@ namespace hako::config {
         // step per actuator; a set value holds each actuator over the physics steps up to the
         // next sensor (e.g. 4 ms on 1 ms physics, as PX4 Gazebo can).
         std::uint64_t sensor_period_msec{0};
+#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
+        // How HIL messages reach PX4: "tcp" (PX4 SITL, MAVLink over TCP) or "shm"
+        // (PX4 on Athrill: PDU channels of the drone, numbers below).
+        std::string transport{"tcp"};
+        int shm_hil_sensor_channel{-1};
+        int shm_hil_gps_channel{-1};
+        int shm_hil_actuator_channel{-1};
+#endif
     };
 
 // Seeded skips of the control stages' due runs (drone_config controller.stageSkip; Control Link only).

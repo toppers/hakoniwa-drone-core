@@ -1,7 +1,7 @@
 # 基本パラメータ
 SIMULATION_DELTA_TIME   0.003
 MASS                    0.71
-GRAVITY                 9.81
+GRAVITY                 9.80665
 
 # 高度制御
 PID_ALT_CONTROL_CYCLE   0.0

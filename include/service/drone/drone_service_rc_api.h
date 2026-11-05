@@ -41,6 +41,8 @@ EXPORT int drone_service_rc_put_mode_change_button(int index, int value);
 //mode = 0: ATTI, 1: GPS
 EXPORT int drone_service_rc_get_flight_mode(int index, int* mode);
 EXPORT int drone_service_rc_get_position(int index, double* x, double* y, double* z);
+/* Controller/EKF position estimate in local NED coordinates. */
+EXPORT int drone_service_rc_get_estimated_position(int index, double* north, double* east, double* down);
 EXPORT int drone_service_rc_get_attitude(int index, double* x, double* y, double* z);
 EXPORT int drone_service_rc_get_controls(int index, double* c1, double* c2, double* c3, double* c4, double* c5, double* c6, double* c7, double* c8);
 

@@ -13,7 +13,7 @@
 SIMULATION_DELTA_TIME                 0.001
 # GRAVITY is kept for Hakoniwa-side output/log thrust conversion.
 # It is not part of the PX4 parameter overwrite set.
-GRAVITY                              9.81
+GRAVITY                              9.80665
 PID_ALT_CONTROL_CYCLE                0.02
 POS_CONTROL_CYCLE                    0.02
 SPD_CONTROL_CYCLE                    0.02

@@ -20,8 +20,8 @@ typedef struct {
     bool (*user_custom_decode) (int index, const void* data, int detalen, hako::mavlink::MavlinkHakoMessage& message);
 } HakoMavLinkProtocolRxConfigType;
 
-typedef struct {
-    HakoMavLinkProtocolRxConfigType rx;
+typedef struct HakoMavLinkProtocolConfigType {
+    HakoMavLinkProtocolRxConfigType rx{};
     std::vector<HakoMavLinkProtocolTxConfigType> tx;
 } HakoMavLinkProtocolConfigType;
 

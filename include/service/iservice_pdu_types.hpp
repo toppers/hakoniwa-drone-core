@@ -36,25 +36,24 @@ typedef enum {
     HAKONIWA_DRONE_PDU_DATA_ID_TYPE_NUM,
 } ServicePduDataIdType;
 
-typedef struct {
-    ServicePduDataIdType id;
+typedef struct ServicePduDataType {
+    ServicePduDataIdType id{};
     struct {
-        HakoCpp_HakoDroneCmdTakeoff takeoff;
-        HakoCpp_HakoDroneCmdLand land;
-        HakoCpp_HakoDroneCmdMove move;
-        HakoCpp_GameControllerOperation game_ctrl;
-        HakoCpp_HakoCmdMagnetHolder magnet;
-        HakoCpp_Collision collision;
-        HakoCpp_ImpulseCollision impulse_collision;
-        HakoCpp_Disturbance disturbance;
-        HakoCpp_HakoBatteryStatus battery_status;
-        HakoCpp_HakoStatusMagnetHolder status_magnet;
-        HakoCpp_Twist position;
-        HakoCpp_Twist velocity_body;
-        HakoCpp_HakoHilActuatorControls actuator_controls;
-        HakoCpp_DroneStatus drone_status;
+        HakoCpp_HakoDroneCmdTakeoff takeoff{};
+        HakoCpp_HakoDroneCmdLand land{};
+        HakoCpp_HakoDroneCmdMove move{};
+        HakoCpp_GameControllerOperation game_ctrl{};
+        HakoCpp_HakoCmdMagnetHolder magnet{};
+        HakoCpp_Collision collision{};
+        HakoCpp_ImpulseCollision impulse_collision{};
+        HakoCpp_Disturbance disturbance{};
+        HakoCpp_HakoBatteryStatus battery_status{};
+        HakoCpp_HakoStatusMagnetHolder status_magnet{};
+        HakoCpp_Twist position{};
+        HakoCpp_Twist velocity_body{};
+        HakoCpp_HakoHilActuatorControls actuator_controls{};
+        HakoCpp_DroneStatus drone_status{};
     } pdu;
 } ServicePduDataType;
 
 } // namespace hako::service
-

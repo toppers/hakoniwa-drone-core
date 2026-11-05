@@ -91,6 +91,10 @@ public:
     {
         drone_service_container_->setExtendedOptions(index, options);
     }
+    aircraft::DronePositionType get_estimated_position(uint32_t index) const
+    {
+        return drone_service_container_->get_estimated_position(index);
+    }
     void drone_vertical_op(uint32_t index, double value)
     {
         stick_op(index, GAME_CTRL_AXIS_UP_DOWN, value);

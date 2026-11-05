@@ -25,7 +25,7 @@
       "name": "drone",
       "activation_timing": "before_start",
       "command": "lnx/linux-main_hako_drone_service",
-      "args": ["config/drone/api-1", "config/pdudef/webavatar.json"],
+      "args": ["legacy/config/drone/api-1", "config/pdudef/webavatar.json"],
       "cwd": "{{REPO_ROOT}}"
     },
     {

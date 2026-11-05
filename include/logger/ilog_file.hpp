@@ -21,7 +21,7 @@ typedef enum {
  */
 class ILogFile {
 public:
-    static std::unique_ptr<ILogFile> create(LogFileType type, const std::string& file_name, const std::vector<LogHeaderType>& header);
+    static std::unique_ptr<ILogFile> create(LogFileType type, const std::string& file_name, const std::vector<LogHeaderType>& header, bool float32 = false);
     /**
      * Virtual destructor to ensure proper cleanup in derived classes.
      */
@@ -90,4 +90,3 @@ protected:
 };
 
 } // namespace hako::logger
-

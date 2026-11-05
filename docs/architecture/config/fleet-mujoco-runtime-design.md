@@ -1,5 +1,10 @@
 # Fleet MuJoCo Runtime Design
 
+> **v5.0.0 での注意**：この文書が使う機体設定は `legacy/` に移しました。v5.0.0 から
+> センサモデル v2 が標準になったため、これらの設定は v4 までと同じ結果にはなりません
+> （非互換）。[v5.0.0 への移行手順](../../upgrade_v5.0.0.md)を見て
+> 対応してください。`legacy/` は次の版で削除します。
+
 この文書は、fleet compact config を入口として MuJoCo ベースの複数機体 runtime を扱うための設計方針を整理する。
 
 今回の主眼は次の 2 点である。
@@ -176,7 +181,7 @@ MuJoCo XML template 展開後の命名規則は安定させる。
 
 - XML 生成時の名前解決が単純
 - fleet instance 側の `mujoco.modelName` / `propNames` と対応付けしやすい
-- 既存の `config/drone/mujoco-2` と整合しやすい
+- 既存の `legacy/config/drone/mujoco-2` と整合しやすい
 
 ## 8. loader / resolver の責務
 

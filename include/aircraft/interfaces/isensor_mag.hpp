@@ -6,9 +6,9 @@ namespace hako::aircraft {
 
 class ISensorMag : public ISensor {
 protected:
-    double params_F;
-    double params_I;
-    double params_D;
+    double params_F{};
+    double params_I{};
+    double params_D{};
 public:
     virtual ~ISensorMag() {}
     virtual void set_params(double f, double i, double d)

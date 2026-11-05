@@ -1,30 +1,222 @@
-# Gyro Sensor Component Specification
+# ジャイロの仕様
 
-## Input
+ジャイロに固有のことを書きます。全センサに共通の決まり（座標、取り付け位置姿勢、回転の式、処理の順番、
+自動操縦との合わせ方）は [センサの共通仕様](../README.md) にあります。
 
-*   **DroneAngularVelocityBodyFrameType**: Angular velocity in the body frame.
 
-## Output
+## 1. 何を測るか
 
-*   **DroneAngularVelocityBodyFrameType**: Filtered angular velocity in the body frame.
+機体の角速度を、**センサの軸**で測ります。単位は rad/s です。
 
-## External Parameters
+| | 内容 |
+|---|---|
+| 入力（真値） | 機体の軸（FRD）の角速度 ω_body。MuJoCo の機体の本体（free joint）の角速度 |
+| 出力 | センサの軸の角速度 ω_sensor（rad/s） `[SEN-GYR-010]` |
 
-### Observation Interval (Δt)
-- **Description**: Δt represents the time interval between each measurement taken by the gyro sensor. This parameter determines the frequency at which the sensor data is sampled and updated.
-- **Impact**: The choice of Δt affects the resolution and responsiveness of the gyro readings. Shorter intervals lead to more frequent updates but can increase noise, while longer intervals can smooth out data but may reduce sensitivity to quick changes.
+## 2. 取り付け位置姿勢
 
-### Moving Average Window (N)
-- **Description**: N is the number of samples used to calculate the moving average of the gyro data. This parameter defines the window size over which the data is averaged.
-- **Impact**: Setting N involves a trade-off between data smoothness and latency. A larger N provides smoother data by averaging over more samples, which can reduce the effect of transient noise. However, it also introduces a delay in the sensor's response to changes.
+ジャイロは IMU の一部なので、取り付け位置姿勢は IMU として書きます（共通仕様 2.2）。
 
-### Noise Characteristics
-- **Average (Mean) of Noise**: The average value of the noise added to the gyro data is set to zero. This means that over time, the noise will not have a net positive or negative effect on the angular velocity readings.
-- **Variance of Noise**: The variance parameter specifies the spread of noise around the average. Even with an average of zero, the noise can vary, representing the randomness or fluctuation level in the sensor readings.
+- **姿勢だけを使います。** ω_sensor = Rᵀ · ω_body（R は共通仕様 2.3 の回転行列）。 `[SEN-GYR-020]`
+- **位置は使いません。** 硬い（たわまない）機体では、角速度は機体のどこで測っても同じだからです。 `[SEN-GYR-030]`
+  位置は同じ IMU の加速度で使います。
 
-The integration of zero-mean noise ensures that any bias is minimized, allowing the simulation to accurately reflect only the random variations typical of real-world conditions.
+例：IMU を `yaw = 90` で付けると、機体が前の軸（ロール）で回ったとき、ジャイロにはセンサの −y 軸の回転として出ます。
 
-## Operational Details
+## 3. 処理の順番
 
-- **Moving Average**: A moving average filter is applied to the input angular velocity data to smooth out readings and reduce noise.
-- **Noise Integration**: Random noise with a zero mean and specified variance is added to the final angular velocity values to simulate real-world sensor inaccuracies.
+共通仕様 4 章の順番を、ジャイロの設定に当てはめると次のとおりです。 `[SEN-GYR-040]`
+
+```text
+ω_body → 姿勢（Rᵀ） → 目盛り・軸の干渉（M） → （IMU のフィルタ：オプション） → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 分解能 → 頭打ち → ω_sensor
+```
+
+| 段 | 設定（`components.sensors.gyro.*`） | 内容 |
+|---|---|---|
+| 姿勢 | IMU の取り付け位置姿勢 | センサの軸へ回す |
+| 目盛り・軸の干渉 | `sensitivity` | 比例した誤差と、軸どうしの漏れ。下の 3.3 |
+| IMU のフィルタ | `filter` | 明示的に有効にしたときだけ、物理の刻みごとにかけるローパスフィルタ（共通仕様 4.5）。書かなければかけない |
+| 遅れ | `delayMsec` | ハードの遅れ（共通仕様 4 章） |
+| 測る周期 | `updatePeriodMsec` | 新しい値を測る周期（共通仕様 4 章）。`sampleCount`（平均）は 1 だけ書ける（共通仕様 6 章） |
+| ゼロ点のずれ | `zeroRateOffset` | 止まっていても出る一定のずれ。下の 3.4 |
+| ノイズ | `noise` | 正規分布の標準偏差（rad/s）。1 つの値（3 軸共通）か、軸ごとの [x, y, z]。0 以下の軸はノイズなし `[SEN-GYR-050]` |
+| ノイズの密度 | `noiseDensity` | `noise` の代わりに書ける白色ノイズの密度（rad/s/√Hz）。σ に直す式と決まりは共通仕様 4.3。`noise` と両方は書けない `[SEN-COM-185]` |
+| ドリフト | `drift` | ゼロ点のゆっくりした変化。下の 3.1 |
+| 分解能 | `resolutionDegPerSec` | 値の刻み。下の 3.5 |
+| 頭打ち | `range.fullScaleDegPerSec` | 測れる範囲（±度/s）。軸ごとに範囲で切る。下の 3.2 |
+
+自動操縦が受け取ってから使うまでの遅れ（`softDelayMsec`）と、値を出す周期（`updatePeriodMsec`）は、
+センサの値そのものではなく渡し方の設定です（共通仕様 4 章）。
+
+**実験的なオプション**：[ロータの回転数に同期する振動の生成器](../vibration/README.md)の `δω_vib_body` [rad/s] は、真の `ω_body` に加えてから既存の `Rᵀ` 以降へ通します。振動生成器側でセンサー姿勢変換や飽和を二重に行いません。OFFでは既存処理順を変えません。
+
+### 3.1 ドリフト
+
+| `drift.mode` | 設定 | ずれ方 |
+|---|---|---|
+| `ardupilot-sitl` | `speedDegPerSecPerMin`、`timeMin` | ArduPilot SITL と同じ三角波。3 軸に同じ量が乗る `[SEN-GYR-060]` |
+| `random-walk` | `randomWalkDegPerSecSqrtSec`、`seed` | 3 軸別々の酔歩。`seed` で再現できる。大きさに上限がない `[SEN-GYR-070]` |
+| `gauss-markov` | `stddevDegPerSec`、`correlationTimeSec` | 共通仕様 4.2。3 軸別々。ずれの分散が時間がたっても一定に保たれる。実機のずれに近い。目安：σ 0.0005〜0.005°/s（約 2〜18°/h。データシートの bias instability 程度）、τ 数百〜数千秒 `[SEN-GYR-080]` |
+
+ドリフトはセンサの軸に乗ります。姿勢を回したあとに足すので、斜めに付けたときは、機体の軸で見ると別の向きのずれになります。 `[SEN-GYR-090]`
+
+### 3.2 頭打ち（測れる範囲）
+
+- 各軸の値を ±`fullScaleDegPerSec` で切ります（処理の最後。分解能で丸めたあと）。 `[SEN-GYR-100]`
+- **センサの軸ごとに**切ります。斜めに付けたジャイロは、機体のある軸の回転が範囲を超えなくても、別の軸で振り切れることがあります。 `[SEN-GYR-110]`
+- 頭打ちになったことは上に伝えません（値が範囲の端に張り付くだけです）。 `[SEN-GYR-120]`
+
+### 3.3 目盛りの誤差と軸の干渉
+
+実際の角速度を、少し大きく・小さく測ったり（目盛りの誤差）、別の軸に少し漏らしたり（軸の干渉）する性質です。
+3×3 の行列 M 1 つで両方を表します。 `[SEN-GYR-130]`
+
+```text
+ω' = M · ω（ω は姿勢で回したあとの値）
+M[i][i] = 1 + scaleErrorPct[i] / 100
+M[i][j] = crossAxisPct[i][j] / 100   （i ≠ j）
+```
+
+```json
+"sensitivity": {
+  "scaleErrorPct": [0.5, -0.3, 1.0],
+  "crossAxisPct": [[0, 1.0, 0], [0, 0, -0.5], [0.2, 0, 0]]
+}
+```
+
+- `scaleErrorPct`：軸ごとの目盛りの誤差（%）。例：1.0 なら、実際の 100°/s を 101°/s と測る。目安 ±0.5〜2%。
+- `crossAxisPct`：軸 j の回転が軸 i に漏れる割合（%）。対角は使わない（0 を書く）。目安 ±1〜2%。
+- 省略すれば M は単位行列（誤差なし）。 `[SEN-GYR-140]`
+- PX4・ArduPilot は普通この誤差を較正しないので、誤差はそのまま推定に入ります。高速で回る場面ほど効きます。
+
+### 3.4 ゼロ点のずれ
+
+止まっていても出る、一定のずれです。実機では電源を入れるたびに値が変わります。
+
+```json
+"zeroRateOffset": { "fixedDegPerSec": [0.5, -1.0, 0.2] }
+```
+```json
+"zeroRateOffset": { "randomStdDegPerSec": 1.0 }
+```
+
+- `fixedDegPerSec`：軸ごとの決まったずれ（度/s）。 `[SEN-GYR-150]`
+- `randomStdDegPerSec`：起動時に 1 回だけ、軸ごとに正規分布で引く（標準偏差、度/s）。`simulation.randomSeed` があれば再現できる。 `[SEN-GYR-160]`
+- どちらか一方だけを書く。省略すればずれなし。目安 ±0.5〜3°/s。 `[SEN-GYR-170]`
+- 飛行中は変わりません。時間とともに動くずれは、ドリフト（3.1）で表します。 `[SEN-GYR-180]`
+- 自動操縦の受け止め方：ArduPilot は起動時にジャイロを較正してずれを取り除き（`INS_GYR_CAL`）、PX4 は EKF でずれを推定します。
+  照合では、この違いで結果が分かれることがあります。
+
+### 3.5 分解能
+
+値の刻みです。各軸の値を、`resolutionDegPerSec` の整数倍のうち最も近いものに丸めます（頭打ちの前）。 `[SEN-GYR-190]`
+ちょうど中間のときは、0 から遠い方にします。刻みは 3 軸共通です。 `[SEN-GYR-200]`
+
+- 例：16 ビットで ±2000°/s のチップなら、4000 / 65536 ≒ 0.061°/s。
+- 省略すれば丸めない。 `[SEN-GYR-210]`
+
+## 4. 自動操縦への渡し方
+
+ジャイロの値はセンサの軸のまま自動操縦に渡し、自動操縦の側で機体の軸に直します（共通仕様 5 章）。 `[SEN-GYR-220]`
+
+| 動かし方 | 渡し方 | 機体の軸に直すところ |
+|---|---|---|
+| Control Link（PX4） | アダプターが EKF と制御へ渡す | アダプターが `SENS_BOARD_ROT` で戻す |
+| Control Link（ArduPilot） | アダプターが EKF3 と制御へ渡す | アダプターが `AHRS_ORIENTATION` で戻す |
+| PX4 SITL | HIL_SENSOR | PX4 が `SENS_BOARD_ROT` で戻す |
+| ArduPilot SITL | JSON | ArduPilot が `AHRS_ORIENTATION` で戻す |
+| 箱庭アダプター | — | サポートしない |
+
+## 5. PX4・ArduPilot のパラメータとの対応
+
+箱庭のジャイロの設定と、PX4・ArduPilot のパラメータの関係です。関係は 4 種類あります。
+
+- **合わせる**：箱庭の設定と同じ値を、自動操縦にも設定する（取り付け位置姿勢）。
+- **見込み**：自動操縦の推定（EKF）が想定するセンサの性質。箱庭の設定に近い値にすると、推定が実際に合う。
+- **置き換え**：ArduPilot SITL が自分でセンサを作る項目。箱庭の設定から ArduPilot SITL のパラメータに変換し、箱庭の側では足さない（二重にしない）。
+- **較正**：自動操縦が起動時などに測って取り除く値。
+
+| 箱庭の設定 | 関係 | PX4 | ArduPilot |
+|---|---|---|---|
+| IMU の姿勢 | 合わせる | `SENS_BOARD_ROT`、`SENS_BOARD_X_OFF`・`Y_OFF`・`Z_OFF`（作り方は共通仕様 5.2） | `AHRS_ORIENTATION`、`CUST_ROT_ENABLE`、`CUST_ROT1_ROLL`・`PITCH`・`YAW`（作り方は共通仕様 5.2） |
+| IMU の姿勢 | 対応なし | — | `SIM_IMU_ORIENT` は使わない（0）。センサの軸への回転は箱庭が行って送る `[SEN-GYR-230]` |
+| IMU の位置 | 合わせる（ジャイロでは使わない。同じ IMU の加速度で使う） | `EKF2_IMU_POS_X`・`Y`・`Z` | `INS_POS1_X`・`Y`・`Z` |
+| `noise` | 見込み | `EKF2_GYR_NOISE` | `EK3_GYRO_P_NSE` |
+| `noise` | 対応なし | — | `SIM_GYR1_RND` は別物（スロットルに比例するモーター振動のノイズ）。箱庭のノイズとは対応しないので使わない（0） `[SEN-GYR-240]` |
+| `zeroRateOffset` | 較正 | `CAL_GYRO0_XOFF`・`YOFF`・`ZOFF`（起動時の較正の結果） | `INS_GYROFFS_X`・`Y`・`Z`、`INS_GYR_CAL`（起動時に較正するか） |
+| `zeroRateOffset` | 置き換え | — | `SIM_GYR1_BIAS_X`・`Y`・`Z` `[SEN-GYR-250]` |
+| `drift` | 見込み | `EKF2_GYR_B_NOISE`（rad/s²）（推定器のずれの変化の見込み。単位が違い、`drift` の設定から直接は換算しない） | `EK3_GBIAS_P_NSE`（rad/s²）（同） |
+| `drift`（`ardupilot-sitl`） | 置き換え | — | `SIM_DRIFT_SPEED`、`SIM_DRIFT_TIME` `[SEN-GYR-250]` |
+| `sensitivity` | 置き換え | — | `SIM_GYR1_SCALE_X`・`Y`・`Z`（目盛りの誤差だけ。軸の干渉は対応なし） `[SEN-GYR-250]` |
+| `range` | — | 対応なし（範囲はセンサの部品で決まる） | 対応なし |
+| `resolutionDegPerSec` | — | 対応なし | 対応なし |
+| `updatePeriodMsec` | 関連するレート | `IMU_GYRO_RATEMAX`（制御へ角速度を出す最大の周期）、`IMU_INTEG_RATE`（IMU の積分値を出す周期） | `INS_GYRO_RATE`（高速サンプリングの倍率）、`SCHED_LOOP_RATE`（メインループの周期） |
+| （サポートしない：内部のフィルタ） | — | `IMU_GYRO_CUTOFF`（自動操縦の側のフィルタ。センサの内部フィルタとは別物） | `INS_GYRO_FILTER`（同） |
+
+- PX4 は、ジャイロの姿勢をボード全体の設定（`SENS_BOARD_ROT`）で持ちます。ジャイロ単独の設定（`CAL_GYRO0_ROT`）は外付けのジャイロ用なので、使いません。
+- 関連するレートの 4 つは、どれも「センサが新しい値を出す周期」そのものではありません。自動操縦がセンサの値を受け取る周期（`updatePeriodMsec`）以下の周期で動くように設定します。
+- 置き換えの項目をどう変換し、箱庭の側から外すかは、ArduPilot SITL の起動の設定を作るときに決まります。変換できない違いは、変換の記録に残します。
+
+## 6. 受け入れの確かめ方
+
+1. **既定値の互換**：取り付け位置姿勢を書かないとき、出力が、取り付け位置姿勢の段がない場合と一致する（ログが一致）。
+2. **回転の式**：共通の回転の関数のテストで、`yaw = 90` などの既知の例が式どおりになる。PX4・ArduPilot に同じ角度を設定すると機体の軸に戻る。
+3. **飛行**：IMU を 90° 回して付け、自動操縦にも同じ姿勢を設定すると、回さないときと同じように飛ぶ。設定しなければずれる。
+   Control Link と SITL、PX4 と ArduPilot の両方で、繰り返して判定する。
+4. **軸ごとの頭打ち**：範囲あり・斜め付けで、センサの軸ごとに振り切れる。
+
+## 7. サポートしない特性
+
+一般的なジャイロのデータシートにあり、再現しない特性です。
+
+| 特性 | 意味 | 目安 | 備考 |
+|---|---|---|---|
+| 温度の影響 | 温度でゼロ点と目盛りが変わる | 約 0.01°/s/℃ | 機体の温度のモデルが要る |
+| 加速度の影響（g-sensitivity） | 加速度がかかるとずれる | 約 0.1°/s/g | 同じ IMU の加速度の値を使えば作れる |
+| 内部のフィルタ | チップの中のローパスフィルタ。遅れと振幅の減りの原因 | 数十〜数百 Hz | 平均と遅れで近似する |
+| 振動・たわみ | 機体の振動がジャイロに入る | 機体による | 周期的な**観測外乱**として、実験的なオプションで足せる（振動の仕様）。機体のたわみは対象外 |
+| 頭打ちの通知 | 振り切れたことを上に伝える | — | PX4 の clip の数など |
+| 複数の IMU | 2 つ以上の IMU を載せる | — | IMU は 1 つ |
+| 帯域とエイリアシング | 内部のサンプリングと、出す周期の違いで起きる折り返し | — | 物理の刻みごとの値を平均と遅れで扱う |
+
+### このモデルで判断してよいこと
+
+このモデルは、自動操縦の推定と制御にセンサの誤差がどう効くかを確かめるためのものです。実物のセンサの値を、細部まで同じに作るものではありません。そこで、このモデルの結果で判断してよいことと、判断してはいけないことを分けておきます。
+
+| 判断してよいこと | 判断してはいけないこと |
+|---|---|
+| 取り付けの向きと、自動操縦への合わせ方が正しいか | 機体の振動と、センサの中のフィルタが絡む制御の安定性（振動とフィルタを再現していない） |
+| ノイズ・ゼロ点のずれ・ドリフト・目盛りの誤差・頭打ちが、姿勢の推定と制御に与える影響 | 実物のジャイロと同じ値の並びになること（ノイズは理想的な白色ノイズ。実物の帯域やフィルタは入っていない） |
+| 遅れが制御に与える影響 | 温度による誤差の変化 |
+
+## 8. 要求の一覧
+
+番号の決まりは、共通仕様 8 章のとおりです。
+
+| 番号 | 要求 | 章 |
+|---|---|---|
+| SEN-GYR-010 | 入力は機体の軸（FRD）の角速度、出力はセンサの軸の角速度（rad/s） | 1 |
+| SEN-GYR-020 | 姿勢だけを使い、ω_sensor = Rᵀ·ω_body | 2 |
+| SEN-GYR-030 | 取り付けの位置は使わない | 2 |
+| SEN-GYR-040 | 処理の順番は、姿勢 → M → 遅れ → 測る → ゼロ点のずれ → ノイズ → ドリフト → 分解能 → 頭打ち | 3 |
+| SEN-GYR-050 | ノイズは σ（rad/s）を 1 つの値か [x, y, z] で書き、0 以下の軸はノイズなし | 3 |
+| SEN-GYR-060 | ドリフト `ardupilot-sitl` は三角波で、3 軸に同じ量 | 3.1 |
+| SEN-GYR-070 | ドリフト `random-walk` は 3 軸別々の酔歩で、`seed` で再現できる | 3.1 |
+| SEN-GYR-080 | ドリフト `gauss-markov` は共通仕様 4.2 で、σ は `stddevDegPerSec` | 3.1 |
+| SEN-GYR-090 | ドリフトはセンサの軸に足す | 3.1 |
+| SEN-GYR-100 | 頭打ちは ±`fullScaleDegPerSec` で、分解能のあと（最後）に当てる | 3.2 |
+| SEN-GYR-110 | 頭打ちはセンサの軸ごとに当てる | 3.2 |
+| SEN-GYR-120 | 頭打ちになったことは上に伝えない | 3.2 |
+| SEN-GYR-130 | 目盛りの誤差と軸の干渉は、3.3 の式の行列 M（姿勢で回したあとに掛ける） | 3.3 |
+| SEN-GYR-140 | `sensitivity` を省略すると M は単位行列 | 3.3 |
+| SEN-GYR-150 | `zeroRateOffset.fixedDegPerSec` は軸ごとの決まったずれ | 3.4 |
+| SEN-GYR-160 | `zeroRateOffset.randomStdDegPerSec` は起動時に 1 回、軸ごとに正規分布で引く | 3.4 |
+| SEN-GYR-170 | `fixedDegPerSec` と `randomStdDegPerSec` はどちらか一方だけ。省略すればずれなし | 3.4 |
+| SEN-GYR-180 | ゼロ点のずれは飛行中に変わらない | 3.4 |
+| SEN-GYR-190 | 分解能は `resolutionDegPerSec` の最も近い整数倍に丸め、頭打ちの前に当てる | 3.5 |
+| SEN-GYR-200 | 分解能の丸めは、中間は 0 から遠い方。刻みは 3 軸共通 | 3.5 |
+| SEN-GYR-210 | `resolutionDegPerSec` を省略すると丸めない | 3.5 |
+| SEN-GYR-220 | 値はセンサの軸のまま自動操縦に渡し、4 章の表のところで機体の軸に直す | 4 |
+| SEN-GYR-230 | ArduPilot SITL では `SIM_IMU_ORIENT` = 0 | 5 |
+| SEN-GYR-240 | ArduPilot SITL では `SIM_GYR1_RND` = 0 | 5 |
+| SEN-GYR-250 | ArduPilot SITL で置き換える項目は、5 章の表のパラメータに変換し、箱庭の側では足さない | 5 |

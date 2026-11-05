@@ -23,7 +23,7 @@
       "activation_timing": "before_start",
       "command": "mac/mac-main_hako_drone_service",
       "args": [
-        "config/drone/mujoco",
+        "legacy/config/drone/mujoco",
         "config/pdudef/drone-pdudef-1.json",
         "--mujoco-viewer",
         "--real-sleep-msec",
