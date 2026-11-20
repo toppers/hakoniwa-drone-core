@@ -26,8 +26,8 @@ SITL 用のコピーを作ります。元のファイルは、別の場所に控
 | `gps.eph` | `gps.accuracy.horizontalM` | そのまま（m） |
 | `gps.epv` | `gps.accuracy.verticalM` | そのまま（m） |
 | `gps.sacc` | `gps.accuracy.speedMps` | そのまま（m/s） |
-| `gps.noise` | `gps.positionNoise.horizontalM` と `gps.positionNoise.verticalM` | 同じ値を両方に（m） |
-| （v1 にはない） | `gps.updatePeriodMsec` | `simulation.timeStep` を ms にした値（v1 は物理の刻みごとに測っていました。1 ms なら 1） |
+| `gps.noise` | `gps.positionNoise.horizontalM` と `gps.positionNoise.verticalM` | 同じ値を両方に（m）。下の注意を見てください |
+| （v1 にはない） | `gps.updatePeriodMsec` | PX4 では **30**（ms）。下の注意を見てください |
 | `gps.sampleCount`、`gps.delayMsec` | 同じ | そのまま |
 | `acc`・`gyro`・`mag` の `sampleCount`、`noise`、`softDelayMsec` | 同じ | そのまま |
 | `baro` の `sampleCount`、`noise`、`delayMsec` | 同じ | そのまま。下の注意を見てください |
@@ -37,6 +37,16 @@ SITL 用のコピーを作ります。元のファイルは、別の場所に控
 v1 の書き方で `gps.eph`・`gps.epv`・`gps.sacc` を書いていない場合は、`gps.accuracy` を足す必要はありません。
 `gps.noise` だけを `gps.positionNoise` に直し、`gps.updatePeriodMsec` を足します。PX4・ArduPilot の SITL 用に
 変換するツールは、精度の申告（`gps.accuracy`）がなければ、決まった値を補います（変換の報告に表示されます）。
+
+**GPS の周期（`gps.updatePeriodMsec`）：** v2 では、GPS が値を作る周期が、推定（EKF）が GPS を取り込む周期にも
+なります（PX4 のチューニングでは、profile を作るときに EKF の取り込み周期をこの値にそろえます。PX4 SITL のサービスも、
+この周期で GPS を送ります）。v1 では、GPS は物理の刻みごとに値を作っていましたが、EKF が取り込むのは別の設定の周期
+（PX4 SITL と同じ条件の調整では 30 ms）でした。そのため、v1 と同じ条件にするには 30 にします。物理の刻み（1 ms）に
+すると、EKF が GPS を 1 ms ごとに取り込み、v1 とは違う条件になります。
+
+**GPS のノイズ（`gps.noise`）の意味の違い：** v1 は同じ σ を、位置（緯度・経度、高度）と速度の両方に足していました。
+v2 の `positionNoise` は位置だけです（速度のノイズは `velocityNoise`）。`gps.noise` が 0 の設定はそのまま同じです。0 でない
+場合は、速度のノイズが入らない分だけ v1 と違います。
 
 **気圧のノイズ（`baro.noise`）の意味の違い：** v1 は同じ σ を気圧（Pa）と気圧高度（m）の両方に足していました。
 v2 は `noise` を高度の σ（m）と決めていて、その高度の誤差から、つじつまの合う気圧を作ります。値はそのまま使い、
@@ -64,7 +74,7 @@ v2 の書き方（v1 相当の設定）：
 ```json
 "gps": {
   "sampleCount": 1,
-  "updatePeriodMsec": 1,
+  "updatePeriodMsec": 30,
   "positionNoise": {
     "horizontalM": 0.0,
     "verticalM": 0.0

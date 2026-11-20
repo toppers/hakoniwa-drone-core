@@ -44,6 +44,14 @@ public:
         uint64_t baro_period_usec,
         uint64_t mag_period_usec,
         uint64_t gps_period_usec) = 0;
+    // Selects the publication order when HIL_GPS and HIL_SENSOR are both due in one
+    // default-path update. False (the default) preserves HIL_SENSOR then HIL_GPS.
+    virtual bool setSendHilGpsBeforeHilSensor(uint32_t index, bool enabled) = 0;
+    // Makes the synchronized actuator link strictly sensor/actuator driven. When enabled,
+    // startup sends exactly one bootstrap sensor sample and waits for its first actuator,
+    // and steady-state ticks never advance on a wall-clock timeout. False (the default)
+    // preserves the SITL bootstrap and held-actuator timeout behavior.
+    virtual bool setStrictActuatorLockstep(uint32_t index, bool enabled) = 0;
     // Optional: where to record the SITL time base (sitl_time.json) at start, so that a log of the
     // autopilot (PX4 takes HIL_SENSOR time_usec = simulation time + this base as its clock) can be
     // put on the service clock exactly. Not called: nothing is written.

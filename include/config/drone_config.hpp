@@ -20,10 +20,17 @@
 #include "config/external_sensor_config.hpp"
 #endif
 #ifdef HAKO_ENABLE_SENSOR_MODEL_V2
-#include "aircraft/impl/sensors/sensor_models.hpp"
-#ifdef HAKO_ENABLE_SENSOR_MODEL_V2
-#include "aircraft/impl/vibration/rotor_vibration_generator.hpp"
-#endif
+// The sensor model v2 and rotor vibration settings are implementation types: declared here only, defined in
+// src/aircraft/impl (sensors/sensor_models.hpp, vibration/rotor_vibration_generator.hpp). The getters that
+// return them are defined in src/config/impl/drone_config.cpp, so this header needs no implementation header.
+namespace hako::aircraft::impl {
+struct GyroModelConfig;
+struct AccelerationModelConfig;
+struct GeomagnetModelConfig;
+struct BarometricModelConfig;
+struct GpsModelConfig;
+struct RotorVibrationConfig;
+}
 #endif
 
 namespace fs = std::filesystem;
@@ -55,6 +62,7 @@ struct RotorPosition {
 class DroneConfig {
 private:
     nlohmann::json configJson;
+    bool simTimeStepOverridden{false};
     std::string config_filepath;
     std::string controllerParamText = "";
     mutable bool gps_quality_warning_emitted_{false};
@@ -81,11 +89,39 @@ public:
 #endif
 
     /* Simulation parameters */
+    // The physics step from outside, before the aircraft is made (e.g. by athrill-device, whose
+    // sensor chips need a step no longer than their output period). It replaces
+    // simulation.timeStep and, for a MuJoCo body, the model's <option timestep>.
+    void setSimTimeStep(double step_sec) {
+        if (!(step_sec > 0.0) || !std::isfinite(step_sec)) {
+            throw std::runtime_error("the physics step must be a positive finite number of seconds");
+        }
+        const double configured = configJson["simulation"]["timeStep"].get<double>();
+        if (configured != step_sec) {
+            std::cout << "INFO: physics step " << step_sec << " s set from outside (the configuration has "
+                      << configured << " s)" << std::endl;
+        }
+        configJson["simulation"]["timeStep"] = step_sec;
+        simTimeStepOverridden = true;
+    }
+    bool isSimTimeStepOverridden() const { return simTimeStepOverridden; }
     double getSimTimeStep() const {
         return configJson["simulation"]["timeStep"].get<double>();
     }
     bool getSimLockStep() const {
         return configJson["simulation"]["lockstep"].get<bool>();
+    }
+    // simulation.sensorModels: false runs the aircraft without its sensor models (physics only), for a host
+    // that makes the sensors itself from the true state. Absent: true.
+    bool getSimSensorModels() const {
+        if (configJson.contains("simulation") && configJson["simulation"].contains("sensorModels")) {
+            const auto& value = configJson["simulation"]["sensorModels"];
+            if (!value.is_boolean()) {
+                throw std::runtime_error("simulation.sensorModels must be true or false");
+            }
+            return value.get<bool>();
+        }
+        return true;
     }
     // [SEN-COM-530] controller.ekf.fromSensors: the EKF's noise assumptions from the sensors (spec 5.6).
     // Absent: on for configVersion "5.0", off for 4.1 and 4.2 (their behaviour does not change).
@@ -241,6 +277,7 @@ public:
                 configJson["components"]["droneDynamics"]["mujoco"]["modelPath"].get<std::string>();
             const auto resolved_model_path = resolvePath(raw_model_path, true);
             params.modelPath = resolved_model_path.empty() ? raw_model_path : resolved_model_path;
+            params.timeStepOverridden = simTimeStepOverridden;
             params.modelName = configJson["components"]["droneDynamics"]["mujoco"]["modelName"].get<std::string>();
             params.propNames.clear();
             for (const auto& item : configJson["components"]["droneDynamics"]["mujoco"]["propNames"]) {
@@ -574,21 +611,11 @@ public:
         return value;
     }
 #ifdef HAKO_ENABLE_SENSOR_MODEL_V2
-    hako::aircraft::impl::GyroModelConfig getGyroModelConfig() const {
-        return hako::aircraft::impl::parse_gyro_model_config(configJson);
-    }
-    hako::aircraft::impl::AccelerationModelConfig getAccelerationModelConfig() const {
-        return hako::aircraft::impl::parse_acceleration_model_config(configJson);
-    }
-    hako::aircraft::impl::GeomagnetModelConfig getGeomagnetModelConfig() const {
-        return hako::aircraft::impl::parse_geomagnet_model_config(configJson);
-    }
-    hako::aircraft::impl::BarometricModelConfig getBarometricModelConfig() const {
-        return hako::aircraft::impl::parse_barometric_model_config(configJson);
-    }
-    hako::aircraft::impl::GpsModelConfig getGpsModelConfig() const {
-        return hako::aircraft::impl::parse_gps_model_config(configJson);
-    }
+    hako::aircraft::impl::GyroModelConfig getGyroModelConfig() const;
+    hako::aircraft::impl::AccelerationModelConfig getAccelerationModelConfig() const;
+    hako::aircraft::impl::GeomagnetModelConfig getGeomagnetModelConfig() const;
+    hako::aircraft::impl::BarometricModelConfig getBarometricModelConfig() const;
+    hako::aircraft::impl::GpsModelConfig getGpsModelConfig() const;
     // [SEN-VIB-040] components.propellerVibration; nullopt when absent or enabled is false.
     std::optional<hako::aircraft::impl::RotorVibrationConfig> getRotorVibrationConfig() const;
 #endif

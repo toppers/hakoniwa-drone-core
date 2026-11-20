@@ -206,6 +206,26 @@ typedef struct {
 } DroneRotorSpeedType;
 
 /*
+ * The state of one rotor (motor) as the aircraft last ran it, for what an
+ * ESC or a flight log reports about a motor.
+ * rad_per_sec: rotor angular speed [rad/s]; rpm: the same in rev/min.
+ * current: motor current [A] from the rotor's battery model (0 when it has
+ *          none: has_current false).
+ * voltage: the battery voltage the rotor was driven with [V] (0 without a
+ *          battery model).
+ * duty: the control the rotor ran with, 0..1, after any rotor fault
+ *       injection.
+ */
+typedef struct {
+    double rad_per_sec;
+    double rpm;
+    double current;
+    double voltage;
+    double duty;
+    bool has_current;
+} RotorStatusType;
+
+/*
  * Unit: Newton (N)
  * data: The force exerted by the rotors to lift the drone against gravity
  * 

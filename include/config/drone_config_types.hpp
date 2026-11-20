@@ -47,6 +47,9 @@ namespace hako::config {
         std::vector<std::string> propNames;
         double yawAirDragLinearCoefficient{0.0};
         double yawAirDragQuadraticCoefficient{0.0};
+        // The physics step was set from outside (DroneConfig::setSimTimeStep): the model's
+        // <option timestep> is replaced by it. Otherwise the two must be equal.
+        bool timeStepOverridden{false};
     };
     struct GpsSensorQualityConfig {
         struct Accuracy {

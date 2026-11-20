@@ -1,5 +1,10 @@
 #pragma once
 
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace hako::service {
 static inline double radian_to_degree(double radian) {
     return radian * (180.0 / M_PI);
