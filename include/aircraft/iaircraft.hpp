@@ -1,17 +1,18 @@
 #pragma once
 
 #include "config/drone_config.hpp"
+#include <array>
 
 #include "aircraft/interfaces/idrone_dynamics.hpp"
 #include "aircraft/interfaces/irotor_dynamics.hpp"
 #include "aircraft/interfaces/ithrust_dynamics.hpp"
 #include "aircraft/interfaces/ibattery_dynamics.hpp"
+#include "aircraft/interfaces/icurrent_dynamics.hpp"
 #include "aircraft/interfaces/isensor_acceleration.hpp"
 #include "aircraft/interfaces/isensor_baro.hpp"
 #include "aircraft/interfaces/isensor_gps.hpp"
 #include "aircraft/interfaces/isensor_gyro.hpp"
 #include "aircraft/interfaces/isensor_mag.hpp"
-#include "aircraft/impl/fault_injection/fault_rotor.hpp"
 
 #include <memory>
 #include <vector>
@@ -36,12 +37,12 @@ protected:
     std::string robo_name;
     int index = 0;
     bool enable_rotor_control = false;
-    impl::RotorFaultInjection rotor_fault_injection;
     double radPerSecToRPM(double rad_per_sec) {
         return rad_per_sec * (60.0 / (2 * M_PI));
     }
     uint64_t simulation_time_usec = 0;
     uint64_t delta_time_usec = 0;
+    double last_vbat = 0.0;     /* the battery voltage of the last run [V] */
     AircraftInputType* aircraft_input = nullptr;
 public:
     virtual ~IAirCraft() {}
@@ -130,6 +131,39 @@ public:
     IBatteryDynamics *get_battery_dynamics()
     {
         return this->battery_dynamics;
+    }
+    /*
+     * The rotor vibration at the IMU point as the last run made it (sensor
+     * spec 4.4): acceleration [m/s^2] and angular velocity [rad/s], body FRD.
+     * It is made also with simulation.sensorModels false, for a host that
+     * makes the sensors itself and adds it to the IMU truth. false when the
+     * aircraft has no vibration generator (components.propellerVibration).
+     */
+    virtual bool get_rotor_vibration(std::array<double, 3>& accel_body_mps2,
+                                     std::array<double, 3>& gyro_body_radps) const
+    {
+        (void)accel_body_mps2;
+        (void)gyro_body_radps;
+        return false;
+    }
+    /*
+     * The state of rotor rotor_index as the last run left it (speed, current,
+     * voltage, duty). false for an index the aircraft does not have.
+     */
+    bool get_rotor_status(std::size_t rotor_index, RotorStatusType& status)
+    {
+        if (rotor_index >= rotor_dynamics.size() || rotor_dynamics[rotor_index] == nullptr) {
+            return false;
+        }
+        IRotorDynamics* rotor = rotor_dynamics[rotor_index];
+        auto* current = dynamic_cast<ICurrentDynamics*>(rotor);
+        status.rad_per_sec = rotor->get_rotor_speed().data;
+        status.rpm = radPerSecToRPM(status.rad_per_sec);
+        status.duty = rotor->get_pwm_duty_rate();
+        status.has_current = rotor->has_battery_dynamics() && current != nullptr;
+        status.current = status.has_current ? current->get_current() : 0.0;
+        status.voltage = (battery_dynamics != nullptr) ? last_vbat : 0.0;
+        return true;
     }
     double get_rpm_max(int rotor_index)
     {
